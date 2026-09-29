@@ -2,7 +2,7 @@
 
 ## Current Method edition
 
-The Method integration is validated separately in `LocalValidation~`. At the user's request to finish quickly and reduce testing, the expanded test run was stopped during setup; no completed test-suite result or 4K render verification is claimed for this edition. The 16 updated tests remain available in Test Runner. Final delivery generation is recorded in `Logs/TsilaRun-Method-Delivery.log`.
+The Method code compiled and the final scene/assets were generated successfully with Unity 6000.6.3f1 (exit code 0, TSILA_GENERATION_OK in `Logs/TsilaRun-Method-Final.log`). Final generation ran in the main project after confirming its interactive Editor was closed. At the user's request to finish quickly, the expanded test run in `LocalValidation~` was stopped during setup; no completed test-suite result, visual review or 4K render verification is claimed for this edition. The 16 updated tests remain available in Test Runner.
 
 Before release, manually check JOUER, the chase, jumping/sliding, collisions, MENU during a run, pause/resume, the base-skin-only MAGASIN and saved coins. Check animation appearance, high-resolution layout and device performance on actual hardware. See [the Method guide](TsilaRun-Method.md).
 
