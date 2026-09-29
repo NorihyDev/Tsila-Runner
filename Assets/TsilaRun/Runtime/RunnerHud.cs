@@ -1,0 +1,64 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace TsilaRun
+{
+    public sealed class RunnerHud : MonoBehaviour
+    {
+        public RunnerGame game;
+        public GameObject startPanel, pausePanel, gameOverPanel, hud;
+        public Button playButton, pauseButton, resumeButton, pausedRestartButton, restartButton;
+        public Text distanceText, coinsText, bestText, resultText;
+        int shownDistance = -1, shownCoins = -1, shownBest = -1;
+        float nextRefresh;
+
+        void OnEnable()
+        {
+            playButton.onClick.AddListener(game.StartRun);
+            pauseButton.onClick.AddListener(game.Pause);
+            resumeButton.onClick.AddListener(game.Resume);
+            pausedRestartButton.onClick.AddListener(game.StartRun);
+            restartButton.onClick.AddListener(game.StartRun);
+            game.StateChanged += RefreshState;
+        }
+
+        void Start() { RefreshState(); }
+
+        void OnDisable()
+        {
+            game.StateChanged -= RefreshState;
+            playButton.onClick.RemoveListener(game.StartRun);
+            pauseButton.onClick.RemoveListener(game.Pause);
+            resumeButton.onClick.RemoveListener(game.Resume);
+            pausedRestartButton.onClick.RemoveListener(game.StartRun);
+            restartButton.onClick.RemoveListener(game.StartRun);
+        }
+
+        void Update()
+        {
+            // Format score strings only when needed, at most five times/second, not every frame.
+            if (Time.unscaledTime < nextRefresh) return;
+            nextRefresh = Time.unscaledTime + 0.2f;
+            RefreshNumbers();
+        }
+
+        void RefreshNumbers()
+        {
+            if (shownDistance != game.Score) { shownDistance = game.Score; distanceText.text = shownDistance + " m"; }
+            if (shownCoins != game.Coins) { shownCoins = game.Coins; coinsText.text = "COINS  " + shownCoins; }
+            if (shownBest != game.Best) { shownBest = game.Best; bestText.text = "BEST  " + shownBest + " m"; }
+        }
+
+        void RefreshState()
+        {
+            startPanel.SetActive(game.State == RunnerGame.RunState.Ready);
+            pausePanel.SetActive(game.State == RunnerGame.RunState.Paused);
+            gameOverPanel.SetActive(game.State == RunnerGame.RunState.GameOver);
+            hud.SetActive(game.State != RunnerGame.RunState.Ready);
+            pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running);
+            if (game.State == RunnerGame.RunState.GameOver)
+                resultText.text = game.Score + " METRES\n" + game.Coins + " COINS\nBEST  " + game.Best + " m";
+            RefreshNumbers();
+        }
+    }
+}
