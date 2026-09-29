@@ -13,7 +13,13 @@ A portrait, three-lane endless runner made from Unity primitives. No external ar
 
 On a phone, use short swipes left/right/up/down. The threshold is 5% of the shorter screen dimension and fires before release. Only the first finger is tracked, and each gesture produces at most one action. Touches starting on buttons are excluded. Pause, resume, and restart have on-screen buttons. Returning from another app requires an explicit resume.
 
-Coral barriers can be jumped; yellow overhead beams can be slid under; tall navy towers must be dodged. Following the coin trail gives a clear route through every row. Distance is the score; the best distance is stored locally with PlayerPrefs. Coins are counted for the current run.
+Coral barriers can be jumped; yellow overhead beams can be slid under; tall navy towers and other running people must be dodged. Following the coin trail gives a clear route through every row. Distance is the score; the best distance is stored locally with PlayerPrefs.
+
+Each run opens with a short police chase. Tap LET'S RUN to skip it, or wait 2.8 seconds. The officer follows briefly and catches up after a collision. Characters swing their arms and legs using a small procedural rig, with jump and slide poses.
+
+Collected coins also enter a persistent wallet. Open SKIN SHOP on the start or results screen to buy/equip Island Teal (free), Sunset Coral (40 coins), Golden Trail (100), or Midnight (150). Owned skins can be equipped again for free. Purchases save immediately; earned coins save on pause, game over, restart, and normal quit. Clearing app data removes local progress. There are no gameplay items or real-money purchases.
+
+Scenery cycles every 288 metres: island, mountain pass, underground, then island again. Mountain bridges and tunnel roofs are decorative; the playable road remains flat. Sections recycle ahead, so scenery transitions naturally into view.
 
 ## Android phone
 
@@ -46,11 +52,14 @@ Unity reference: [iOS environment setup](https://docs.unity3d.com/6000.0/Documen
 | RunnerInput | Enhanced Touch and Editor-only keyboard controls |
 | RunnerHud / SafeAreaPanel | Screen states, buttons, score display, safe-area adaptation |
 | RunnerCamera | Camera following from behind with gentle lateral tracking |
+| RunnerAvatar / RunnerChase | Procedural limb poses and skippable police chase |
+| RunnerProgress / RunnerShop | Saved coin wallet, skin ownership, purchases and equipment |
+| RunnerRoadSection | Island, mountain and underground scenery selection |
 | MobilePrototypeBuilder | Editor-only scene/material/prefab/build-list generation |
 
 Movement uses a flat road at y=0 as the ground, with exact ballistic integration and a landing clamp. Trigger colliders describe hit volumes; explicit swept box tests resolve gameplay collisions without requiring Rigidbody simulation or Unity trigger callbacks. The box is conservative around the capsule, making corner contacts slightly forgiving visually in some directions and stricter in others. Sliding holds its short collider until standing space is clear.
 
-There are nine recycled road sections and 16 prewarmed objects per item type (64 items total). Objects remain near the origin, and total distance accumulates separately in a double. No spawning/destruction happens during normal running. Speed rises from 10 to 22 metres/second. Row spacing budgets reaction, two lane changes, and the longer of jump/slide at maximum speed. A permanently clear lane advances by at most one lane per row. Coins occupy only that clear lane. Score text refreshes only when changed, at most five times per second; it has small string allocations at those updates. Lighting has one directional light, no real-time shadows, and no post-processing.
+There are nine recycled road sections and 16 prewarmed objects per item type (80 items total). Objects remain near the origin, and total distance accumulates separately in a double. No spawning/destruction happens during normal running. Speed rises from 10 to 22 metres/second. Row spacing budgets reaction, two lane changes, the longer of jump/slide at maximum speed, and 16 metres of bounded moving-person drift. A permanently clear lane advances by at most one lane per row. Coins occupy only that clear lane. Score text refreshes only when changed, at most five times per second; it has small string allocations at those updates. Lighting has one directional light, no real-time shadows, and no post-processing.
 
 ## Verification and device checklist
 
@@ -62,10 +71,13 @@ On an actual device, check:
 
 - Swipe each direction with short and long gestures; hold/drag after a recognized swipe and confirm there is no second action. Add a second finger, cancel a touch, and swipe again.
 - Start a drag on Pause and confirm no runner action is dispatched. Tap every screen's buttons, including immediately after returning from the background.
-- Jump coral barriers, slide yellow beams, dodge navy towers, collect coins once, and deliberately collide with each obstacle type.
+- Jump coral barriers, slide yellow beams, dodge navy towers and running people, collect coins once, and deliberately collide with each obstacle type.
+- Pause during the chase, background/return, explicitly resume, and try both skipping and waiting for the intro. Check that arm/leg motion freezes while paused.
+- Earn 40 coins, buy Sunset Coral, equip the free skin and re-equip Coral without another charge. Restart the app and confirm the wallet, ownership and selection remain.
+- Run beyond 288 and 576 metres to inspect mountain and underground transitions, including camera clearance and obstacle visibility.
 - Restart from game over and pause. Check speed, lane, height, coins, distance, world layout, and time scale all reset.
 - Background/foreground, lock/unlock, and interrupt the app. Gameplay must remain paused until RESUME is tapped.
 - Check 16:9, 19.5:9, and 20:9 phones, including a notch/home indicator. Confirm readable text, safe button placement, and comfortable targets.
 - Run long enough to reach maximum speed; inspect the Unity Profiler for CPU/GPU cost, allocations, and stable object counts. No measured frame rate or device build is claimed without those tests.
 
-This is a prototype: no audio, character animation system, store, missions, or cloud saves are included. Portrait tablets use the same adaptive layout; physical phone tuning and store deployment remain device/release tasks.
+This is a prototype: no audio, gameplay items, missions, or cloud saves are included. Character motion is procedural and skins are color variations. Portrait tablets use the same adaptive layout; physical phone tuning and store deployment remain device/release tasks.
