@@ -274,6 +274,9 @@ namespace TsilaRun.Editor
             view.game = game;
             RectTransform hud = Rect("HUD", safe, new Vector2(0f, 1f), Vector2.one);
             hud.pivot = new Vector2(0.5f, 1f); hud.sizeDelta = new Vector2(0f, 180f);
+            var hudBackground = hud.gameObject.AddComponent<Image>();
+            hudBackground.color = new Color(0.055f, 0.12f, 0.2f, 0.94f);
+            hudBackground.raycastTarget = false;
             view.hud = hud.gameObject;
             view.distanceText = Label(hud, "Distance", "0 m", 46, new Vector2(0.04f, 0.45f), new Vector2(0.64f, 0.94f), TextAnchor.MiddleLeft);
             view.coinsText = Label(hud, "Coins", "COINS  0", 26, new Vector2(0.04f, 0f), new Vector2(0.48f, 0.45f), TextAnchor.MiddleLeft);
