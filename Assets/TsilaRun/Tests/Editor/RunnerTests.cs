@@ -83,8 +83,10 @@ namespace TsilaRun.Tests
         {
             EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
             yield return new EnterPlayMode();
-            var game = Object.FindFirstObjectByType<RunnerGame>();
-            var hud = Object.FindFirstObjectByType<RunnerHud>();
+            var game = Object.FindAnyObjectByType<RunnerGame>();
+            var hud = Object.FindAnyObjectByType<RunnerHud>();
+            Assert.IsNotNull(game, "The generated scene must contain the game component after entering Play mode.");
+            Assert.IsNotNull(hud);
             var player = game.player;
             var world = game.world;
             game.enabled = false; // Drive exact simulation ticks while testing input through real Update.
@@ -202,7 +204,7 @@ namespace TsilaRun.Tests
         {
             EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
             yield return new EnterPlayMode();
-            var game = Object.FindFirstObjectByType<RunnerGame>();
+            var game = Object.FindAnyObjectByType<RunnerGame>();
             game.enabled = false;
             game.StartRun();
             var world = game.world;

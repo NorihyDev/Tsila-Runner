@@ -35,7 +35,7 @@ namespace TsilaRun
         }
 
         // Continuous collision in relative space: catches objects crossing the player in one tick.
-        // The player uses a conservative box inside the visible capsule silhouette.
+        // A simple conservative box approximates the player's capsule silhouette.
         public static bool SweptOverlap(Bounds from, Bounds to, Bounds item, float worldTravel)
         {
             Vector3 relativeStart = from.center - item.center;

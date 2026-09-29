@@ -12,8 +12,14 @@ namespace TsilaRun.Editor
         public static void CaptureBatch()
         {
             EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
-            var camera = Object.FindFirstObjectByType<Camera>();
-            var hud = Object.FindFirstObjectByType<RunnerHud>();
+            var camera = Object.FindAnyObjectByType<Camera>();
+            var hud = Object.FindAnyObjectByType<RunnerHud>();
+            var preview = Object.FindAnyObjectByType<EditorPreview>();
+            if (preview != null) preview.gameObject.SetActive(false);
+            hud.game.world.ResetWorld(42);
+            // Bring a representative row into view while keeping the player stationary.
+            var outsideRoad = new Bounds(new Vector3(100f, 0f, 0f), Vector3.one);
+            hud.game.world.Simulate(30f, outsideRoad, outsideRoad);
             var canvas = hud.GetComponent<Canvas>();
             var scaler = canvas.GetComponent<CanvasScaler>();
             var safeArea = canvas.GetComponentInChildren<SafeAreaPanel>();

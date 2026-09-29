@@ -8,8 +8,8 @@ namespace TsilaRun
         public RunnerItem[] itemPrefabs;
         public RunnerPlayer player;
         public RunnerGame game;
-        Transform[] roads;
-        RunnerItem[,] items;
+        [System.NonSerialized] Transform[] roads;
+        [System.NonSerialized] RunnerItem[,] items;
         System.Random random;
         float nextRow;
         int safeLane;
@@ -17,7 +17,15 @@ namespace TsilaRun
 
         public void Initialize()
         {
-            if (roads != null) return;
+            if (roads != null && roads.Length == RunnerRules.RoadCount && roads[0] != null && items != null) return;
+            // Unity's fast Enter Play Mode can retain managed fields with destroyed scene objects.
+            // Recover once here; normal restarts simply reuse the existing valid pool.
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                GameObject child = transform.GetChild(i).gameObject;
+                if (Application.isPlaying) Destroy(child);
+                else DestroyImmediate(child);
+            }
             roads = new Transform[RunnerRules.RoadCount];
             for (int i = 0; i < roads.Length; i++)
                 roads[i] = Instantiate(roadPrefab, transform).transform;

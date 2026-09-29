@@ -308,7 +308,9 @@ namespace TsilaRun.Editor
             // Persist both the asset and its imported action-reference subassets. Temporary
             // InputActionReference.Create objects are not durable scene wiring after reload.
             string path = Root + "/Input/TsilaUI.inputactions";
-            using (var defaults = new DefaultInputActions()) File.WriteAllText(path, defaults.asset.ToJson());
+            var defaults = new DefaultInputActions();
+            try { File.WriteAllText(path, defaults.asset.ToJson()); }
+            finally { UnityEngine.Object.DestroyImmediate(defaults.asset); }
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
             module.actionsAsset = AssetDatabase.LoadAssetAtPath<InputActionAsset>(path);
             module.point = UIAction(path, "Point");
