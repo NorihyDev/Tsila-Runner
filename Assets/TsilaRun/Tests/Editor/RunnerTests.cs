@@ -63,7 +63,7 @@ namespace TsilaRun.Tests
             Assert.AreEqual(-2, RunnerInput.ClassifySwipe(new Vector2(0f, -width * 0.06f), width, height));
         }
 
-        [Test]
+        [Test, Order(0)]
         public void GeneratorIsRepeatableAndPreservesSampleScene()
         {
             string sample = System.IO.File.ReadAllText("Assets/Scenes/SampleScene.unity");
@@ -88,6 +88,8 @@ namespace TsilaRun.Tests
             var player = game.player;
             var world = game.world;
             game.enabled = false; // Drive exact simulation ticks while testing input through real Update.
+            game.SendMessage("OnApplicationFocus", true);
+            game.SendMessage("OnApplicationPause", false);
             Assert.AreEqual(RunnerGame.RunState.Ready, game.State);
             hud.playButton.onClick.Invoke();
             Assert.AreEqual(RunnerGame.RunState.Running, game.State);
@@ -179,6 +181,17 @@ namespace TsilaRun.Tests
             Assert.AreEqual(1, player.Lane, "Gestures starting on UI must not change lanes.");
             QueueTouch(touchscreen, 3, UnityEngine.InputSystem.TouchPhase.Canceled, buttonPoint);
             yield return null;
+            QueueTouch(touchscreen, 4, UnityEngine.InputSystem.TouchPhase.Began, buttonPoint);
+            yield return null;
+            QueueTouch(touchscreen, 4, UnityEngine.InputSystem.TouchPhase.Ended, buttonPoint);
+            yield return null;
+            Assert.AreEqual(RunnerGame.RunState.Paused, game.State, "A touch tap must operate the serialized UI actions.");
+            Vector2 resumePoint = RectTransformUtility.WorldToScreenPoint(null, hud.resumeButton.transform.position);
+            QueueTouch(touchscreen, 5, UnityEngine.InputSystem.TouchPhase.Began, resumePoint);
+            yield return null;
+            QueueTouch(touchscreen, 5, UnityEngine.InputSystem.TouchPhase.Ended, resumePoint);
+            yield return null;
+            Assert.AreEqual(RunnerGame.RunState.Running, game.State);
             InputSystem.RemoveDevice(touchscreen);
             LogAssert.NoUnexpectedReceived();
             yield return new ExitPlayMode();

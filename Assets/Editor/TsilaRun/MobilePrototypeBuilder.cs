@@ -6,6 +6,7 @@ using UnityEditor.Build.Profile;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -50,6 +51,7 @@ namespace TsilaRun.Editor
             Directory.CreateDirectory(Root + "/Materials");
             Directory.CreateDirectory(Root + "/Prefabs");
             Directory.CreateDirectory(Root + "/Scenes");
+            Directory.CreateDirectory(Root + "/Input");
             AssetDatabase.Refresh();
             font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font == null) throw new InvalidOperationException("Unity's built-in LegacyRuntime.ttf font is unavailable.");
@@ -298,7 +300,31 @@ namespace TsilaRun.Editor
             pause.gameObject.SetActive(false); over.gameObject.SetActive(false); hud.gameObject.SetActive(false);
 
             var events = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
-            events.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
+            ConfigureUIInput(events.GetComponent<InputSystemUIInputModule>());
+        }
+
+        static void ConfigureUIInput(InputSystemUIInputModule module)
+        {
+            // Persist both the asset and its imported action-reference subassets. Temporary
+            // InputActionReference.Create objects are not durable scene wiring after reload.
+            string path = Root + "/Input/TsilaUI.inputactions";
+            using (var defaults = new DefaultInputActions()) File.WriteAllText(path, defaults.asset.ToJson());
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            module.actionsAsset = AssetDatabase.LoadAssetAtPath<InputActionAsset>(path);
+            module.point = UIAction(path, "Point");
+            module.leftClick = UIAction(path, "Click");
+            module.move = UIAction(path, "Navigate");
+            module.submit = UIAction(path, "Submit");
+            module.cancel = UIAction(path, "Cancel");
+            module.scrollWheel = UIAction(path, "ScrollWheel");
+        }
+
+        static InputActionReference UIAction(string path, string actionName)
+        {
+            foreach (var asset in AssetDatabase.LoadAllAssetsAtPath(path))
+                if (asset is InputActionReference reference && reference.action != null &&
+                    reference.action.actionMap.name == "UI" && reference.action.name == actionName) return reference;
+            throw new InvalidOperationException("Missing UI input action: " + actionName);
         }
 
         static RectTransform Card(Transform parent, string name)
