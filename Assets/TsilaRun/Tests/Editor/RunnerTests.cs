@@ -14,10 +14,17 @@ namespace TsilaRun.Tests
 {
     public sealed class RunnerTests
     {
-        Touchscreen syntheticTouchscreen;
-        InputSettings.EditorInputBehaviorInPlayMode previousEditorInput;
-        InputSettings.BackgroundBehavior previousBackgroundInput;
-        bool changedInputSettings;
+        static Touchscreen syntheticTouchscreen;
+        static InputSettings.EditorInputBehaviorInPlayMode previousEditorInput;
+        static InputSettings.BackgroundBehavior previousBackgroundInput;
+        static bool changedInputSettings;
+        static RunnerGame trackedGame;
+        static int gameOverEvents;
+
+        static void CountGameOver()
+        {
+            if (trackedGame.State == RunnerGame.RunState.GameOver) gameOverEvents++;
+        }
 
         [SetUp]
         public void UseDeterministicSceneReload()
@@ -154,14 +161,14 @@ namespace TsilaRun.Tests
             Assert.AreEqual(1, game.Coins);
             var tower = pool.First(i => i.kind == RunnerItemKind.Tower);
             tower.Place(0f, 1f);
-            int endings = 0;
-            System.Action countEnd = () => { if (game.State == RunnerGame.RunState.GameOver) endings++; };
-            game.StateChanged += countEnd;
+            gameOverEvents = 0;
+            trackedGame = game;
+            game.StateChanged += CountGameOver;
             world.Simulate(2f, player.HitBounds, player.HitBounds);
             game.EndRun();
             Assert.AreEqual(RunnerGame.RunState.GameOver, game.State);
-            Assert.AreEqual(1, endings);
-            game.StateChanged -= countEnd;
+            Assert.AreEqual(1, gameOverEvents);
+            game.StateChanged -= CountGameOver;
             hud.restartButton.onClick.Invoke();
             Assert.AreEqual(0, game.Coins); Assert.AreEqual(0, game.Score);
             Assert.AreEqual(1, player.Lane); Assert.IsFalse(player.IsSliding);
