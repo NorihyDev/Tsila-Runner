@@ -37,7 +37,8 @@ namespace TsilaRun.Editor
             title.lineSpacing = .88f;
             presentation.title = title.rectTransform;
             Text(start, "Tagline", "ONE ISLAND. ENDLESS POSSIBILITIES.", 19, .08f, .735f, .92f, .78f).color = Muted;
-            Text(start, "Outfit", "ORIGINAL COLLECTION  /  METHOD", 20, .1f, .30f, .9f, .34f).color = Neon;
+            var outfit = Panel(start, "Outfit Badge", .18f, .30f, .82f, .34f);
+            Text(outfit, "Outfit", "ORIGINAL COLLECTION / METHOD", 18, .02f, .04f, .98f, .96f).color = Pale;
             view.playButton = Button(start, "Play", "PLAY", .1f, .205f, .9f, .28f, Neon);
             shop.openFromStart = Button(start, "Shop", "SHOP", .1f, .12f, .9f, .187f, Violet);
             Text(start, "Controls", "SWIPE LEFT / RIGHT TO SWITCH LANES\nSWIPE UP TO JUMP / DOWN TO SLIDE", 20, .04f, .055f, .96f, .105f);

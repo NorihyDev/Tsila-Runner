@@ -1,5 +1,9 @@
 # Tsila Run verification
 
+## Modern English UI update
+
+The English UI update was compiled and regenerated in Unity. The limited preview check renders the menu and gameplay HUD at 720x1280, checks text height against its layout rectangles, and saves two screenshots. See `Logs/TsilaRun-ModernUI-Final.log`. Button/panel animations use unscaled time so they can animate while paused. No full gameplay suite, mobile build, physical touch test or measured frame-rate test was run for this UI-only update.
+
 ## Current Method edition
 
 The Method code compiled and the final scene/assets were generated successfully with Unity 6000.6.3f1 (exit code 0, TSILA_GENERATION_OK in `Logs/TsilaRun-Method-Final.log`). Final generation ran in the main project after confirming its interactive Editor was closed. At the user's request to finish quickly, the expanded test run in `LocalValidation~` was stopped during setup; no completed test-suite result, visual review or 4K render verification is claimed for this edition. The 16 updated tests remain available in Test Runner.

@@ -27,6 +27,7 @@ namespace TsilaRun.Editor
             if (events != null) Object.DestroyImmediate(events.gameObject);
             var module = MethodUiBuilder.Build(game, Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"), game.GetComponent<RunnerPresentation>());
             MobilePrototypeBuilder.ConfigureUIInput(module);
+            Camera.main.backgroundColor = new Color32(10, 15, 25, 255);
             EditorSceneManager.SaveScene(scene);
             AssetDatabase.SaveAssets();
             Debug.Log("TSILA_MODERN_UI_OK");

@@ -8,17 +8,17 @@ Le jeu utilise les modèles, les textures et le logo fournis dans `Assets/TsilaR
 2. Quitter le mode Play et choisir **Tools > Tsila Run > Create or Update Mobile Prototype**. Enregistrer les scènes ouvertes si Unity le demande.
 3. L'outil importe les assets Method et ouvre `Assets/TsilaRun/Generated/Scenes/TsilaRun.unity` avec toutes les références raccordées.
 4. Mettre la vue Game en portrait, par exemple **720 × 1280**, puis cliquer sur Play dans Unity.
-5. Cliquer sur **JOUER**. **C'EST PARTI** permet de passer l'introduction.
+5. Cliquer sur **PLAY**. **LET'S RUN** permet de passer l'introduction.
 
 Clavier de test : A/D ou flèches gauche/droite pour changer de voie, Espace/flèche haut pour sauter, S/flèche bas pour glisser, Échap pour mettre en pause. Sur téléphone, utiliser les quatre gestes de glissement.
 
 ## Menu et magasin
 
-Le menu montre le véritable personnage 3D sur un socle, avec une animation d'attente et une rotation lente de gauche à droite. Le titre TSILA RUN pulse légèrement. **MAGASIN** affiche uniquement **TSILA ORIGINAL — ÉQUIPÉ** : aucun article à acheter et aucune dépense possible depuis cette interface.
+Le menu montre le véritable personnage 3D sur un socle, avec une animation d'attente et une rotation lente de gauche à droite. Le titre TSILA RUN pulse légèrement. **SHOP** affiche uniquement **TSILA ORIGINAL — ÉQUIPÉ** : aucun article à acheter et aucune dépense possible depuis cette interface.
 
 Les pièces collectées restent sauvegardées localement. Les données des anciennes tenues sont conservées pour éviter une perte de progression, mais le jeu affiche toujours le modèle Method de base.
 
-Le bouton **MENU** est accessible pendant la course et l'introduction. **RETOUR AU MENU** existe aussi sur la pause et les résultats. Il termine la course, sauvegarde les pièces et le record, remet le joueur et le monde à zéro et restaure le temps normal. Le retour depuis l'arrière-plan demande toujours une reprise explicite d'une course interrompue.
+Le bouton **MENU** est accessible pendant la course et l'introduction. **MAIN MENU** existe aussi sur la pause et les résultats. Il termine la course, sauvegarde les pièces et le record, remet le joueur et le monde à zéro et restaure le temps normal. Le retour depuis l'arrière-plan demande toujours une reprise explicite d'une course interrompue.
 
 ## Modèles et animations
 
@@ -35,3 +35,9 @@ L'interface s'adapte à la résolution et à la zone sûre, y compris aux sortie
 Le menu réutilise le même personnage et la même caméra que la course. Aucun rendu vers une texture supplémentaire, post-traitement lourd ni ombre dynamique n'est ajouté. Les routes, obstacles et pièces restent limités par leurs pools. La fluidité réelle, la chauffe et la consommation mémoire doivent être mesurées sur téléphone ; aucune performance mobile mesurée n'est annoncée.
 
 Les instructions Android/iOS sont dans [TsilaRun-Guide.md](TsilaRun-Guide.md). Les résultats exécutés sont dans [TsilaRun-Verification.md](TsilaRun-Verification.md). Tester sur téléphone les boutons du menu, la pause, le retour depuis l'arrière-plan, les gestes et les collisions avant publication.
+
+## Modern English UI update
+
+All game labels now use English ASCII text to avoid the broken accented labels. The UI uses midnight-blue cards, mint primary actions, slate secondary actions, rounded corners and softer typography. Panels fade in over 0.2 seconds; buttons respond with a short press/hover animation using unscaled time, including while paused. The Method logo and copyright remain.
+
+To rebuild only the UI while preserving artwork/material edits, use **Tools > Tsila Run > Refresh Modern UI** outside Play mode. Full prototype generation also uses the new style.

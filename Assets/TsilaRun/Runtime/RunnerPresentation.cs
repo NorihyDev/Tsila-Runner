@@ -19,6 +19,7 @@ namespace TsilaRun
         }
         public void ShowMenu(bool menu)
         {
+            if (Camera.main != null) Camera.main.backgroundColor = menu ? new Color32(10, 15, 25, 255) : RenderSettings.fogColor;
             stage.SetActive(menu);
             game.world.gameObject.SetActive(!menu);
             game.player.visual.localRotation = menu ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
