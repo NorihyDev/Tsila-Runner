@@ -1,0 +1,7 @@
+{
+  "name": "TsilaRun.Tests",
+  "rootNamespace": "TsilaRun.Tests",
+  "references": ["TsilaRun.Runtime", "TsilaRun.Editor", "Unity.InputSystem", "Unity.ugui"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}
