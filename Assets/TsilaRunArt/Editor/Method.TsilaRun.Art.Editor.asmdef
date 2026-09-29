@@ -1,0 +1,5 @@
+{
+  "name": "Method.TsilaRun.Art.Editor",
+  "rootNamespace": "Method.TsilaRun.Editor",
+  "includePlatforms": ["Editor"]
+}

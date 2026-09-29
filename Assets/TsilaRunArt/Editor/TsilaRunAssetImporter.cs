@@ -35,6 +35,12 @@ namespace Method.TsilaRun.Editor
         [MenuItem("Tools/Tsila Run/Import Asset Pack")]
         public static void ImportAll()
         {
+            ImportForPrototype();
+            if (!Application.isBatchMode) EditorUtility.DisplayDialog("Tsila Run", "Assets Method importés. Utilisez Create or Update Mobile Prototype pour les intégrer au jeu.", "OK");
+        }
+
+        public static void ImportForPrototype()
+        {
             if (!Directory.Exists(BasePath + "/Data"))
                 throw new DirectoryNotFoundException("Copy TsilaRunArt into the project's Assets folder first.");
             Directory.CreateDirectory(Generated);
@@ -60,7 +66,6 @@ namespace Method.TsilaRun.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log("Tsila Run: created/updated " + count + " prefabs under " + Generated + ". Characters use Generic rigs. Review in Play Mode before shipping.");
-            EditorUtility.DisplayDialog("Tsila Run", "Imported " + count + " assets. Find prefabs in Assets/TsilaRunArt/Generated. Drag a character into a scene and enter Play Mode to preview Idle.", "OK");
         }
 
         static Texture2D LoadTexture(string filename, bool srgb)
@@ -214,7 +219,20 @@ namespace Method.TsilaRun.Editor
                         var keys = new Keyframe[track.times.Length];
                         for (int k = 0; k < keys.Length; k++) keys[k] = new Keyframe(track.times[k], track.values[k * width + axis]);
                         var curve = new AnimationCurve(keys);
-                        for (int k = 0; k < keys.Length; k++)
+                        // The supplied slide returns to standing after .75s. Gameplay may hold
+                        // the crouch longer under a beam, so enter the middle pose and hold it.
+                        if (source.name == "Slide")
+                        {
+                            float middle = source.duration * 0.5f;
+                            float held = curve.Evaluate(middle);
+                            var slideKeys = new List<Keyframe>();
+                            foreach (var key in keys)
+                                if (key.time < middle) slideKeys.Add(new Keyframe(key.time / middle * 0.12f, key.value));
+                            slideKeys.Add(new Keyframe(0.12f, held));
+                            slideKeys.Add(new Keyframe(1.05f, held));
+                            curve = new AnimationCurve(slideKeys.ToArray());
+                        }
+                        for (int k = 0; k < curve.length; k++)
                         {
                             AnimationUtility.SetKeyLeftTangentMode(curve, k, AnimationUtility.TangentMode.Linear);
                             AnimationUtility.SetKeyRightTangentMode(curve, k, AnimationUtility.TangentMode.Linear);

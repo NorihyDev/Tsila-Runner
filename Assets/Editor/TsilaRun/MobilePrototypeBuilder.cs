@@ -53,18 +53,19 @@ namespace TsilaRun.Editor
             Directory.CreateDirectory(Root + "/Scenes");
             Directory.CreateDirectory(Root + "/Input");
             AssetDatabase.Refresh();
+            Method.TsilaRun.Editor.TsilaRunAssetImporter.ImportForPrototype();
             font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font == null) throw new InvalidOperationException("Unity's built-in LegacyRuntime.ttf font is unavailable.");
-            road = Material("Road", "25465B"); sand = Material("Sand", "EACB91");
-            teal = Material("Teal", "23CABD"); coral = Material("Coral", "FF6B61");
-            gold = Material("Gold", "FFD44A"); ink = Material("Ink", "142B47");
-            white = Material("Cream", "FFF5D9"); green = Material("Green", "70B879");
+            road = Material("Road", "142A2B"); sand = Material("Sand", "315D4D");
+            teal = Material("Teal", "00EF88"); coral = Material("Coral", "6946AC");
+            gold = Material("Gold", "B9FF51"); ink = Material("Ink", "071A1C");
+            white = Material("Cream", "DBFFEE"); green = Material("Green", "438C6E");
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             RenderSettings.skybox = null;
             RenderSettings.ambientMode = AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.75f, 0.8f, 0.85f);
             RenderSettings.fog = true;
-            RenderSettings.fogColor = ColorHex("A9DEEA");
+            RenderSettings.fogColor = ColorHex("173C36");
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogStartDistance = 100f;
             RenderSettings.fogEndDistance = 175f;
@@ -84,13 +85,13 @@ namespace TsilaRun.Editor
             var player = ((GameObject)PrefabUtility.InstantiatePrefab(playerPrefab.gameObject)).GetComponent<RunnerPlayer>();
             player.name = "Tsila";
             game.player = player; game.world = world;
-            game.skinMaterials = new[] { teal, coral, gold, ink };
+            game.skinMaterials = new Material[0]; // Method atlas is the sole base outfit.
             world.player = player; world.game = game; world.roadPrefab = roadPrefab; world.itemPrefabs = itemPrefabs;
             player.world = world;
             var avatar = player.GetComponentInChildren<RunnerAvatar>();
             avatar.game = game; avatar.player = player;
             var officerRoot = new GameObject("Officer");
-            var officerRig = PrimitiveAvatarBuilder.Create(officerRoot.transform, ink, sand, ink, gold, true);
+            var officerRig = MethodVisualBuilder.Character(officerRoot.transform, "Officer");
             officerRig.alwaysRun = true;
             GameObject officerPrefab = SavePrefab(officerRoot, "Officer");
             var officer = ((GameObject)PrefabUtility.InstantiatePrefab(officerPrefab)).GetComponentInChildren<RunnerAvatar>();
@@ -122,7 +123,12 @@ namespace TsilaRun.Editor
             follow.player = player; follow.game = game;
             camera.transform.position = follow.offset;
             camera.transform.LookAt(new Vector3(0f, 1f, 16f));
-            CreateUI(game);
+            var presentation = MethodVisualBuilder.Stage(game, ink, teal, coral);
+            ConfigureUIInput(MethodUiBuilder.Build(game, font, presentation));
+            camera.transform.position = new Vector3(0f, 1.45f, -4.3f);
+            camera.transform.LookAt(new Vector3(0f, 0.98f, 0f));
+            player.visual.localRotation = Quaternion.Euler(0f, 180f, 0f);
+            presentation.stage.SetActive(true);
 
             // Show the opening road in edit mode too. Runtime replaces this preview with its pool.
             var preview = new GameObject("Editor Road Preview");
@@ -133,6 +139,7 @@ namespace TsilaRun.Editor
                 tile.transform.position = new Vector3(0f, 0f, (i - 1) * RunnerRules.RoadLength);
             }
             preview.AddComponent<EditorPreview>();
+            preview.SetActive(false);
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
@@ -206,12 +213,10 @@ namespace TsilaRun.Editor
             var mountain = new GameObject("Mountain Scenery"); mountain.transform.SetParent(root.transform, false);
             var tunnel = new GameObject("Underground Scenery"); tunnel.transform.SetParent(root.transform, false);
             section.scenery = new[] { island, mountain, tunnel };
-            Shape(root.transform, "Road", PrimitiveType.Cube, new Vector3(0f, -0.18f, 0f), new Vector3(8f, 0.36f, 24f), road);
+            MethodVisualBuilder.Model(root.transform, "RoadSection");
             Shape(island.transform, "Island", PrimitiveType.Cube, new Vector3(0f, -0.45f, 0f), new Vector3(30f, 0.5f, 24f), sand);
             for (int side = -1; side <= 1; side += 2)
             {
-                Shape(root.transform, "Curb", PrimitiveType.Cube, new Vector3(side * 4.1f, 0.03f, 0f), new Vector3(0.2f, 0.16f, 24f), teal);
-                Shape(root.transform, "Lane Stripe", PrimitiveType.Cube, new Vector3(side * 1.2f, 0.008f, 0f), new Vector3(0.055f, 0.012f, 24f), white);
                 Shape(island.transform, "Trunk", PrimitiveType.Cylinder, new Vector3(side * 7f, 0.8f, 4f), new Vector3(0.45f, 0.8f, 0.45f), ink);
                 Shape(island.transform, "Tree", PrimitiveType.Sphere, new Vector3(side * 7f, 2.4f, 4f), new Vector3(2.7f, 3.1f, 2.7f), green);
                 Shape(island.transform, "Block House", PrimitiveType.Cube, new Vector3(side * 11f, 2.1f, -5f), new Vector3(3.5f, 4.2f, 5f), side < 0 ? teal : coral);
@@ -245,7 +250,8 @@ namespace TsilaRun.Editor
             player.body.isTrigger = true;
             player.visual = new GameObject("Visual").transform;
             player.visual.SetParent(root.transform, false);
-            PrimitiveAvatarBuilder.Create(player.visual, teal, sand, ink, coral).player = player;
+            MethodVisualBuilder.Character(player.visual, "Tsila").player = player;
+            player.animatedSlide = true;
             return SavePrefab(root, "Tsila").GetComponent<RunnerPlayer>();
         }
 
@@ -261,111 +267,20 @@ namespace TsilaRun.Editor
             {
                 case RunnerItemKind.RunningPerson:
                     center = new Vector3(0f, 0.94f, 0f); size = new Vector3(0.95f, 1.88f, 0.8f);
-                    PrimitiveAvatarBuilder.Create(root.transform, coral, sand, ink, white).alwaysRun = true;
+                    MethodVisualBuilder.Character(root.transform, "RunningPerson").alwaysRun = true;
                     break;
                 case RunnerItemKind.Barrier:
-                    center = new Vector3(0f, 0.425f, 0f); size = new Vector3(1.7f, 0.85f, 0.9f);
-                    Shape(root.transform, "Jump Block", PrimitiveType.Cube, center, size, coral);
-                    Shape(root.transform, "Top Stripe", PrimitiveType.Cube, new Vector3(0f, 0.85f, 0f), new Vector3(1.75f, 0.035f, 0.95f), white);
-                    break;
+                    center = new Vector3(0f, 0.425f, 0f); size = new Vector3(1.7f, 0.85f, 0.9f); break;
                 case RunnerItemKind.Overhead:
-                    center = new Vector3(0f, 1.9f, 0f); size = new Vector3(1.9f, 1.8f, 0.9f);
-                    Shape(root.transform, "Slide Beam", PrimitiveType.Cube, center, size, gold);
-                    // Posts sit outside the runner's legal centre line. Beam has 1m clearance.
-                    for (int side = -1; side <= 1; side += 2)
-                        Shape(root.transform, "Post", PrimitiveType.Cube, new Vector3(side * 1.05f, 1.4f, 0f), new Vector3(0.14f, 2.8f, 0.7f), ink);
-                    break;
+                    center = new Vector3(0f, 1.9f, 0f); size = new Vector3(1.9f, 1.8f, 0.9f); break;
                 case RunnerItemKind.Tower:
-                    center = new Vector3(0f, 1.8f, 0f); size = new Vector3(1.8f, 3.6f, 1.1f);
-                    Shape(root.transform, "Dodge Tower", PrimitiveType.Cube, center, size, ink);
-                    Shape(root.transform, "Warning", PrimitiveType.Cube, new Vector3(0f, 1.7f, -0.56f), new Vector3(1.5f, 0.3f, 0.03f), coral);
-                    break;
+                    center = new Vector3(0f, 1.8f, 0f); size = new Vector3(1.8f, 3.6f, 1.1f); break;
                 default:
-                    center = new Vector3(0f, 0.9f, 0f); size = new Vector3(0.65f, 0.65f, 0.3f);
-                    var coin = Shape(root.transform, "Coin", PrimitiveType.Cylinder, center, new Vector3(0.6f, 0.1f, 0.6f), gold);
-                    coin.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-                    break;
+                    center = new Vector3(0f, 0.9f, 0f); size = new Vector3(0.65f, 0.65f, 0.3f); break;
             }
+            if (kind != RunnerItemKind.RunningPerson) MethodVisualBuilder.Model(root.transform, kind.ToString());
             item.hitbox.center = center; item.hitbox.size = size;
             return SavePrefab(root, kind.ToString()).GetComponent<RunnerItem>();
-        }
-
-        static void CreateUI(RunnerGame game)
-        {
-            var canvas = new GameObject("Mobile UI", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            canvas.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-            var scaler = canvas.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(720f, 1280f);
-            // Expand guarantees at least 720x1280 logical units, including short phones/tablets.
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
-            RectTransform safe = Rect("Safe Area", canvas.transform, Vector2.zero, Vector2.one);
-            safe.gameObject.AddComponent<SafeAreaPanel>();
-            var view = canvas.AddComponent<RunnerHud>();
-            view.game = game;
-            RectTransform hud = Rect("HUD", safe, new Vector2(0f, 1f), Vector2.one);
-            hud.pivot = new Vector2(0.5f, 1f); hud.sizeDelta = new Vector2(0f, 180f);
-            var hudBackground = hud.gameObject.AddComponent<Image>();
-            hudBackground.color = new Color(0.055f, 0.12f, 0.2f, 0.94f);
-            hudBackground.raycastTarget = false;
-            view.hud = hud.gameObject;
-            view.distanceText = Label(hud, "Distance", "0 m", 46, new Vector2(0.04f, 0.45f), new Vector2(0.64f, 0.94f), TextAnchor.MiddleLeft);
-            view.coinsText = Label(hud, "Coins", "COINS  0", 26, new Vector2(0.04f, 0f), new Vector2(0.48f, 0.45f), TextAnchor.MiddleLeft);
-            view.bestText = Label(hud, "Best", "BEST  0 m", 23, new Vector2(0.48f, 0f), new Vector2(0.96f, 0.45f), TextAnchor.MiddleRight);
-            view.pauseButton = Button(hud, "Pause", "II", new Vector2(0.82f, 0.42f), new Vector2(0.96f, 0.94f), teal);
-            view.zoneText = Label(safe, "Zone", "ISLAND", 25, new Vector2(0.1f, 0.03f), new Vector2(0.9f, 0.085f));
-            view.zoneText.gameObject.AddComponent<Outline>().effectColor = Color.black;
-
-            RectTransform start = Card(safe, "Start"); view.startPanel = start.gameObject;
-            Label(start, "Eyebrow", "THE ISLAND IS YOUR RUNWAY", 22, new Vector2(0.06f, 0.84f), new Vector2(0.94f, 0.91f));
-            Label(start, "Title", "TSILA\nRUN", 94, new Vector2(0.08f, 0.53f), new Vector2(0.92f, 0.84f));
-            Label(start, "Guide", "SWIPE LEFT / RIGHT  -  CHANGE LANE\nSWIPE UP  -  JUMP\nSWIPE DOWN  -  SLIDE", 27, new Vector2(0.06f, 0.29f), new Vector2(0.94f, 0.51f));
-            view.playButton = Button(start, "Play", "PLAY", new Vector2(0.12f, 0.12f), new Vector2(0.88f, 0.255f), teal);
-            var shop = canvas.AddComponent<RunnerShop>();
-            shop.game = game;
-            shop.openFromStart = Button(start, "Shop", "SKIN SHOP", new Vector2(0.12f, 0.01f), new Vector2(0.88f, 0.115f), gold);
-
-            RectTransform pause = Card(safe, "Paused"); view.pausePanel = pause.gameObject;
-            Label(pause, "Title", "TAKE A\nBREATHER", 65, new Vector2(0.08f, 0.57f), new Vector2(0.92f, 0.85f));
-            Label(pause, "Hint", "Your run is paused.\nResume when you're ready.", 28, new Vector2(0.08f, 0.41f), new Vector2(0.92f, 0.57f));
-            view.resumeButton = Button(pause, "Resume", "RESUME", new Vector2(0.12f, 0.245f), new Vector2(0.88f, 0.375f), teal);
-            view.pausedRestartButton = Button(pause, "Restart", "RESTART", new Vector2(0.12f, 0.085f), new Vector2(0.88f, 0.215f), coral);
-
-            RectTransform over = Card(safe, "Game Over"); view.gameOverPanel = over.gameObject;
-            Label(over, "Title", "NICE RUN!", 68, new Vector2(0.06f, 0.68f), new Vector2(0.94f, 0.86f));
-            view.resultText = Label(over, "Result", "0 METRES\n0 COINS\nBEST  0 m", 38, new Vector2(0.08f, 0.34f), new Vector2(0.92f, 0.64f));
-            view.restartButton = Button(over, "Restart", "RUN AGAIN", new Vector2(0.12f, 0.12f), new Vector2(0.88f, 0.255f), teal);
-            shop.openFromResults = Button(over, "Shop", "SKIN SHOP", new Vector2(0.12f, 0.01f), new Vector2(0.88f, 0.115f), gold);
-
-            RectTransform intro = Rect("Chase Intro", safe, new Vector2(0.06f, 0.65f), new Vector2(0.94f, 0.84f));
-            intro.gameObject.AddComponent<Image>().color = new Color(0.055f, 0.12f, 0.2f, 0.94f);
-            Label(intro, "Chase Caption", "RUN, TSILA!\nThe island patrol is right behind you!", 30, new Vector2(0.04f, 0.42f), new Vector2(0.96f, 0.94f));
-            view.skipIntroButton = Button(intro, "Skip Intro", "LET'S RUN", new Vector2(0.12f, 0.06f), new Vector2(0.88f, 0.38f), teal);
-            view.introPanel = intro.gameObject;
-            intro.gameObject.SetActive(false);
-
-            RectTransform market = Card(safe, "Skin Shop");
-            market.anchorMin = new Vector2(0.045f, 0.07f); market.anchorMax = new Vector2(0.955f, 0.91f);
-            shop.panel = market.gameObject;
-            Label(market, "Title", "SKIN SHOP", 56, new Vector2(0.06f, 0.85f), new Vector2(0.94f, 0.96f));
-            shop.wallet = Label(market, "Wallet", "WALLET  0 COINS", 32, new Vector2(0.06f, 0.76f), new Vector2(0.94f, 0.84f));
-            shop.skinButtons = new Button[4]; shop.skinLabels = new Text[4];
-            Material[] colors = { teal, coral, gold, ink };
-            for (int i = 0; i < 4; i++)
-            {
-                float top = 0.73f - i * 0.125f;
-                shop.skinButtons[i] = Button(market, RunnerProgress.SkinNames[i], RunnerProgress.SkinNames[i], new Vector2(0.08f, top - 0.105f), new Vector2(0.92f, top), colors[i]);
-                shop.skinLabels[i] = shop.skinButtons[i].GetComponentInChildren<Text>();
-                shop.skinLabels[i].fontSize = 25;
-                if (i == 3) shop.skinLabels[i].color = ColorHex("FFF5D9");
-            }
-            Label(market, "Info", "Earn coins on every run.\nSkins only - gameplay items coming later.", 24, new Vector2(0.06f, 0.13f), new Vector2(0.94f, 0.245f));
-            shop.close = Button(market, "Back", "BACK", new Vector2(0.12f, 0.025f), new Vector2(0.88f, 0.125f), teal);
-            market.gameObject.SetActive(false);
-            pause.gameObject.SetActive(false); over.gameObject.SetActive(false); hud.gameObject.SetActive(false);
-
-            var events = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
-            ConfigureUIInput(events.GetComponent<InputSystemUIInputModule>());
         }
 
         static void ConfigureUIInput(InputSystemUIInputModule module)
@@ -392,43 +307,6 @@ namespace TsilaRun.Editor
                 if (asset is InputActionReference reference && reference.action != null &&
                     reference.action.actionMap.name == "UI" && reference.action.name == actionName) return reference;
             throw new InvalidOperationException("Missing UI input action: " + actionName);
-        }
-
-        static RectTransform Card(Transform parent, string name)
-        {
-            RectTransform card = Rect(name, parent, new Vector2(0.045f, 0.16f), new Vector2(0.955f, 0.8f));
-            var image = card.gameObject.AddComponent<Image>();
-            image.color = new Color(0.055f, 0.12f, 0.2f, 0.96f);
-            image.raycastTarget = false;
-            return card;
-        }
-
-        static RectTransform Rect(string name, Transform parent, Vector2 min, Vector2 max)
-        {
-            var rect = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
-            rect.SetParent(parent, false); rect.anchorMin = min; rect.anchorMax = max;
-            rect.offsetMin = rect.offsetMax = Vector2.zero;
-            return rect;
-        }
-
-        static Text Label(Transform parent, string name, string value, int size, Vector2 min, Vector2 max, TextAnchor alignment = TextAnchor.MiddleCenter)
-        {
-            var text = Rect(name, parent, min, max).gameObject.AddComponent<Text>();
-            text.font = font; text.text = value; text.fontSize = size; text.alignment = alignment;
-            text.color = ColorHex("FFF5D9"); text.raycastTarget = false;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
-            return text;
-        }
-
-        static Button Button(Transform parent, string name, string value, Vector2 min, Vector2 max, Material color)
-        {
-            RectTransform rect = Rect(name, parent, min, max);
-            var image = rect.gameObject.AddComponent<Image>(); image.color = color.color;
-            var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = image;
-            button.navigation = new Navigation { mode = Navigation.Mode.None };
-            Label(rect, "Label", value, 36, Vector2.zero, Vector2.one).color = ColorHex("142B47");
-            return button;
         }
 
         static Color ColorHex(string hex) { ColorUtility.TryParseHtmlString("#" + hex, out Color color); return color; }
