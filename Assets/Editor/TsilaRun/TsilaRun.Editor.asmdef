@@ -1,0 +1,6 @@
+{
+  "name": "TsilaRun.Editor",
+  "rootNamespace": "TsilaRun.Editor",
+  "references": ["TsilaRun.Runtime", "Unity.InputSystem", "Unity.ugui", "Unity.RenderPipelines.Universal.Runtime"],
+  "includePlatforms": ["Editor"]
+}
