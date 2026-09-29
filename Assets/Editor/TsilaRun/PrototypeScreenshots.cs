@@ -64,8 +64,8 @@ namespace TsilaRun.Editor
                         section.SetLocation(state == 6 ? 300d : state == 7 ? 600d : 0d);
                     hud.game.chase.officer.gameObject.SetActive(state == 4);
                     if (state == 4) { hud.game.chase.ResetChase(); hud.game.chase.TickIntro(1.2f); }
-                    camera.transform.position = state == 4 ? new Vector3(5f, 3.6f, -8f) : new Vector3(0f, 6.5f, -10f);
-                    camera.transform.LookAt(state == 4 ? new Vector3(0f, 1f, -1f) : new Vector3(0f, 1f, 16f));
+                    camera.transform.position = state == 4 ? new Vector3(7f, 5f, -11f) : new Vector3(0f, 6.5f, -10f);
+                    camera.transform.LookAt(state == 4 ? new Vector3(0f, 1f, -2.5f) : new Vector3(0f, 1f, 16f));
                     hud.pauseButton.gameObject.SetActive(state == 1 || state >= 4 && state != 5);
                     Canvas.ForceUpdateCanvases();
                     foreach (var text in canvas.GetComponentsInChildren<Text>())

@@ -376,12 +376,14 @@ namespace TsilaRun.Tests
             game.SendMessage("OnApplicationPause", false);
             game.StartRun(); game.CompleteIntro();
             var avatar = game.player.GetComponentInChildren<RunnerAvatar>();
+            Assert.AreSame(game, avatar.game);
+            Assert.AreSame(game.player, avatar.player);
             Quaternion before = avatar.leftArm.localRotation;
-            yield return new WaitForSeconds(0.1f);
+            avatar.Animate(0.1f); // Batch EditMode coroutines do not guarantee a player Update tick.
             Assert.Greater(Quaternion.Angle(before, avatar.leftArm.localRotation), 0.1f);
             game.Pause();
             before = avatar.leftArm.localRotation;
-            yield return new WaitForSecondsRealtime(0.1f);
+            avatar.Animate(0.1f);
             Assert.Less(Quaternion.Angle(before, avatar.leftArm.localRotation), 0.001f);
             game.Resume();
             var items = game.world.GetComponentsInChildren<RunnerItem>(true);

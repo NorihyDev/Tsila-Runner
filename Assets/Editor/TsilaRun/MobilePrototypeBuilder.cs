@@ -337,7 +337,7 @@ namespace TsilaRun.Editor
             view.restartButton = Button(over, "Restart", "RUN AGAIN", new Vector2(0.12f, 0.12f), new Vector2(0.88f, 0.255f), teal);
             shop.openFromResults = Button(over, "Shop", "SKIN SHOP", new Vector2(0.12f, 0.01f), new Vector2(0.88f, 0.115f), gold);
 
-            RectTransform intro = Rect("Chase Intro", safe, new Vector2(0.06f, 0.12f), new Vector2(0.94f, 0.38f));
+            RectTransform intro = Rect("Chase Intro", safe, new Vector2(0.06f, 0.65f), new Vector2(0.94f, 0.84f));
             intro.gameObject.AddComponent<Image>().color = new Color(0.055f, 0.12f, 0.2f, 0.94f);
             Label(intro, "Chase Caption", "RUN, TSILA!\nThe island patrol is right behind you!", 30, new Vector2(0.04f, 0.42f), new Vector2(0.96f, 0.94f));
             view.skipIntroButton = Button(intro, "Skip Intro", "LET'S RUN", new Vector2(0.12f, 0.06f), new Vector2(0.88f, 0.38f), teal);
@@ -350,13 +350,14 @@ namespace TsilaRun.Editor
             Label(market, "Title", "SKIN SHOP", 56, new Vector2(0.06f, 0.85f), new Vector2(0.94f, 0.96f));
             shop.wallet = Label(market, "Wallet", "WALLET  0 COINS", 32, new Vector2(0.06f, 0.76f), new Vector2(0.94f, 0.84f));
             shop.skinButtons = new Button[4]; shop.skinLabels = new Text[4];
-            Material[] colors = { teal, coral, gold, white };
+            Material[] colors = { teal, coral, gold, ink };
             for (int i = 0; i < 4; i++)
             {
                 float top = 0.73f - i * 0.125f;
                 shop.skinButtons[i] = Button(market, RunnerProgress.SkinNames[i], RunnerProgress.SkinNames[i], new Vector2(0.08f, top - 0.105f), new Vector2(0.92f, top), colors[i]);
                 shop.skinLabels[i] = shop.skinButtons[i].GetComponentInChildren<Text>();
                 shop.skinLabels[i].fontSize = 25;
+                if (i == 3) shop.skinLabels[i].color = ColorHex("FFF5D9");
             }
             Label(market, "Info", "Earn coins on every run.\nSkins only - gameplay items coming later.", 24, new Vector2(0.06f, 0.13f), new Vector2(0.94f, 0.245f));
             shop.close = Button(market, "Back", "BACK", new Vector2(0.12f, 0.025f), new Vector2(0.88f, 0.125f), teal);

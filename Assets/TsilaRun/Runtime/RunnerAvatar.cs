@@ -15,13 +15,15 @@ namespace TsilaRun
 
         void OnEnable() { phase = 0f; Pose(0f, 0f); }
 
-        void Update()
+        void Update() { Animate(Time.deltaTime); }
+
+        public void Animate(float dt)
         {
             if (Time.timeScale == 0f) return;
             bool running = animate && (alwaysRun || game != null &&
                 (game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro));
             if (!running) { Pose(0f, 0f); return; }
-            phase = Mathf.Repeat(phase + Time.deltaTime * (game == null ? 10f : 9f + game.Speed * 0.25f), Mathf.PI * 2f);
+            phase = Mathf.Repeat(phase + dt * (game == null ? 10f : 9f + game.Speed * 0.25f), Mathf.PI * 2f);
             if (player != null && player.IsSliding) { Pose(-65f, 65f); return; }
             if (player != null && !player.IsGrounded) { Pose(-65f, -25f); return; }
             float swing = Mathf.Sin(phase) * 42f;
