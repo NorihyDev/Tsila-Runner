@@ -1,0 +1,167 @@
+# TSILA RUN
+
+**A stylized mobile endless runner by Method.**
+
+Run through three lanes, collect coins, evade the patrol, and keep moving as the island gives way to mountain passes and underground tunnels. Built with Unity, Tsila Run combines animated 3D characters with an English interface designed for portrait screens.
+
+**Status:** Playable prototype · **Primary platforms:** Android and iOS · **Editor:** Unity 6000.6.3f1
+
+<p align="center">
+  <img src="Docs/Verification/ModernMenu.png" alt="Tsila Run main menu with the Method character, Play and Shop buttons" width="280" />
+  &nbsp;
+  <img src="Docs/Verification/ModernHud.png" alt="Tsila Run gameplay with three lanes, coins and obstacles" width="280" />
+</p>
+
+## Features
+
+- **Three-lane running:** automatic forward movement, smooth lane changes, jumping, and sliding.
+- **Varied obstacles:** low barriers, overhead beams, tall obstacles, and other runners.
+- **Animated characters:** idle, run, jump, and slide states, plus a skippable police chase introduction.
+- **Changing environments:** island, mountain pass, and underground scenery cycle every 288 metres.
+- **Local progression:** distance score, best distance, and a persistent coin wallet.
+- **Method presentation:** animated character showcase, branded artwork, rounded controls, and a midnight-blue, white, and mint interface.
+- **Complete navigation:** start, pause, resume, restart, results, and return to the main menu.
+- **Mobile controls:** responsive swipes, safe-area-aware layouts, and explicit resume after a running game loses focus.
+
+The shop currently displays **Tsila Original**, already equipped. **There are no purchasable skins or gameplay items in this version.** Previously stored ownership data is retained, while the Method base outfit is used for gameplay.
+
+## Requirements
+
+| Component | Project version |
+| --- | --- |
+| Unity Editor | 6000.6.3f1 |
+| Universal Render Pipeline | 17.6.0 |
+| Input System | 1.20.0 |
+| Unity UI | 2.6.0 |
+| Unity Test Framework | 1.8.0 |
+
+Use Unity Hub to install the matching Editor version. Package dependencies are declared in [`Packages/manifest.json`](Packages/manifest.json). Git LFS is used for image assets.
+
+## Quick start
+
+Clone the repository with Git LFS available:
+
+```bash
+git lfs install
+git clone https://github.com/NorihyDev/Tsila-Runner.git
+cd Tsila-Runner
+git lfs pull
+```
+
+1. Add the cloned project in Unity Hub and open it with **Unity 6000.6.3f1**.
+2. Wait for Unity to restore packages and finish importing assets.
+3. Open `Assets/TsilaRun/Generated/Scenes/TsilaRun.unity`.
+4. Set the Game view to **720 × 1280** or **1080 × 1920** in portrait orientation.
+5. Enter Unity Play mode, then select **PLAY** in the game.
+
+The generated scene is included in the repository. Regeneration is only needed when rebuilding the prototype or applying generator changes.
+
+## Controls
+
+| Action | Mobile | Editor keyboard |
+| --- | --- | --- |
+| Move left | Swipe left | A or Left Arrow |
+| Move right | Swipe right | D or Right Arrow |
+| Jump | Swipe up | Space or Up Arrow |
+| Slide | Swipe down | S or Down Arrow |
+| Pause | On-screen pause button | Escape during a run, or the pause button |
+| Resume | RESUME | Click RESUME |
+| Return to the menu | MENU / MAIN MENU | Click MENU / MAIN MENU |
+
+Swipes trigger once per gesture after crossing 5% of the screen's shorter dimension. Gestures starting on interactive UI do not control the runner. Keyboard movement is intended for Editor testing.
+
+Returning to the menu ends the current run, saves coins and the best distance, and resets the running state. Local progress uses Unity PlayerPrefs; clearing application data removes that progress.
+
+## Editor tools
+
+All project tools are available under **Tools → Tsila Run**.
+
+| Tool | Purpose |
+| --- | --- |
+| **Create or Update Mobile Prototype** | Import the Method pack, rebuild the gameplay prefabs and scene, connect references, and register the scene in the appropriate build scene list. |
+| **Refresh Modern UI** | Rebuild the English interface while preserving the existing artwork and material edits. |
+| **Import Asset Pack** | Rebuild the Method art assets from their supplied mesh and animation data. |
+
+Leave Play mode before using these tools. Scene-changing menu tools prompt you to save unsaved scene changes.
+
+Full regeneration rewrites content inside `Assets/TsilaRun/Generated` and `Assets/TsilaRunArt/Generated`. Keep custom variants outside those folders, or update the relevant generator to make changes reproducible. Commit Unity `.meta` files alongside their assets to preserve references.
+
+## Project structure
+
+```text
+Assets/
+├── Editor/TsilaRun/          Scene, UI, and visual generation tools
+├── TsilaRun/
+│   ├── Runtime/             Gameplay, input, camera, UI, and progression
+│   ├── Generated/           Playable scene, gameplay prefabs, and UI assets
+│   └── Tests/Editor/        Automated checks and Play mode integration tests
+└── TsilaRunArt/
+    ├── Data/                Supplied mesh, skeleton, and animation data
+    ├── Editor/              Method asset importer
+    ├── Generated/           Imported meshes, materials, rigs, and animation clips
+    └── Textures/            Method atlas, emission texture, and logo
+Docs/                        Setup guides, asset specifications, and verification notes
+```
+
+Runtime scripts contain no UnityEditor dependencies. The main responsibilities are separated into small components:
+
+| Component | Responsibility |
+| --- | --- |
+| `RunnerGame` | Run states, speed, score, saved progression, and menu navigation |
+| `RunnerPlayer` | Lane movement, gravity, jumping, sliding, and collider restoration |
+| `RunnerWorld` / `RunnerItem` | Object pools, obstacle patterns, recycling, and swept collision checks |
+| `RunnerInput` | Mobile gestures and Editor keyboard controls |
+| `RunnerAvatar` / `RunnerChase` | Character animation and the introductory pursuit |
+| `RunnerHud` / `RunnerShop` | Gameplay displays, screen navigation, and the base-outfit showcase |
+| `RunnerPresentation` | Menu character presentation and backdrop |
+| `UiButtonMotion` / `UiPanelMotion` | Button feedback and panel transitions that also work while paused |
+
+## Android development build
+
+1. Install **Android Build Support**, **Android SDK & NDK Tools**, and **OpenJDK** for this Editor version through Unity Hub if they are missing.
+2. Open **File → Build Profiles**, select or create an Android profile, and switch to it.
+3. Confirm `TsilaRun.unity` is enabled and first in the active scene list. The prototype generator can register it for the active profile.
+4. Review Player Settings: portrait orientation, the Input System, an application identifier you control, and the scripting backend/architectures required for your target devices.
+5. Enable USB debugging on the phone, connect it, and accept the computer authorization prompt.
+6. Select the device and use **Build And Run** with a Development Build. Save output outside `Assets`, for example in `Builds/Android`.
+
+Test touch gestures, menu navigation, interruptions, background/resume behavior, and performance on the actual device before distribution.
+
+## iOS development build
+
+The standard local workflow requires **iOS Build Support**, a **Mac with a compatible Xcode installation**, and suitable Apple signing and provisioning.
+
+Activate an iOS build profile, configure your bundle identifier and signing setup, export the Xcode project from Unity, and build/run it on a connected device using Xcode. A local Xcode build cannot be completed on Windows alone. Store distribution requires the appropriate Apple developer enrollment and release setup.
+
+## Performance approach
+
+The prototype uses nine recycled road sections and bounded pools of obstacles and coins. The world moves around a player kept near the origin, while distance accumulates separately, avoiding continuously growing world coordinates.
+
+Materials are reused, collision volumes are simple, and the game avoids heavy post-processing and real-time shadows. The menu reuses the gameplay character and camera rather than adding a separate character-rendering camera. UI transitions use unscaled time, so they remain responsive during pause.
+
+**60 FPS is a target, not a measured guarantee.** The interface scales with the display, but a 4K phone rendering mode is not forced, and the supplied textures are not native 4K assets. Device profiling is required to establish actual frame rate, memory use, and thermal behavior.
+
+## Verification and limitations
+
+The latest English UI update compiled and generated successfully in Unity. Menu and gameplay HUD previews were rendered and visually reviewed at **720 × 1280**, including text-fit checks.
+
+Earlier prototype revisions passed 14 automated tests. The current expanded suite contains 16 checks, but **a complete passing run is not claimed for the latest Method integration**. No Android/iOS build, physical-device test, 4K visual validation, or measured mobile performance result is claimed.
+
+Run the available checks through **Window → General → Test Runner → EditMode**. Save your work first: integration tests regenerate/open the prototype scene and enter Play mode. Use a disposable project copy when preserving an Editor session is important.
+
+Current scope excludes purchasable items, cloud saves, missions, and audio. Mountain and tunnel scenery share a flat gameplay surface; terrain slopes are not simulated.
+
+See the [verification record](Docs/TsilaRun-Verification.md) for the distinction between completed checks and outstanding device validation.
+
+## Documentation
+
+- [Setup and mobile build guide](Docs/TsilaRun-Guide.md)
+- [Method edition guide](Docs/TsilaRun-Method.md) — French guide with an English UI update section
+- [Asset dimensions and handoff brief](Docs/TsilaRun-Asset-Brief.md)
+- [Verification history](Docs/TsilaRun-Verification.md)
+
+## Credits
+
+**Copyright by Method.**
+
+Tsila Run uses the Method artwork, logo, and character assets supplied with this project. No open-source license grant is stated in this README; confirm applicable permissions before redistributing the project or its assets.
