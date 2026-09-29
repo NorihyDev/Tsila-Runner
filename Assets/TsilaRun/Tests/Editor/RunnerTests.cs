@@ -20,6 +20,14 @@ namespace TsilaRun.Tests
         static bool changedInputSettings;
         static RunnerGame trackedGame;
         static int gameOverEvents;
+        const string TestSave = "TsilaRun.Tests.Progress";
+
+        static void IsolateWallet(RunnerGame game)
+        {
+            PlayerPrefs.DeleteKey(TestSave);
+            typeof(RunnerGame).GetProperty("Progress").SetValue(game, new RunnerProgress(TestSave));
+            game.ApplySkin();
+        }
 
         static void CountGameOver()
         {
@@ -36,6 +44,7 @@ namespace TsilaRun.Tests
         [TearDown]
         public void RestoreTestEnvironment()
         {
+            PlayerPrefs.DeleteKey(TestSave);
             EditorSettings.enterPlayModeOptionsEnabled = SessionState.GetBool("TsilaRun.Tests.FastPlay", true);
             if (syntheticTouchscreen != null && syntheticTouchscreen.added) InputSystem.RemoveDevice(syntheticTouchscreen);
             if (changedInputSettings)
@@ -49,7 +58,7 @@ namespace TsilaRun.Tests
         [Test]
         public void PatternBudgetAllowsReactionAndRecoveryAtMaximumSpeed()
         {
-            float seconds = RunnerRules.RowSpacing / RunnerRules.MaxSpeed;
+            float seconds = (RunnerRules.RowSpacing - RunnerRules.PersonDriftBudget) / RunnerRules.MaxSpeed;
             Assert.Greater(seconds, RunnerRules.ReactionSeconds + 2f * RunnerRules.LaneSeconds + RunnerRules.JumpSeconds);
             Assert.Greater(seconds, RunnerRules.ReactionSeconds + 2f * RunnerRules.LaneSeconds + RunnerRules.SlideSeconds);
             var random = new System.Random(728);
@@ -119,6 +128,7 @@ namespace TsilaRun.Tests
             var hud = Object.FindAnyObjectByType<RunnerHud>();
             Assert.IsNotNull(game, "The generated scene must contain the game component after entering Play mode.");
             Assert.IsNotNull(hud);
+            IsolateWallet(game);
             var player = game.player;
             var world = game.world;
             game.enabled = false; // Drive exact simulation ticks while testing input through real Update.
@@ -126,6 +136,18 @@ namespace TsilaRun.Tests
             game.SendMessage("OnApplicationPause", false);
             Assert.AreEqual(RunnerGame.RunState.Ready, game.State);
             hud.playButton.onClick.Invoke();
+            Assert.AreEqual(RunnerGame.RunState.Intro, game.State);
+            game.SendMessage("FixedUpdate");
+            float introProgress = game.chase.IntroProgress;
+            game.SendMessage("OnApplicationPause", true);
+            game.SendMessage("OnApplicationPause", false);
+            Assert.AreEqual(RunnerGame.RunState.Paused, game.State);
+            game.SendMessage("FixedUpdate");
+            Assert.AreEqual(introProgress, game.chase.IntroProgress);
+            Assert.AreEqual(0d, game.Distance);
+            hud.resumeButton.onClick.Invoke();
+            Assert.AreEqual(RunnerGame.RunState.Intro, game.State);
+            hud.skipIntroButton.onClick.Invoke();
             Assert.AreEqual(RunnerGame.RunState.Running, game.State);
             player.ChangeLane(1);
             for (int i = 0; i < 20; i++) player.Simulate(0.02f);
@@ -159,6 +181,7 @@ namespace TsilaRun.Tests
             Assert.AreEqual(1, game.Coins);
             world.Simulate(0f, player.HitBounds, player.HitBounds);
             Assert.AreEqual(1, game.Coins);
+            Assert.AreEqual(1, game.Progress.Wallet);
             var tower = pool.First(i => i.kind == RunnerItemKind.Tower);
             tower.Place(0f, 1f);
             gameOverEvents = 0;
@@ -169,10 +192,24 @@ namespace TsilaRun.Tests
             Assert.AreEqual(RunnerGame.RunState.GameOver, game.State);
             Assert.AreEqual(1, gameOverEvents);
             game.StateChanged -= CountGameOver;
+            var shop = hud.GetComponent<RunnerShop>();
+            shop.openFromResults.onClick.Invoke();
+            Assert.AreEqual(RunnerGame.RunState.Shop, game.State);
+            Assert.IsFalse(shop.skinButtons[1].interactable);
+            for (int i = 0; i < 39; i++) game.Progress.EarnCoin();
+            game.CloseShop(); game.OpenShop();
+            shop.skinButtons[1].onClick.Invoke();
+            Assert.AreEqual(0, game.Progress.Wallet);
+            Assert.AreEqual(1, game.Progress.Selected);
+            Assert.AreSame(game.skinMaterials[1], player.GetComponentInChildren<RunnerAvatar>().suitRenderers[0].sharedMaterial);
+            shop.close.onClick.Invoke();
+            Assert.AreEqual(RunnerGame.RunState.GameOver, game.State);
             hud.restartButton.onClick.Invoke();
             Assert.AreEqual(0, game.Coins); Assert.AreEqual(0, game.Score);
             Assert.AreEqual(1, player.Lane); Assert.IsFalse(player.IsSliding);
             Assert.AreEqual(RunnerRules.StartSpeed, game.Speed); Assert.AreEqual(1f, Time.timeScale);
+            for (int i = 0; i < 150; i++) game.SendMessage("FixedUpdate");
+            Assert.AreEqual(RunnerGame.RunState.Running, game.State, "The chase must also finish without skipping.");
             game.SendMessage("FixedUpdate");
             Assert.Greater(game.Distance, 0d);
             game.SendMessage("OnApplicationFocus", false);
@@ -186,6 +223,7 @@ namespace TsilaRun.Tests
             game.SendMessage("OnApplicationPause", false);
             Assert.AreEqual(RunnerGame.RunState.Paused, game.State);
             hud.pausedRestartButton.onClick.Invoke(); Assert.AreEqual(1f, Time.timeScale);
+            game.CompleteIntro();
 
             // A hidden batch Editor has no focused Game view. Route virtual devices to the
             // player for this test only, then restore the user's input settings in teardown.
@@ -271,8 +309,10 @@ namespace TsilaRun.Tests
             EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
             yield return new EnterPlayMode();
             var game = Object.FindAnyObjectByType<RunnerGame>();
+            IsolateWallet(game);
             game.enabled = false;
             game.StartRun();
+            game.CompleteIntro();
             var world = game.world;
             var items = world.GetComponentsInChildren<RunnerItem>(true);
             int initial = world.transform.childCount;
@@ -283,7 +323,7 @@ namespace TsilaRun.Tests
                 world.Simulate(1.1f, away, away);
                 if (step % 1000 != 0) continue;
                 Assert.AreEqual(initial, world.transform.childCount);
-                Assert.LessOrEqual(world.ActiveItemCount, 4 * RunnerRules.PoolPerKind);
+                Assert.LessOrEqual(world.ActiveItemCount, RunnerRules.ItemKindCount * RunnerRules.PoolPerKind);
                 foreach (var item in items)
                 {
                     if (!item.InUse) continue;
@@ -299,6 +339,84 @@ namespace TsilaRun.Tests
             Assert.AreEqual(0d, game.Distance);
             LogAssert.NoUnexpectedReceived();
             yield return new ExitPlayMode();
+        }
+
+        [Test]
+        public void WalletPurchasesPersistAndNeverChargeOwnedSkinsTwice()
+        {
+            PlayerPrefs.DeleteKey(TestSave);
+            var progress = new RunnerProgress(TestSave);
+            Assert.IsTrue(progress.Owns(0));
+            Assert.IsFalse(progress.BuyOrEquip(1));
+            Assert.IsFalse(progress.BuyOrEquip(-1));
+            for (int i = 0; i < 45; i++) progress.EarnCoin();
+            Assert.IsTrue(progress.BuyOrEquip(1));
+            Assert.AreEqual(5, progress.Wallet);
+            progress = new RunnerProgress(TestSave);
+            Assert.AreEqual(1, progress.Selected);
+            Assert.IsTrue(progress.BuyOrEquip(0));
+            Assert.IsTrue(progress.BuyOrEquip(1));
+            Assert.AreEqual(5, progress.Wallet);
+            PlayerPrefs.SetString(TestSave, "{\"coins\":-10,\"owned\":0,\"selected\":99}");
+            progress = new RunnerProgress(TestSave);
+            Assert.AreEqual(0, progress.Wallet);
+            Assert.AreEqual(0, progress.Selected);
+            Assert.IsTrue(progress.Owns(0));
+        }
+
+        [UnityTest]
+        public IEnumerator AnimatedPersonCollidesAndPauseFreezesLimbs()
+        {
+            EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
+            yield return new EnterPlayMode();
+            var game = Object.FindAnyObjectByType<RunnerGame>();
+            IsolateWallet(game);
+            game.enabled = false;
+            game.SendMessage("OnApplicationFocus", true);
+            game.SendMessage("OnApplicationPause", false);
+            game.StartRun(); game.CompleteIntro();
+            var avatar = game.player.GetComponentInChildren<RunnerAvatar>();
+            Quaternion before = avatar.leftArm.localRotation;
+            yield return new WaitForSeconds(0.1f);
+            Assert.Greater(Quaternion.Angle(before, avatar.leftArm.localRotation), 0.1f);
+            game.Pause();
+            before = avatar.leftArm.localRotation;
+            yield return new WaitForSecondsRealtime(0.1f);
+            Assert.Less(Quaternion.Angle(before, avatar.leftArm.localRotation), 0.001f);
+            game.Resume();
+            var items = game.world.GetComponentsInChildren<RunnerItem>(true);
+            foreach (var item in items) item.Release();
+            var person = items.First(i => i.kind == RunnerItemKind.RunningPerson);
+            person.Place(0f, 1f);
+            game.world.Simulate(2f, game.player.HitBounds, game.player.HitBounds);
+            Assert.AreEqual(RunnerGame.RunState.GameOver, game.State);
+            game.StartRun();
+            Assert.AreEqual(0d, game.Distance);
+            Assert.AreEqual(0, game.world.GetComponentInChildren<RunnerRoadSection>().Zone);
+            LogAssert.NoUnexpectedReceived();
+            yield return new ExitPlayMode();
+        }
+
+        [Test]
+        public void SceneryCyclesAndMovingPeopleHaveBoundedDrift()
+        {
+            EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
+            var world = Object.FindAnyObjectByType<RunnerWorld>();
+            world.ResetWorld(42);
+            var section = world.GetComponentInChildren<RunnerRoadSection>();
+            for (int i = 0; i < 12; i++)
+            {
+                section.SetLocation(i * RunnerRoadSection.ZoneLength);
+                Assert.AreEqual(i % 3, section.Zone);
+                Assert.AreEqual(1, section.scenery.Count(s => s.activeSelf));
+            }
+            var person = world.GetComponentsInChildren<RunnerItem>(true).First(i => i.kind == RunnerItemKind.RunningPerson);
+            person.Place(0f, 100f);
+            float drift = 0f;
+            for (int i = 0; i < 1000; i++) drift += 1f - person.TravelThisTick(1f, 0.1f);
+            Assert.AreEqual(RunnerRules.PersonDriftBudget, drift, 0.001f);
+            Assert.Greater(person.HitBounds.size.y, 1.8f);
+            Assert.IsNotNull(person.GetComponentInChildren<RunnerAvatar>().leftArm);
         }
 
         static void QueueTouch(Touchscreen device, int id, UnityEngine.InputSystem.TouchPhase phase, Vector2 point)

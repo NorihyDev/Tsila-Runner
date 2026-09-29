@@ -96,6 +96,7 @@ namespace TsilaRun.Editor
             var officer = ((GameObject)PrefabUtility.InstantiatePrefab(officerPrefab)).GetComponentInChildren<RunnerAvatar>();
             var chase = game.gameObject.AddComponent<RunnerChase>();
             chase.game = game; chase.officer = officer; game.chase = chase;
+            officer.gameObject.SetActive(false);
             var input = game.gameObject.AddComponent<RunnerInput>();
             input.game = game; input.player = player;
 

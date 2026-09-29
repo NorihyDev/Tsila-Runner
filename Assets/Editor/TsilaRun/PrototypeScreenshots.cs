@@ -14,6 +14,7 @@ namespace TsilaRun.Editor
             EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
             var camera = Object.FindAnyObjectByType<Camera>();
             var hud = Object.FindAnyObjectByType<RunnerHud>();
+            var shop = hud.GetComponent<RunnerShop>();
             var preview = Object.FindAnyObjectByType<EditorPreview>();
             if (preview != null) preview.gameObject.SetActive(false);
             hud.game.world.ResetWorld(42);
@@ -42,13 +43,30 @@ namespace TsilaRun.Editor
                 SafeAreaPanel.NormalizedAnchors(area, width, height, out Vector2 min, out Vector2 max);
                 safe.anchorMin = min; safe.anchorMax = max;
                 safe.offsetMin = safe.offsetMax = Vector2.zero;
-                for (int state = 0; state < 4; state++)
+                for (int state = 0; state < 8; state++)
                 {
                     hud.startPanel.SetActive(state == 0);
-                    hud.hud.SetActive(state != 0);
+                    hud.hud.SetActive(state != 0 && state != 5);
                     hud.pausePanel.SetActive(state == 2);
                     hud.gameOverPanel.SetActive(state == 3);
-                    hud.pauseButton.gameObject.SetActive(state == 1);
+                    hud.introPanel.SetActive(state == 4);
+                    shop.panel.SetActive(state == 5);
+                    if (state == 5)
+                    {
+                        shop.wallet.text = "WALLET  150 COINS";
+                        for (int skin = 0; skin < shop.skinLabels.Length; skin++)
+                            shop.skinLabels[skin].text = RunnerProgress.SkinNames[skin] + "   " +
+                                (skin == 0 ? "EQUIPPED" : RunnerProgress.Prices[skin] + " COINS");
+                    }
+                    hud.zoneText.gameObject.SetActive(state != 0 && state != 5);
+                    hud.zoneText.text = RunnerRoadSection.ZoneNames[state == 6 ? 1 : state == 7 ? 2 : 0];
+                    foreach (var section in hud.game.world.GetComponentsInChildren<RunnerRoadSection>())
+                        section.SetLocation(state == 6 ? 300d : state == 7 ? 600d : 0d);
+                    hud.game.chase.officer.gameObject.SetActive(state == 4);
+                    if (state == 4) { hud.game.chase.ResetChase(); hud.game.chase.TickIntro(1.2f); }
+                    camera.transform.position = state == 4 ? new Vector3(5f, 3.6f, -8f) : new Vector3(0f, 6.5f, -10f);
+                    camera.transform.LookAt(state == 4 ? new Vector3(0f, 1f, -1f) : new Vector3(0f, 1f, 16f));
+                    hud.pauseButton.gameObject.SetActive(state == 1 || state >= 4 && state != 5);
                     Canvas.ForceUpdateCanvases();
                     foreach (var text in canvas.GetComponentsInChildren<Text>())
                     {

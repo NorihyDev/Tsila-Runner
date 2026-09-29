@@ -63,6 +63,7 @@ namespace TsilaRun
             pausePanel.SetActive(game.State == RunnerGame.RunState.Paused);
             gameOverPanel.SetActive(game.State == RunnerGame.RunState.GameOver);
             hud.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
+            if (zoneText != null) zoneText.gameObject.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
             if (introPanel != null) introPanel.SetActive(game.State == RunnerGame.RunState.Intro);
             pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro);
             if (game.State == RunnerGame.RunState.GameOver)
