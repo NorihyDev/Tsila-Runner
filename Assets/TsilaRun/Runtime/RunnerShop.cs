@@ -34,11 +34,11 @@ namespace TsilaRun
         {
             panel.SetActive(game.State == RunnerGame.RunState.Shop);
             if (!panel.activeSelf || game.Progress == null) return;
-            wallet.text = "PIÃˆCES  " + game.Progress.Wallet;
+            wallet.text = "COINS  " + game.Progress.Wallet;
             for (int i = 0; i < skinButtons.Length; i++)
             {
                 skinButtons[i].interactable = false;
-                skinLabels[i].text = "TSILA ORIGINAL  Â·  Ã‰QUIPÃ‰";
+                skinLabels[i].text = "TSILA ORIGINAL  /  EQUIPPED";
             }
         }
     }

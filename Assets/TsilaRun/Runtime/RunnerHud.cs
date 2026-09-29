@@ -58,8 +58,8 @@ namespace TsilaRun
         void RefreshNumbers()
         {
             if (shownDistance != game.Score) { shownDistance = game.Score; distanceText.text = shownDistance + " m"; }
-            if (shownCoins != game.Coins) { shownCoins = game.Coins; coinsText.text = "PIÈCES  " + shownCoins; }
-            if (shownBest != game.Best) { shownBest = game.Best; bestText.text = "RECORD  " + shownBest + " m"; }
+            if (shownCoins != game.Coins) { shownCoins = game.Coins; coinsText.text = "COINS  " + shownCoins; }
+            if (shownBest != game.Best) { shownBest = game.Best; bestText.text = "BEST  " + shownBest + " m"; }
             int zone = RunnerRoadSection.ZoneAt(game.Distance);
             if (zoneText != null && zone != shownZone) { shownZone = zone; zoneText.text = RunnerRoadSection.ZoneNames[zone]; }
         }
@@ -74,7 +74,7 @@ namespace TsilaRun
             if (introPanel != null) introPanel.SetActive(game.State == RunnerGame.RunState.Intro);
             pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro);
             if (game.State == RunnerGame.RunState.GameOver)
-                resultText.text = game.Score + " MÈTRES\n" + game.Coins + " PIÈCES\nRECORD  " + game.Best + " m";
+                resultText.text = game.Score + " METRES\n" + game.Coins + " COINS\nBEST  " + game.Best + " m";
             RefreshNumbers();
         }
     }

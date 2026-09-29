@@ -60,9 +60,9 @@ namespace TsilaRun.Editor
                     shop.panel.SetActive(state == 5);
                     if (state == 5)
                     {
-                        shop.wallet.text = "PIÈCES  150";
+                        shop.wallet.text = "COINS  150";
                         for (int skin = 0; skin < shop.skinLabels.Length; skin++)
-                            shop.skinLabels[skin].text = "TSILA ORIGINAL  ·  ÉQUIPÉ";
+                            shop.skinLabels[skin].text = "TSILA ORIGINAL  /  EQUIPPED";
                     }
                     hud.zoneText.gameObject.SetActive(state != 0 && state != 5);
                     hud.zoneText.text = RunnerRoadSection.ZoneNames[state == 6 ? 1 : state == 7 ? 2 : 0];

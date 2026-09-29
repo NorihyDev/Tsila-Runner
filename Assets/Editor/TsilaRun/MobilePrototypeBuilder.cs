@@ -283,7 +283,7 @@ namespace TsilaRun.Editor
             return SavePrefab(root, kind.ToString()).GetComponent<RunnerItem>();
         }
 
-        static void ConfigureUIInput(InputSystemUIInputModule module)
+        internal static void ConfigureUIInput(InputSystemUIInputModule module)
         {
             // Persist both the asset and its imported action-reference subassets. Temporary
             // InputActionReference.Create objects are not durable scene wiring after reload.

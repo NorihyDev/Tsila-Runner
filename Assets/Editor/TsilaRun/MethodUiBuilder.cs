@@ -9,14 +9,17 @@ namespace TsilaRun.Editor
     public static class MethodUiBuilder
     {
         static Font font;
-        static readonly Color Neon = new Color32(0, 239, 136, 255);
-        static readonly Color Dark = new Color32(5, 21, 18, 248);
-        static readonly Color Pale = new Color32(218, 255, 238, 255);
-        static readonly Color Violet = new Color32(71, 44, 115, 255);
+        static Sprite rounded;
+        static readonly Color Muted = new Color32(153, 172, 194, 255);
+        static readonly Color Neon = new Color32(105, 239, 195, 255);
+        static readonly Color Dark = new Color32(13, 19, 31, 248);
+        static readonly Color Pale = new Color32(242, 246, 255, 255);
+        static readonly Color Violet = new Color32(39, 50, 70, 255);
 
         public static InputSystemUIInputModule Build(RunnerGame game, Font typeface, RunnerPresentation presentation)
         {
             font = typeface;
+            rounded = UiShapeBuilder.Rounded();
             var canvas = new GameObject("Method Mobile UI", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvas.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = canvas.GetComponent<CanvasScaler>();
@@ -30,53 +33,53 @@ namespace TsilaRun.Editor
 
             var start = Rect(safe, "Main Menu", 0, 0, 1, 1); view.startPanel = start.gameObject;
             var title = Text(start, "TSILA RUN", "TSILA\nRUN", 76, .075f, .78f, .76f, .96f);
-            title.fontStyle = FontStyle.Bold; title.alignment = TextAnchor.MiddleLeft; title.color = Neon;
-            title.gameObject.AddComponent<Shadow>().effectColor = Violet;
+            title.fontStyle = FontStyle.Bold; title.alignment = TextAnchor.MiddleLeft; title.color = Pale;
+            title.lineSpacing = .88f;
             presentation.title = title.rectTransform;
-            Text(start, "Tagline", "UNE ÎLE. TROIS VOIES. AUCUNE LIMITE.", 20, .08f, .735f, .92f, .78f);
-            Text(start, "Outfit", "TSILA ORIGINAL  /  METHOD", 20, .1f, .30f, .9f, .34f).color = Neon;
-            view.playButton = Button(start, "Play", "JOUER", .1f, .205f, .9f, .28f, Neon);
-            shop.openFromStart = Button(start, "Shop", "MAGASIN", .1f, .12f, .9f, .187f, Violet);
-            Text(start, "Controls", "GLISSE :  GAUCHE / DROITE = VOIE\nHAUT = SAUTER  ·  BAS = GLISSER", 20, .04f, .055f, .96f, .105f);
+            Text(start, "Tagline", "ONE ISLAND. ENDLESS POSSIBILITIES.", 19, .08f, .735f, .92f, .78f).color = Muted;
+            Text(start, "Outfit", "ORIGINAL COLLECTION  /  METHOD", 20, .1f, .30f, .9f, .34f).color = Neon;
+            view.playButton = Button(start, "Play", "PLAY", .1f, .205f, .9f, .28f, Neon);
+            shop.openFromStart = Button(start, "Shop", "SHOP", .1f, .12f, .9f, .187f, Violet);
+            Text(start, "Controls", "SWIPE LEFT / RIGHT TO SWITCH LANES\nSWIPE UP TO JUMP / DOWN TO SLIDE", 20, .04f, .055f, .96f, .105f);
 
-            var hud = Panel(safe, "HUD", 0, .83f, 1, 1); view.hud = hud.gameObject;
+            var hud = Panel(safe, "HUD", .025f, .83f, .975f, .99f); view.hud = hud.gameObject;
             view.distanceText = Text(hud, "Distance", "0 m", 43, .04f, .46f, .67f, .94f);
-            view.distanceText.alignment = TextAnchor.MiddleLeft;
-            view.coinsText = Text(hud, "Coins", "PIÈCES  0", 23, .04f, .06f, .4f, .44f);
+            view.distanceText.alignment = TextAnchor.MiddleLeft; view.distanceText.fontStyle = FontStyle.Bold;
+            view.coinsText = Text(hud, "Coins", "COINS  0", 23, .04f, .06f, .4f, .44f);
             view.coinsText.alignment = TextAnchor.MiddleLeft;
-            view.bestText = Text(hud, "Best", "RECORD  0 m", 20, .04f, .36f, .67f, .57f);
-            view.bestText.alignment = TextAnchor.MiddleLeft;
+            view.bestText = Text(hud, "Best", "BEST  0 m", 20, .04f, .36f, .67f, .57f);
+            view.bestText.alignment = TextAnchor.MiddleLeft; view.bestText.color = Muted;
             view.pauseButton = Button(hud, "Pause", "II", .82f, .04f, .96f, .42f, Neon);
             view.menuButton = Button(hud, "Menu", "MENU", .59f, .04f, .79f, .42f, Violet, 23);
-            view.zoneText = Text(safe, "Zone", "ÎLE METHOD", 20, .1f, .045f, .9f, .08f);
+            view.zoneText = Text(safe, "Zone", "METHOD ISLAND", 20, .1f, .045f, .9f, .08f);
             view.zoneText.gameObject.AddComponent<Outline>().effectColor = Color.black;
 
             var pause = Panel(safe, "Pause", .07f, .22f, .93f, .79f); view.pausePanel = pause.gameObject;
             Text(pause, "Title", "PAUSE", 64, .08f, .76f, .92f, .94f).color = Neon;
-            Text(pause, "Message", "Reprends quand tu es prêt.", 26, .06f, .63f, .94f, .75f);
-            view.resumeButton = Button(pause, "Resume", "REPRENDRE", .09f, .44f, .91f, .59f, Neon);
-            view.pausedRestartButton = Button(pause, "Restart", "RECOMMENCER", .09f, .26f, .91f, .41f, Violet);
-            view.pausedMenuButton = Button(pause, "Menu", "RETOUR AU MENU", .09f, .08f, .91f, .23f, Violet, 29);
+            Text(pause, "Message", "Take a moment. Your run can wait.", 26, .06f, .63f, .94f, .75f);
+            view.resumeButton = Button(pause, "Resume", "RESUME", .09f, .44f, .91f, .59f, Neon);
+            view.pausedRestartButton = Button(pause, "Restart", "RESTART", .09f, .26f, .91f, .41f, Violet);
+            view.pausedMenuButton = Button(pause, "Menu", "MAIN MENU", .09f, .08f, .91f, .23f, Violet, 29);
 
             var over = Panel(safe, "Results", .07f, .17f, .93f, .82f); view.gameOverPanel = over.gameObject;
-            Text(over, "Title", "BIEN JOUÉ !", 53, .05f, .80f, .95f, .96f).color = Neon;
-            view.resultText = Text(over, "Result", "0 MÈTRES\n0 PIÈCES\nRECORD  0 m", 32, .05f, .49f, .95f, .79f);
-            view.restartButton = Button(over, "Restart", "REJOUER", .09f, .34f, .91f, .47f, Neon);
-            shop.openFromResults = Button(over, "Shop", "MAGASIN", .09f, .19f, .91f, .32f, Violet);
-            view.resultsMenuButton = Button(over, "Menu", "RETOUR AU MENU", .09f, .04f, .91f, .17f, Violet, 29);
+            Text(over, "Title", "NICE RUN!", 53, .05f, .80f, .95f, .96f).color = Neon;
+            view.resultText = Text(over, "Result", "0 METRES\n0 COINS\nBEST  0 m", 32, .05f, .49f, .95f, .79f);
+            view.restartButton = Button(over, "Restart", "PLAY AGAIN", .09f, .34f, .91f, .47f, Neon);
+            shop.openFromResults = Button(over, "Shop", "SHOP", .09f, .19f, .91f, .32f, Violet);
+            view.resultsMenuButton = Button(over, "Menu", "MAIN MENU", .09f, .04f, .91f, .17f, Violet, 29);
 
             var intro = Panel(safe, "Chase Intro", .06f, .64f, .94f, .81f); view.introPanel = intro.gameObject;
-            Text(intro, "Caption", "COURS, TSILA !\nLa patrouille est juste derrière.", 27, .04f, .44f, .96f, .95f);
-            view.skipIntroButton = Button(intro, "Skip", "C'EST PARTI", .12f, .04f, .88f, .41f, Neon, 29);
+            Text(intro, "Caption", "RUN, TSILA!\nThe patrol is right behind you.", 27, .04f, .44f, .96f, .95f);
+            view.skipIntroButton = Button(intro, "Skip", "LET'S RUN", .12f, .04f, .88f, .41f, Neon, 29);
 
             var market = Rect(safe, "Shop", 0, 0, 1, 1); shop.panel = market.gameObject;
-            Text(market, "Title", "MAGASIN", 52, .06f, .825f, .77f, .945f).color = Neon;
-            shop.wallet = Text(market, "Wallet", "PIÈCES  0", 25, .1f, .77f, .9f, .825f);
-            var baseSkin = Button(market, "Base Skin", "TSILA ORIGINAL  ·  ÉQUIPÉ", .1f, .265f, .9f, .33f, Neon, 25);
+            Text(market, "Title", "SHOP", 52, .06f, .825f, .77f, .945f).color = Neon;
+            shop.wallet = Text(market, "Wallet", "COINS  0", 25, .1f, .77f, .9f, .825f);
+            var baseSkin = Button(market, "Base Skin", "TSILA ORIGINAL  /  EQUIPPED", .1f, .265f, .9f, .33f, Neon, 25);
             baseSkin.interactable = false;
             shop.skinButtons = new[] { baseSkin }; shop.skinLabels = new[] { baseSkin.GetComponentInChildren<Text>() };
-            Text(market, "Empty Catalog", "Le skin de base est équipé.\nAucun article disponible pour le moment.", 24, .06f, .16f, .94f, .25f);
-            shop.close = Button(market, "Back", "RETOUR", .1f, .065f, .9f, .145f, Violet);
+            Text(market, "Empty Catalog", "Your original outfit is equipped.\nNo items available yet.", 24, .06f, .16f, .94f, .25f);
+            shop.close = Button(market, "Back", "BACK", .1f, .065f, .9f, .145f, Violet);
 
             // Branding stays above every panel and inside the device safe area.
             var brand = Rect(safe, "Method Logo Frame", .79f, .905f, .97f, .995f);
@@ -87,7 +90,8 @@ namespace TsilaRun.Editor
             var fit = logoRect.gameObject.AddComponent<AspectRatioFitter>();
             fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
             fit.aspectRatio = (float)logo.texture.width / logo.texture.height;
-            Text(safe, "Copyright", "© Copyright by Method", 17, .08f, .009f, .92f, .039f).color = Pale;
+            Text(safe, "Copyright", "Copyright by Method", 17, .08f, .009f, .92f, .039f).color = Muted;
+            foreach (var panel in new[] { start, pause, over, intro, market }) panel.gameObject.AddComponent<UiPanelMotion>();
             pause.gameObject.SetActive(false); over.gameObject.SetActive(false); intro.gameObject.SetActive(false);
             market.gameObject.SetActive(false); hud.gameObject.SetActive(false);
             view.zoneText.gameObject.SetActive(false);
@@ -102,7 +106,7 @@ namespace TsilaRun.Editor
         static RectTransform Panel(Transform parent, string name, float x0, float y0, float x1, float y1)
         {
             var rect = Rect(parent, name, x0, y0, x1, y1);
-            var image = rect.gameObject.AddComponent<Image>(); image.color = Dark; image.raycastTarget = false;
+            var image = rect.gameObject.AddComponent<Image>(); image.color = Dark; image.raycastTarget = false; image.sprite = rounded; image.type = Image.Type.Sliced;
             return rect;
         }
         static Text Text(Transform parent, string name, string value, int size, float x0, float y0, float x1, float y1)
@@ -115,12 +119,14 @@ namespace TsilaRun.Editor
         static Button Button(Transform parent, string name, string value, float x0, float y0, float x1, float y1, Color color, int size = 32)
         {
             var rect = Rect(parent, name, x0, y0, x1, y1);
-            var image = rect.gameObject.AddComponent<Image>(); image.color = color;
+            var image = rect.gameObject.AddComponent<Image>(); image.color = color; image.sprite = rounded; image.type = Image.Type.Sliced;
+            var shadow = rect.gameObject.AddComponent<Shadow>(); shadow.effectColor = new Color(0f, 0f, 0f, .2f); shadow.effectDistance = new Vector2(0f, -3f);
             var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = image;
             button.navigation = new Navigation { mode = Navigation.Mode.None };
-            var colors = button.colors; colors.pressedColor = new Color(.65f, .85f, .75f); colors.fadeDuration = .08f;
+            var colors = button.colors; colors.pressedColor = new Color(.65f, .85f, .75f); colors.fadeDuration = .12f;
             colors.disabledColor = Color.white; button.colors = colors;
             Text(rect, "Label", value, size, .04f, .05f, .96f, .95f).color = color == Neon ? Dark : Pale;
+            rect.gameObject.AddComponent<UiButtonMotion>();
             return button;
         }
     }
