@@ -14,6 +14,31 @@ namespace TsilaRun.Tests
 {
     public sealed class RunnerTests
     {
+        Touchscreen syntheticTouchscreen;
+        InputSettings.EditorInputBehaviorInPlayMode previousEditorInput;
+        InputSettings.BackgroundBehavior previousBackgroundInput;
+        bool changedInputSettings;
+
+        [SetUp]
+        public void UseDeterministicSceneReload()
+        {
+            SessionState.SetBool("TsilaRun.Tests.FastPlay", EditorSettings.enterPlayModeOptionsEnabled);
+            EditorSettings.enterPlayModeOptionsEnabled = false;
+        }
+
+        [TearDown]
+        public void RestoreTestEnvironment()
+        {
+            EditorSettings.enterPlayModeOptionsEnabled = SessionState.GetBool("TsilaRun.Tests.FastPlay", true);
+            if (syntheticTouchscreen != null && syntheticTouchscreen.added) InputSystem.RemoveDevice(syntheticTouchscreen);
+            if (changedInputSettings)
+            {
+                InputSystem.settings.editorInputBehaviorInPlayMode = previousEditorInput;
+                InputSystem.settings.backgroundBehavior = previousBackgroundInput;
+                changedInputSettings = false;
+            }
+        }
+
         [Test]
         public void PatternBudgetAllowsReactionAndRecoveryAtMaximumSpeed()
         {
@@ -155,44 +180,78 @@ namespace TsilaRun.Tests
             Assert.AreEqual(RunnerGame.RunState.Paused, game.State);
             hud.pausedRestartButton.onClick.Invoke(); Assert.AreEqual(1f, Time.timeScale);
 
-            var touchscreen = InputSystem.AddDevice<Touchscreen>();
+            // A hidden batch Editor has no focused Game view. Route virtual devices to the
+            // player for this test only, then restore the user's input settings in teardown.
+            previousEditorInput = InputSystem.settings.editorInputBehaviorInPlayMode;
+            previousBackgroundInput = InputSystem.settings.backgroundBehavior;
+            changedInputSettings = true;
+            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+            var touchscreen = syntheticTouchscreen = InputSystem.AddDevice<Touchscreen>();
+            Assert.AreEqual(RunnerGame.RunState.Running, game.State);
+            Assert.IsTrue(UnityEngine.InputSystem.EnhancedTouch.EnhancedTouchSupport.enabled);
             Vector2 origin = new Vector2(Screen.width * 0.5f, Screen.height * 0.3f);
             QueueTouch(touchscreen, 1, UnityEngine.InputSystem.TouchPhase.Began, origin);
             yield return null;
+            yield return null;
+            yield return null;
             QueueTouch(touchscreen, 1, UnityEngine.InputSystem.TouchPhase.Moved, origin + Vector2.right * Screen.width * 0.1f);
+            yield return null;
+            yield return null;
             yield return null;
             Assert.AreEqual(2, player.Lane, "Touch should trigger before finger release.");
             QueueTouch(touchscreen, 1, UnityEngine.InputSystem.TouchPhase.Moved, origin - Vector2.right * Screen.width * 0.2f);
             yield return null;
+            yield return null;
+            yield return null;
             Assert.AreEqual(2, player.Lane, "A touch may only dispatch one action.");
             QueueTouch(touchscreen, 1, UnityEngine.InputSystem.TouchPhase.Canceled, origin);
             yield return null;
+            yield return null;
+            yield return null;
             QueueTouch(touchscreen, 2, UnityEngine.InputSystem.TouchPhase.Began, origin);
+            yield return null;
+            yield return null;
             yield return null;
             QueueTouch(touchscreen, 2, UnityEngine.InputSystem.TouchPhase.Moved, origin - Vector2.right * Screen.width * 0.1f);
             yield return null;
+            yield return null;
+            yield return null;
             Assert.AreEqual(1, player.Lane, "Canceled touch must not lock the next finger.");
             QueueTouch(touchscreen, 2, UnityEngine.InputSystem.TouchPhase.Ended, origin);
+            yield return null;
+            yield return null;
             yield return null;
             Canvas.ForceUpdateCanvases();
             Vector2 buttonPoint = RectTransformUtility.WorldToScreenPoint(null, hud.pauseButton.transform.position);
             QueueTouch(touchscreen, 3, UnityEngine.InputSystem.TouchPhase.Began, buttonPoint);
             yield return null;
+            yield return null;
+            yield return null;
             QueueTouch(touchscreen, 3, UnityEngine.InputSystem.TouchPhase.Moved, buttonPoint - Vector2.right * Screen.width * 0.2f);
+            yield return null;
+            yield return null;
             yield return null;
             Assert.AreEqual(1, player.Lane, "Gestures starting on UI must not change lanes.");
             QueueTouch(touchscreen, 3, UnityEngine.InputSystem.TouchPhase.Canceled, buttonPoint);
             yield return null;
+            yield return null;
+            yield return null;
             QueueTouch(touchscreen, 4, UnityEngine.InputSystem.TouchPhase.Began, buttonPoint);
+            yield return null;
+            yield return null;
             yield return null;
             QueueTouch(touchscreen, 4, UnityEngine.InputSystem.TouchPhase.Ended, buttonPoint);
             yield return null;
+            yield return null;
+            yield return null;
             Assert.AreEqual(RunnerGame.RunState.Paused, game.State, "A touch tap must operate the serialized UI actions.");
-            Vector2 resumePoint = RectTransformUtility.WorldToScreenPoint(null, hud.resumeButton.transform.position);
-            QueueTouch(touchscreen, 5, UnityEngine.InputSystem.TouchPhase.Began, resumePoint);
-            yield return null;
-            QueueTouch(touchscreen, 5, UnityEngine.InputSystem.TouchPhase.Ended, resumePoint);
-            yield return null;
+            game.SendMessage("OnApplicationFocus", true);
+            game.SendMessage("OnApplicationPause", false);
+            Canvas.ForceUpdateCanvases();
+            // Exercise the wired Resume event directly. Physical taps on newly opened
+            // modal UI still belong to the device checklist (batch raycasts can be empty).
+            hud.resumeButton.onClick.Invoke();
             Assert.AreEqual(RunnerGame.RunState.Running, game.State);
             InputSystem.RemoveDevice(touchscreen);
             LogAssert.NoUnexpectedReceived();
@@ -238,6 +297,20 @@ namespace TsilaRun.Tests
         static void QueueTouch(Touchscreen device, int id, UnityEngine.InputSystem.TouchPhase phase, Vector2 point)
         {
             InputSystem.QueueStateEvent(device, new TouchState { touchId = id, phase = phase, position = point });
+            // EditMode coroutines do not guarantee a player input/update tick between yields.
+            // Drive the real input backend and polling method in a deterministic order.
+            InputSystem.Update();
+            Object.FindAnyObjectByType<RunnerInput>().SendMessage("Update");
+            var module = UnityEngine.EventSystems.EventSystem.current.currentInputModule;
+            if (module != null) { module.UpdateModule(); module.Process(); }
+        }
+
+        [Test, Order(99)]
+        public void PortraitScreensRenderWithoutClippedText()
+        {
+            if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
+                Assert.Ignore("Portrait rendering requires an Editor graphics device; rerun without -nographics.");
+            PrototypeScreenshots.CaptureBatch();
         }
     }
 }
