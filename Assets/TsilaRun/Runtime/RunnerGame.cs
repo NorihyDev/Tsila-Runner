@@ -10,7 +10,10 @@ namespace TsilaRun
         public RunnerPlayer player;
         public RunnerWorld world;
         public RunnerChase chase;
+        public Material[] skinMaterials;
+        public RunnerProgress Progress { get; private set; }
         RunState resumeState = RunState.Running;
+        RunState returnFromShop = RunState.Ready;
         public RunState State { get; private set; }
         public double Distance { get; private set; }
         public int Score => (int)Math.Min(int.MaxValue, Distance);
@@ -26,6 +29,8 @@ namespace TsilaRun
             Application.targetFrameRate = 60; // A target, not a measured performance claim.
             Screen.orientation = ScreenOrientation.Portrait;
             Best = PlayerPrefs.GetInt(BestKey, 0);
+            Progress = new RunnerProgress();
+            ApplySkin();
             Speed = RunnerRules.StartSpeed;
             world.ResetWorld(Environment.TickCount);
             player.ResetPlayer();
@@ -34,6 +39,7 @@ namespace TsilaRun
 
         public void StartRun()
         {
+            Progress?.Save();
             Time.timeScale = 1f;
             Distance = 0d;
             Coins = 0;
@@ -67,7 +73,30 @@ namespace TsilaRun
             world.Simulate(travel, previous, player.HitBounds);
         }
 
-        public void CollectCoin() { if (State == RunState.Running && Coins < int.MaxValue) Coins++; }
+        public void CollectCoin()
+        {
+            if (State != RunState.Running || Coins == int.MaxValue) return;
+            Coins++;
+            Progress?.EarnCoin();
+        }
+
+        public void OpenShop()
+        {
+            if (State != RunState.Ready && State != RunState.GameOver) return;
+            returnFromShop = State;
+            SetState(RunState.Shop);
+        }
+
+        public void CloseShop()
+        {
+            if (State == RunState.Shop) SetState(returnFromShop);
+        }
+
+        public void ApplySkin()
+        {
+            if (Progress == null || skinMaterials == null || skinMaterials.Length <= Progress.Selected) return;
+            player.GetComponentInChildren<RunnerAvatar>().SetSuit(skinMaterials[Progress.Selected]);
+        }
 
         public void EndRun()
         {
@@ -98,6 +127,7 @@ namespace TsilaRun
 
         void SaveBest()
         {
+            Progress?.Save();
             if (Score <= Best) return;
             Best = Score;
             PlayerPrefs.SetInt(BestKey, Best);

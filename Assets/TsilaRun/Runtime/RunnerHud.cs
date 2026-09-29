@@ -9,12 +9,15 @@ namespace TsilaRun
         public GameObject startPanel, pausePanel, gameOverPanel, hud;
         public Button playButton, pauseButton, resumeButton, pausedRestartButton, restartButton;
         public Text distanceText, coinsText, bestText, resultText;
+        public GameObject introPanel;
+        public Button skipIntroButton;
         int shownDistance = -1, shownCoins = -1, shownBest = -1;
         float nextRefresh;
 
         void OnEnable()
         {
             playButton.onClick.AddListener(game.StartRun);
+            if (skipIntroButton != null) skipIntroButton.onClick.AddListener(game.CompleteIntro);
             pauseButton.onClick.AddListener(game.Pause);
             resumeButton.onClick.AddListener(game.Resume);
             pausedRestartButton.onClick.AddListener(game.StartRun);
@@ -28,6 +31,7 @@ namespace TsilaRun
         {
             game.StateChanged -= RefreshState;
             playButton.onClick.RemoveListener(game.StartRun);
+            if (skipIntroButton != null) skipIntroButton.onClick.RemoveListener(game.CompleteIntro);
             pauseButton.onClick.RemoveListener(game.Pause);
             resumeButton.onClick.RemoveListener(game.Resume);
             pausedRestartButton.onClick.RemoveListener(game.StartRun);
@@ -54,8 +58,9 @@ namespace TsilaRun
             startPanel.SetActive(game.State == RunnerGame.RunState.Ready);
             pausePanel.SetActive(game.State == RunnerGame.RunState.Paused);
             gameOverPanel.SetActive(game.State == RunnerGame.RunState.GameOver);
-            hud.SetActive(game.State != RunnerGame.RunState.Ready);
-            pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running);
+            hud.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
+            if (introPanel != null) introPanel.SetActive(game.State == RunnerGame.RunState.Intro);
+            pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro);
             if (game.State == RunnerGame.RunState.GameOver)
                 resultText.text = game.Score + " METRES\n" + game.Coins + " COINS\nBEST  " + game.Best + " m";
             RefreshNumbers();

@@ -84,6 +84,7 @@ namespace TsilaRun.Editor
             var player = ((GameObject)PrefabUtility.InstantiatePrefab(playerPrefab.gameObject)).GetComponent<RunnerPlayer>();
             player.name = "Tsila";
             game.player = player; game.world = world;
+            game.skinMaterials = new[] { teal, coral, gold, ink };
             world.player = player; world.game = game; world.roadPrefab = roadPrefab; world.itemPrefabs = itemPrefabs;
             player.world = world;
             var avatar = player.GetComponentInChildren<RunnerAvatar>();
@@ -298,7 +299,9 @@ namespace TsilaRun.Editor
             Label(start, "Title", "TSILA\nRUN", 94, new Vector2(0.08f, 0.53f), new Vector2(0.92f, 0.84f));
             Label(start, "Guide", "SWIPE LEFT / RIGHT  -  CHANGE LANE\nSWIPE UP  -  JUMP\nSWIPE DOWN  -  SLIDE", 27, new Vector2(0.06f, 0.29f), new Vector2(0.94f, 0.51f));
             view.playButton = Button(start, "Play", "PLAY", new Vector2(0.12f, 0.12f), new Vector2(0.88f, 0.255f), teal);
-            Label(start, "Hint", "Find the coin trail. Keep running.", 23, new Vector2(0.06f, 0.025f), new Vector2(0.94f, 0.105f));
+            var shop = canvas.AddComponent<RunnerShop>();
+            shop.game = game;
+            shop.openFromStart = Button(start, "Shop", "SKIN SHOP", new Vector2(0.12f, 0.01f), new Vector2(0.88f, 0.115f), gold);
 
             RectTransform pause = Card(safe, "Paused"); view.pausePanel = pause.gameObject;
             Label(pause, "Title", "TAKE A\nBREATHER", 65, new Vector2(0.08f, 0.57f), new Vector2(0.92f, 0.85f));
@@ -310,6 +313,32 @@ namespace TsilaRun.Editor
             Label(over, "Title", "NICE RUN!", 68, new Vector2(0.06f, 0.68f), new Vector2(0.94f, 0.86f));
             view.resultText = Label(over, "Result", "0 METRES\n0 COINS\nBEST  0 m", 38, new Vector2(0.08f, 0.34f), new Vector2(0.92f, 0.64f));
             view.restartButton = Button(over, "Restart", "RUN AGAIN", new Vector2(0.12f, 0.12f), new Vector2(0.88f, 0.255f), teal);
+            shop.openFromResults = Button(over, "Shop", "SKIN SHOP", new Vector2(0.12f, 0.01f), new Vector2(0.88f, 0.115f), gold);
+
+            RectTransform intro = Rect("Chase Intro", safe, new Vector2(0.06f, 0.12f), new Vector2(0.94f, 0.38f));
+            intro.gameObject.AddComponent<Image>().color = new Color(0.055f, 0.12f, 0.2f, 0.94f);
+            Label(intro, "Chase Caption", "RUN, TSILA!\nThe island patrol is right behind you!", 30, new Vector2(0.04f, 0.42f), new Vector2(0.96f, 0.94f));
+            view.skipIntroButton = Button(intro, "Skip Intro", "LET'S RUN", new Vector2(0.12f, 0.06f), new Vector2(0.88f, 0.38f), teal);
+            view.introPanel = intro.gameObject;
+            intro.gameObject.SetActive(false);
+
+            RectTransform market = Card(safe, "Skin Shop");
+            market.anchorMin = new Vector2(0.045f, 0.07f); market.anchorMax = new Vector2(0.955f, 0.91f);
+            shop.panel = market.gameObject;
+            Label(market, "Title", "SKIN SHOP", 56, new Vector2(0.06f, 0.85f), new Vector2(0.94f, 0.96f));
+            shop.wallet = Label(market, "Wallet", "WALLET  0 COINS", 32, new Vector2(0.06f, 0.76f), new Vector2(0.94f, 0.84f));
+            shop.skinButtons = new Button[4]; shop.skinLabels = new Text[4];
+            Material[] colors = { teal, coral, gold, white };
+            for (int i = 0; i < 4; i++)
+            {
+                float top = 0.73f - i * 0.125f;
+                shop.skinButtons[i] = Button(market, RunnerProgress.SkinNames[i], RunnerProgress.SkinNames[i], new Vector2(0.08f, top - 0.105f), new Vector2(0.92f, top), colors[i]);
+                shop.skinLabels[i] = shop.skinButtons[i].GetComponentInChildren<Text>();
+                shop.skinLabels[i].fontSize = 25;
+            }
+            Label(market, "Info", "Earn coins on every run.\nSkins only - gameplay items coming later.", 24, new Vector2(0.06f, 0.13f), new Vector2(0.94f, 0.245f));
+            shop.close = Button(market, "Back", "BACK", new Vector2(0.12f, 0.025f), new Vector2(0.88f, 0.125f), teal);
+            market.gameObject.SetActive(false);
             pause.gameObject.SetActive(false); over.gameObject.SetActive(false); hud.gameObject.SetActive(false);
 
             var events = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
