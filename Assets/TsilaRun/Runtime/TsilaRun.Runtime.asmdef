@@ -1,0 +1,5 @@
+{
+  "name": "TsilaRun.Runtime",
+  "rootNamespace": "TsilaRun",
+  "references": ["Unity.InputSystem", "Unity.ugui"]
+}
