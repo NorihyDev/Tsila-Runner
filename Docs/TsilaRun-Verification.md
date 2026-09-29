@@ -1,5 +1,13 @@
 # Tsila Run verification
 
+## Current Method edition
+
+The Method integration is validated separately in `LocalValidation~`. At the user's request to finish quickly and reduce testing, the expanded test run was stopped during setup; no completed test-suite result or 4K render verification is claimed for this edition. The 16 updated tests remain available in Test Runner. Final delivery generation is recorded in `Logs/TsilaRun-Method-Delivery.log`.
+
+Before release, manually check JOUER, the chase, jumping/sliding, collisions, MENU during a run, pause/resume, the base-skin-only MAGASIN and saved coins. Check animation appearance, high-resolution layout and device performance on actual hardware. See [the Method guide](TsilaRun-Method.md).
+
+## Previous prototype results (before the Method integration)
+
 Executed with Unity 6000.6.3f1 on Windows on 2026-09-29, in an isolated copy under `Temp/TsilaRunValidation` so the existing Editor session was not replaced.
 
 **Final result: 14 tests passed, 0 failed, 0 skipped.** Unity exited with code 0. Runtime, generator, and tests compiled without C# errors. Results are preserved in [EditorTests.xml](Verification/EditorTests.xml). Representative renders: [gameplay](Verification/Gameplay.png), [chase intro](Verification/ChaseIntro.png), [skin shop](Verification/SkinShop.png), [mountain](Verification/Mountain.png), and [underground](Verification/Underground.png).

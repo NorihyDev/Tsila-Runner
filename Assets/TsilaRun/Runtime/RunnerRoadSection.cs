@@ -5,7 +5,7 @@ namespace TsilaRun
     public sealed class RunnerRoadSection : MonoBehaviour
     {
         public const float ZoneLength = 288f;
-        public static readonly string[] ZoneNames = { "?LE METHOD", "COL DES MONTAGNES", "SOUTERRAIN" };
+        public static readonly string[] ZoneNames = { "ÎLE METHOD", "COL DES MONTAGNES", "SOUTERRAIN" };
         public GameObject[] scenery;
         public int Zone { get; private set; }
 

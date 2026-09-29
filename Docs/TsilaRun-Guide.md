@@ -1,6 +1,6 @@
 # Tsila Run
 
-A portrait, three-lane endless runner made from Unity primitives. No external art, fonts, models, or asset packs are required.
+A portrait, three-lane endless runner using the supplied Method character/obstacle assets and generated scenery. See [the current Method edition guide](TsilaRun-Method.md) for the French menu, animated character showcase and base-skin-only shop.
 
 ## Open and play
 
@@ -15,9 +15,9 @@ On a phone, use short swipes left/right/up/down. The threshold is 5% of the shor
 
 Coral barriers can be jumped; yellow overhead beams can be slid under; tall navy towers and other running people must be dodged. Following the coin trail gives a clear route through every row. Distance is the score; the best distance is stored locally with PlayerPrefs.
 
-Each run opens with a short police chase. Tap LET'S RUN to skip it, or wait 2.8 seconds. The officer follows briefly and catches up after a collision. Characters swing their arms and legs using a small procedural rig, with jump and slide poses.
+Each run opens with a short police chase. Tap LET'S RUN to skip it, or wait 2.8 seconds. The officer follows briefly and catches up after a collision. Characters use the supplied Generic rig and Idle/Run/Jump/Slide animation clips, with a held crouch pose while sliding.
 
-Collected coins also enter a persistent wallet. Open SKIN SHOP on the start or results screen to buy/equip Island Teal (free), Sunset Coral (40 coins), Golden Trail (100), or Midnight (150). Owned skins can be equipped again for free. Purchases save immediately; earned coins save on pause, game over, restart, and normal quit. Clearing app data removes local progress. There are no gameplay items or real-money purchases.
+Collected coins enter a persistent wallet. The current MAGASIN screen displays only TSILA ORIGINAL, already equipped. There are no purchasable items or skins. Previous ownership data is retained, while Method artwork always uses its original atlas. MENU ends the current run, saves progress, resets the player/world and returns to the animated character showcase.
 
 Scenery cycles every 288 metres: island, mountain pass, underground, then island again. Mountain bridges and tunnel roofs are decorative; the playable road remains flat. Sections recycle ahead, so scenery transitions naturally into view.
 
@@ -73,11 +73,11 @@ On an actual device, check:
 - Start a drag on Pause and confirm no runner action is dispatched. Tap every screen's buttons, including immediately after returning from the background.
 - Jump coral barriers, slide yellow beams, dodge navy towers and running people, collect coins once, and deliberately collide with each obstacle type.
 - Pause during the chase, background/return, explicitly resume, and try both skipping and waiting for the intro. Check that arm/leg motion freezes while paused.
-- Earn 40 coins, buy Sunset Coral, equip the free skin and re-equip Coral without another charge. Restart the app and confirm the wallet, ownership and selection remain.
+- Open MAGASIN and confirm only the equipped base skin appears, with no purchases. Return to the menu from intro, running, pause and results; restart the app and confirm the coin wallet remains.
 - Run beyond 288 and 576 metres to inspect mountain and underground transitions, including camera clearance and obstacle visibility.
 - Restart from game over and pause. Check speed, lane, height, coins, distance, world layout, and time scale all reset.
 - Background/foreground, lock/unlock, and interrupt the app. Gameplay must remain paused until RESUME is tapped.
 - Check 16:9, 19.5:9, and 20:9 phones, including a notch/home indicator. Confirm readable text, safe button placement, and comfortable targets.
 - Run long enough to reach maximum speed; inspect the Unity Profiler for CPU/GPU cost, allocations, and stable object counts. No measured frame rate or device build is claimed without those tests.
 
-This is a prototype: no audio, gameplay items, missions, or cloud saves are included. Character motion is procedural and skins are color variations. Portrait tablets use the same adaptive layout; physical phone tuning and store deployment remain device/release tasks.
+This is a prototype: no audio, gameplay items, missions, or cloud saves are included. Characters use the supplied animation clips; the shop is a showcase of the base skin only. Portrait tablets use the same adaptive layout; physical phone tuning and store deployment remain device/release tasks.

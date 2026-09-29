@@ -461,6 +461,12 @@ namespace TsilaRun.Tests
             game.player.ResetPlayer(); game.player.Slide(); avatar.Animate(0.1f); avatar.animator.Update(0.12f);
             Assert.AreEqual(Animator.StringToHash("Slide"), avatar.CurrentAnimation);
             Assert.AreEqual(Vector3.one, game.player.visual.localScale, "A real slide clip must not squash the model.");
+            avatar.animator.Update(1.2f);
+            var slideMesh = new Mesh();
+            avatar.GetComponent<SkinnedMeshRenderer>().BakeMesh(slideMesh);
+            Assert.GreaterOrEqual(slideMesh.bounds.min.y, -.02f);
+            Assert.LessOrEqual(slideMesh.bounds.max.y, .72f, "Runtime Animator must preserve the low pose too.");
+            Object.Destroy(slideMesh);
             game.player.ResetPlayer();
             var items = game.world.GetComponentsInChildren<RunnerItem>(true);
             foreach (var item in items) item.Release();

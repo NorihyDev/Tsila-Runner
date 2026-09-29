@@ -10,6 +10,12 @@ namespace TsilaRun.Editor
     public static class PrototypeScreenshots
     {
         public static void CaptureBatch()
+        { Capture(false); }
+
+        public static void CaptureQuick()
+        { Capture(true); }
+
+        static void Capture(bool quick)
         {
             EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
             var camera = Object.FindAnyObjectByType<Camera>();
@@ -31,6 +37,7 @@ namespace TsilaRun.Editor
             canvas.planeDistance = 1f;
             Directory.CreateDirectory("Screenshots");
             int[,] screens = { { 720, 1280, 0, 0 }, { 1170, 2532, 102, 141 }, { 1080, 2400, 72, 90 }, { 2160, 3840, 0, 0 } };
+            if (quick) screens = new int[,] { { 720, 1280, 0, 0 } };
             for (int i = 0; i < screens.GetLength(0); i++)
             {
                 int width = screens[i, 0], height = screens[i, 1];
@@ -43,7 +50,7 @@ namespace TsilaRun.Editor
                 SafeAreaPanel.NormalizedAnchors(area, width, height, out Vector2 min, out Vector2 max);
                 safe.anchorMin = min; safe.anchorMax = max;
                 safe.offsetMin = safe.offsetMax = Vector2.zero;
-                for (int state = 0; state < 8; state++)
+                for (int state = 0; state < (quick ? 2 : 8); state++)
                 {
                     hud.startPanel.SetActive(state == 0);
                     hud.hud.SetActive(state != 0 && state != 5);
@@ -53,9 +60,9 @@ namespace TsilaRun.Editor
                     shop.panel.SetActive(state == 5);
                     if (state == 5)
                     {
-                        shop.wallet.text = "PI?CES  150";
+                        shop.wallet.text = "PIÈCES  150";
                         for (int skin = 0; skin < shop.skinLabels.Length; skin++)
-                            shop.skinLabels[skin].text = "TSILA ORIGINAL  ?  ?QUIP?";
+                            shop.skinLabels[skin].text = "TSILA ORIGINAL  ·  ÉQUIPÉ";
                     }
                     hud.zoneText.gameObject.SetActive(state != 0 && state != 5);
                     hud.zoneText.text = RunnerRoadSection.ZoneNames[state == 6 ? 1 : state == 7 ? 2 : 0];
