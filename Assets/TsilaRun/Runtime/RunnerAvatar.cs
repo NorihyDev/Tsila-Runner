@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace TsilaRun
 {
-    // A tiny procedural rig: no animation clips, Animator, or downloaded character assets.
+    // Drives the supplied in-place animation clips; keeps a fallback for primitive rigs.
     public sealed class RunnerAvatar : MonoBehaviour
     {
         public Transform leftArm, rightArm, leftLeg, rightLeg, leftKnee, rightKnee;

@@ -195,13 +195,11 @@ namespace TsilaRun.Tests
             var shop = hud.GetComponent<RunnerShop>();
             shop.openFromResults.onClick.Invoke();
             Assert.AreEqual(RunnerGame.RunState.Shop, game.State);
-            Assert.IsFalse(shop.skinButtons[1].interactable);
-            for (int i = 0; i < 39; i++) game.Progress.EarnCoin();
-            game.CloseShop(); game.OpenShop();
-            shop.skinButtons[1].onClick.Invoke();
-            Assert.AreEqual(0, game.Progress.Wallet);
-            Assert.AreEqual(1, game.Progress.Selected);
-            Assert.AreSame(game.skinMaterials[1], player.GetComponentInChildren<RunnerAvatar>().suitRenderers[0].sharedMaterial);
+            Assert.AreEqual(1, shop.skinButtons.Length);
+            Assert.IsFalse(shop.skinButtons[0].interactable);
+            shop.skinButtons[0].onClick.Invoke();
+            Assert.AreEqual(1, game.Progress.Wallet, "The showcase must never charge coins.");
+            Assert.IsNotNull(player.GetComponentInChildren<Animator>());
             shop.close.onClick.Invoke();
             Assert.AreEqual(RunnerGame.RunState.GameOver, game.State);
             hud.restartButton.onClick.Invoke();
@@ -317,6 +315,7 @@ namespace TsilaRun.Tests
             var items = world.GetComponentsInChildren<RunnerItem>(true);
             int initial = world.transform.childCount;
             var away = new Bounds(new Vector3(100f, 0f, 0f), Vector3.one);
+            typeof(RunnerGame).GetProperty("Speed").SetValue(game, RunnerRules.MaxSpeed);
             // 110 km at the maximum speed, far beyond float-origin trouble for an unre-based runner.
             for (int step = 0; step < 100000; step++)
             {
@@ -337,6 +336,46 @@ namespace TsilaRun.Tests
             game.Pause(); game.StartRun();
             Assert.AreEqual(initial, world.transform.childCount);
             Assert.AreEqual(0d, game.Distance);
+            LogAssert.NoUnexpectedReceived();
+            yield return new ExitPlayMode();
+        }
+
+        [UnityTest]
+        public IEnumerator MenuReturnsResetRunAndKeepWalletWithoutPurchases()
+        {
+            EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
+            yield return new EnterPlayMode();
+            var game = Object.FindAnyObjectByType<RunnerGame>();
+            IsolateWallet(game); game.enabled = false;
+            game.SendMessage("OnApplicationFocus", true); game.SendMessage("OnApplicationPause", false);
+            var hud = Object.FindAnyObjectByType<RunnerHud>();
+            var presentation = game.GetComponent<RunnerPresentation>();
+            Assert.IsTrue(presentation.stage.activeSelf);
+            Assert.IsFalse(game.world.gameObject.activeSelf);
+            game.OpenShop();
+            Assert.IsTrue(presentation.stage.activeSelf);
+            game.CloseShop();
+            for (int mode = 0; mode < 4; mode++)
+            {
+                game.StartRun();
+                Assert.AreEqual(Quaternion.identity, game.player.visual.localRotation);
+                Assert.IsFalse(presentation.stage.activeSelf);
+                if (mode != 0) game.CompleteIntro();
+                if (mode == 2) { game.CollectCoin(); game.player.Slide(); game.Pause(); hud.pausedMenuButton.onClick.Invoke(); }
+                else if (mode == 3) { game.EndRun(); hud.resultsMenuButton.onClick.Invoke(); }
+                else hud.menuButton.onClick.Invoke();
+                Assert.AreEqual(RunnerGame.RunState.Ready, game.State);
+                Assert.AreEqual(1f, Time.timeScale);
+                Assert.AreEqual(0d, game.Distance);
+                Assert.AreEqual(0, game.Coins);
+                Assert.AreEqual(1, game.player.Lane);
+                Assert.IsFalse(game.player.IsSliding);
+                Assert.IsTrue(presentation.stage.activeSelf);
+                Assert.IsFalse(game.world.gameObject.activeSelf);
+                Assert.IsFalse(game.chase.officer.gameObject.activeSelf);
+            }
+            Assert.AreEqual(1, game.Progress.Wallet);
+            Assert.AreEqual(1, new RunnerProgress(TestSave).Wallet);
             LogAssert.NoUnexpectedReceived();
             yield return new ExitPlayMode();
         }
@@ -364,6 +403,35 @@ namespace TsilaRun.Tests
             Assert.IsTrue(progress.Owns(0));
         }
 
+        [Test]
+        public void MethodModelsMatchRoadCoinAndSlideConventions()
+        {
+            var coin = AssetDatabase.LoadAssetAtPath<GameObject>(MobilePrototypeBuilder.Root + "/Prefabs/Coin.prefab");
+            var coinMesh = coin.GetComponentInChildren<MeshFilter>();
+            Assert.AreEqual(0.9f, coinMesh.transform.localPosition.y + coinMesh.sharedMesh.bounds.center.y, .001f);
+            var road = AssetDatabase.LoadAssetAtPath<GameObject>(MobilePrototypeBuilder.Root + "/Prefabs/RoadSection.prefab");
+            var roadMesh = road.transform.Find("RoadSection").GetComponent<MeshFilter>();
+            Assert.AreEqual(0f, roadMesh.transform.localPosition.z + roadMesh.sharedMesh.bounds.center.z, .001f);
+            Assert.AreEqual(24f, roadMesh.sharedMesh.bounds.size.z, .001f);
+            var character = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(MethodVisualBuilder.Art + "Tsila.prefab"));
+            try
+            {
+                var slide = AssetDatabase.LoadAssetAtPath<AnimationClip>(MethodVisualBuilder.Art + "Tsila_Slide.anim");
+                slide.SampleAnimation(character, .4f);
+                var baked = new Mesh();
+                character.GetComponent<SkinnedMeshRenderer>().BakeMesh(baked);
+                Bounds low = baked.bounds;
+                Assert.GreaterOrEqual(low.min.y, -.02f, "Slide must stay above the road.");
+                Assert.LessOrEqual(low.max.y, .72f, "Slide mesh must fit beneath the beam.");
+                slide.SampleAnimation(character, 1f);
+                character.GetComponent<SkinnedMeshRenderer>().BakeMesh(baked);
+                Assert.AreEqual(low.center.y, baked.bounds.center.y, .001f, "Hold the pose until gameplay allows standing.");
+                Debug.Log("TSILA_SLIDE_BOUNDS " + baked.bounds);
+                Object.DestroyImmediate(baked);
+            }
+            finally { Object.DestroyImmediate(character); }
+        }
+
         [UnityTest]
         public IEnumerator AnimatedPersonCollidesAndPauseFreezesLimbs()
         {
@@ -379,13 +447,21 @@ namespace TsilaRun.Tests
             Assert.AreSame(game, avatar.game);
             Assert.AreSame(game.player, avatar.player);
             Quaternion before = avatar.leftArm.localRotation;
-            avatar.Animate(0.1f); // Batch EditMode coroutines do not guarantee a player Update tick.
+            avatar.Animate(0.1f); // Drive the actual imported Animator deterministically.
+            avatar.animator.Update(0.15f);
+            Assert.AreEqual(Animator.StringToHash("Run"), avatar.CurrentAnimation);
             Assert.Greater(Quaternion.Angle(before, avatar.leftArm.localRotation), 0.1f);
             game.Pause();
             before = avatar.leftArm.localRotation;
             avatar.Animate(0.1f);
             Assert.Less(Quaternion.Angle(before, avatar.leftArm.localRotation), 0.001f);
             game.Resume();
+            game.player.Jump(); game.player.Simulate(0.1f); avatar.Animate(0.1f); avatar.animator.Update(0.12f);
+            Assert.AreEqual(Animator.StringToHash("Jump"), avatar.CurrentAnimation);
+            game.player.ResetPlayer(); game.player.Slide(); avatar.Animate(0.1f); avatar.animator.Update(0.12f);
+            Assert.AreEqual(Animator.StringToHash("Slide"), avatar.CurrentAnimation);
+            Assert.AreEqual(Vector3.one, game.player.visual.localScale, "A real slide clip must not squash the model.");
+            game.player.ResetPlayer();
             var items = game.world.GetComponentsInChildren<RunnerItem>(true);
             foreach (var item in items) item.Release();
             var person = items.First(i => i.kind == RunnerItemKind.RunningPerson);

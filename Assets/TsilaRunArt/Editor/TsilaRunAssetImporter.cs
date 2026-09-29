@@ -199,6 +199,24 @@ namespace Method.TsilaRun.Editor
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
+        // The supplied crouch clips through the floor and exceeds the beam clearance.
+        // A held back-slide keeps the full-size mesh inside the 0.7m gameplay envelope.
+        static void CreateSlidePose(AnimationClip clip, Transform[] bones, Transform root)
+        {
+            for (int i = 0; i < bones.Length; i++)
+            {
+                string path = AnimationUtility.CalculateTransformPath(bones[i], root);
+                bool slidingHip = bones[i].name == "Hips";
+                Vector3 position = slidingHip ? new Vector3(0f, .35f, -.05f) : bones[i].localPosition;
+                Quaternion rotation = slidingHip ? Quaternion.Euler(-90f, 0f, 0f) : Quaternion.identity;
+                for (int axis = 0; axis < 3; axis++)
+                    AnimationUtility.SetEditorCurve(clip, EditorCurveBinding.FloatCurve(path, typeof(Transform), "m_LocalPosition." + "xyz"[axis]),
+                        AnimationCurve.Constant(0f, 1.05f, position[axis]));
+                for (int axis = 0; axis < 4; axis++)
+                    AnimationUtility.SetEditorCurve(clip, EditorCurveBinding.FloatCurve(path, typeof(Transform), "m_LocalRotation." + "xyzw"[axis]),
+                        AnimationCurve.Constant(0f, 1.05f, rotation[axis]));
+            }
+        }
         static AnimatorController BuildController(AssetData data, Transform[] bones, Transform root)
         {
             string path = Generated + "/" + data.name + ".controller";
@@ -209,7 +227,7 @@ namespace Method.TsilaRun.Editor
             foreach (var source in data.animations)
             {
                 var clip = new AnimationClip { name = source.name, frameRate = 30, legacy = false };
-                foreach (var track in source.tracks)
+                foreach (var track in source.name == "Slide" ? Array.Empty<Track>() : source.tracks)
                 {
                     int width = track.path == "rotation" ? 4 : 3;
                     string property = track.path == "rotation" ? "m_LocalRotation." : "m_LocalPosition.";
@@ -219,19 +237,6 @@ namespace Method.TsilaRun.Editor
                         var keys = new Keyframe[track.times.Length];
                         for (int k = 0; k < keys.Length; k++) keys[k] = new Keyframe(track.times[k], track.values[k * width + axis]);
                         var curve = new AnimationCurve(keys);
-                        // The supplied slide returns to standing after .75s. Gameplay may hold
-                        // the crouch longer under a beam, so enter the middle pose and hold it.
-                        if (source.name == "Slide")
-                        {
-                            float middle = source.duration * 0.5f;
-                            float held = curve.Evaluate(middle);
-                            var slideKeys = new List<Keyframe>();
-                            foreach (var key in keys)
-                                if (key.time < middle) slideKeys.Add(new Keyframe(key.time / middle * 0.12f, key.value));
-                            slideKeys.Add(new Keyframe(0.12f, held));
-                            slideKeys.Add(new Keyframe(1.05f, held));
-                            curve = new AnimationCurve(slideKeys.ToArray());
-                        }
                         for (int k = 0; k < curve.length; k++)
                         {
                             AnimationUtility.SetKeyLeftTangentMode(curve, k, AnimationUtility.TangentMode.Linear);
@@ -240,6 +245,7 @@ namespace Method.TsilaRun.Editor
                         AnimationUtility.SetEditorCurve(clip, EditorCurveBinding.FloatCurve(target, typeof(Transform), property + "xyzw"[axis]), curve);
                     }
                 }
+                if (source.name == "Slide") CreateSlidePose(clip, bones, root);
                 clip.EnsureQuaternionContinuity();
                 var settings = AnimationUtility.GetAnimationClipSettings(clip);
                 settings.loopTime = source.loop;
