@@ -200,17 +200,36 @@ namespace TsilaRun.Editor
         static GameObject RoadPrefab()
         {
             var root = new GameObject("Road Section");
+            var section = root.AddComponent<RunnerRoadSection>();
+            var island = new GameObject("Island Scenery"); island.transform.SetParent(root.transform, false);
+            var mountain = new GameObject("Mountain Scenery"); mountain.transform.SetParent(root.transform, false);
+            var tunnel = new GameObject("Underground Scenery"); tunnel.transform.SetParent(root.transform, false);
+            section.scenery = new[] { island, mountain, tunnel };
             Shape(root.transform, "Road", PrimitiveType.Cube, new Vector3(0f, -0.18f, 0f), new Vector3(8f, 0.36f, 24f), road);
-            Shape(root.transform, "Island", PrimitiveType.Cube, new Vector3(0f, -0.45f, 0f), new Vector3(30f, 0.5f, 24f), sand);
+            Shape(island.transform, "Island", PrimitiveType.Cube, new Vector3(0f, -0.45f, 0f), new Vector3(30f, 0.5f, 24f), sand);
             for (int side = -1; side <= 1; side += 2)
             {
                 Shape(root.transform, "Curb", PrimitiveType.Cube, new Vector3(side * 4.1f, 0.03f, 0f), new Vector3(0.2f, 0.16f, 24f), teal);
                 Shape(root.transform, "Lane Stripe", PrimitiveType.Cube, new Vector3(side * 1.2f, 0.008f, 0f), new Vector3(0.055f, 0.012f, 24f), white);
-                Shape(root.transform, "Trunk", PrimitiveType.Cylinder, new Vector3(side * 7f, 0.8f, 4f), new Vector3(0.45f, 0.8f, 0.45f), ink);
-                Shape(root.transform, "Tree", PrimitiveType.Sphere, new Vector3(side * 7f, 2.4f, 4f), new Vector3(2.7f, 3.1f, 2.7f), green);
-                Shape(root.transform, "Block House", PrimitiveType.Cube, new Vector3(side * 11f, 2.1f, -5f), new Vector3(3.5f, 4.2f, 5f), side < 0 ? teal : coral);
-                Shape(root.transform, "Roof", PrimitiveType.Cube, new Vector3(side * 11f, 4.3f, -5f), new Vector3(3.9f, 0.25f, 5.4f), white);
+                Shape(island.transform, "Trunk", PrimitiveType.Cylinder, new Vector3(side * 7f, 0.8f, 4f), new Vector3(0.45f, 0.8f, 0.45f), ink);
+                Shape(island.transform, "Tree", PrimitiveType.Sphere, new Vector3(side * 7f, 2.4f, 4f), new Vector3(2.7f, 3.1f, 2.7f), green);
+                Shape(island.transform, "Block House", PrimitiveType.Cube, new Vector3(side * 11f, 2.1f, -5f), new Vector3(3.5f, 4.2f, 5f), side < 0 ? teal : coral);
+                Shape(island.transform, "Roof", PrimitiveType.Cube, new Vector3(side * 11f, 4.3f, -5f), new Vector3(3.9f, 0.25f, 5.4f), white);
+                Shape(mountain.transform, "Cliff", PrimitiveType.Cube, new Vector3(side * 5.5f, -5f, 0f), new Vector3(3f, 10f, 24f), ink);
+                Shape(mountain.transform, "Safety Rail", PrimitiveType.Cube, new Vector3(side * 4.25f, 0.65f, 0f), new Vector3(0.15f, 0.25f, 24f), gold);
+                var peak = Shape(mountain.transform, "Angular Mountain", PrimitiveType.Cube, new Vector3(side * 14f, 2f, 0f), new Vector3(11f, 15f, 13f), green);
+                peak.transform.localRotation = Quaternion.Euler(0f, 15f, side * 35f);
+                var snow = Shape(mountain.transform, "Snow Cap", PrimitiveType.Cube, new Vector3(side * 14f, 8f, 0f), new Vector3(5f, 5f, 6f), white);
+                snow.transform.localRotation = Quaternion.Euler(0f, 15f, side * 35f);
+                Shape(tunnel.transform, "Tunnel Wall", PrimitiveType.Cube, new Vector3(side * 5f, 4.5f, 0f), new Vector3(1f, 9f, 24f), ink);
+                Shape(tunnel.transform, "Light Strip", PrimitiveType.Cube, new Vector3(side * 4.45f, 3f, 0f), new Vector3(0.1f, 0.16f, 23f), gold);
+                Shape(tunnel.transform, "Stone Rib", PrimitiveType.Cube, new Vector3(side * 4.5f, 4.5f, 0f), new Vector3(0.3f, 9f, 0.8f), road);
             }
+            Shape(mountain.transform, "Bridge Deck", PrimitiveType.Cube, new Vector3(0f, -0.5f, 0f), new Vector3(8.5f, 0.5f, 24f), ink);
+            // Ceiling clears the follow camera and maximum jump; scenery has no hazard colliders.
+            Shape(tunnel.transform, "Tunnel Ceiling", PrimitiveType.Cube, new Vector3(0f, 9f, 0f), new Vector3(11f, 0.6f, 24f), ink);
+            Shape(tunnel.transform, "Ceiling Light", PrimitiveType.Cube, new Vector3(0f, 8.6f, 0f), new Vector3(1.5f, 0.08f, 5f), white);
+            section.SetLocation(0d);
             return SavePrefab(root, "RoadSection");
         }
 
@@ -293,6 +312,8 @@ namespace TsilaRun.Editor
             view.coinsText = Label(hud, "Coins", "COINS  0", 26, new Vector2(0.04f, 0f), new Vector2(0.48f, 0.45f), TextAnchor.MiddleLeft);
             view.bestText = Label(hud, "Best", "BEST  0 m", 23, new Vector2(0.48f, 0f), new Vector2(0.96f, 0.45f), TextAnchor.MiddleRight);
             view.pauseButton = Button(hud, "Pause", "II", new Vector2(0.82f, 0.42f), new Vector2(0.96f, 0.94f), teal);
+            view.zoneText = Label(safe, "Zone", "ISLAND", 25, new Vector2(0.1f, 0.03f), new Vector2(0.9f, 0.085f));
+            view.zoneText.gameObject.AddComponent<Outline>().effectColor = Color.black;
 
             RectTransform start = Card(safe, "Start"); view.startPanel = start.gameObject;
             Label(start, "Eyebrow", "THE ISLAND IS YOUR RUNWAY", 22, new Vector2(0.06f, 0.84f), new Vector2(0.94f, 0.91f));

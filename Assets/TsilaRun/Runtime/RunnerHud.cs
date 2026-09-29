@@ -11,7 +11,9 @@ namespace TsilaRun
         public Text distanceText, coinsText, bestText, resultText;
         public GameObject introPanel;
         public Button skipIntroButton;
+        public Text zoneText;
         int shownDistance = -1, shownCoins = -1, shownBest = -1;
+        int shownZone = -1;
         float nextRefresh;
 
         void OnEnable()
@@ -51,6 +53,8 @@ namespace TsilaRun
             if (shownDistance != game.Score) { shownDistance = game.Score; distanceText.text = shownDistance + " m"; }
             if (shownCoins != game.Coins) { shownCoins = game.Coins; coinsText.text = "COINS  " + shownCoins; }
             if (shownBest != game.Best) { shownBest = game.Best; bestText.text = "BEST  " + shownBest + " m"; }
+            int zone = RunnerRoadSection.ZoneAt(game.Distance);
+            if (zoneText != null && zone != shownZone) { shownZone = zone; zoneText.text = RunnerRoadSection.ZoneNames[zone]; }
         }
 
         void RefreshState()

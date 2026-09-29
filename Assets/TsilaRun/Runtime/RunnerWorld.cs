@@ -9,15 +9,17 @@ namespace TsilaRun
         public RunnerPlayer player;
         public RunnerGame game;
         [System.NonSerialized] Transform[] roads;
+        [System.NonSerialized] RunnerRoadSection[] sections;
         [System.NonSerialized] RunnerItem[,] items;
         System.Random random;
         float nextRow;
         int safeLane;
+        double travelled;
         public int ActiveItemCount { get; private set; }
 
         public void Initialize()
         {
-            if (roads != null && roads.Length == RunnerRules.RoadCount && roads[0] != null && items != null) return;
+            if (roads != null && roads.Length == RunnerRules.RoadCount && roads[0] != null && items != null && sections != null) return;
             // Unity's fast Enter Play Mode can retain managed fields with destroyed scene objects.
             // Recover once here; normal restarts simply reuse the existing valid pool.
             for (int i = transform.childCount - 1; i >= 0; i--)
@@ -27,8 +29,12 @@ namespace TsilaRun
                 else DestroyImmediate(child);
             }
             roads = new Transform[RunnerRules.RoadCount];
+            sections = new RunnerRoadSection[roads.Length];
             for (int i = 0; i < roads.Length; i++)
+            {
                 roads[i] = Instantiate(roadPrefab, transform).transform;
+                sections[i] = roads[i].GetComponent<RunnerRoadSection>();
+            }
             items = new RunnerItem[RunnerRules.ItemKindCount, RunnerRules.PoolPerKind];
             for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++)
@@ -45,8 +51,12 @@ namespace TsilaRun
             safeLane = 1;
             nextRow = RunnerRules.FirstRow;
             ActiveItemCount = 0;
+            travelled = 0d;
             for (int i = 0; i < roads.Length; i++)
+            {
                 roads[i].position = new Vector3(0f, 0f, (i - 1) * RunnerRules.RoadLength);
+                if (sections[i] != null) sections[i].SetLocation(roads[i].position.z);
+            }
             for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++) items[kind, i].Release();
             FillAhead();
@@ -54,10 +64,15 @@ namespace TsilaRun
 
         public void Simulate(float travel, Bounds previousPlayer, Bounds currentPlayer)
         {
+            travelled += travel;
             for (int i = 0; i < roads.Length; i++)
             {
                 Vector3 p = roads[i].position - Vector3.forward * travel;
-                if (p.z < -RunnerRules.RoadLength * 1.5f) p.z += roads.Length * RunnerRules.RoadLength;
+                if (p.z < -RunnerRules.RoadLength * 1.5f)
+                {
+                    p.z += roads.Length * RunnerRules.RoadLength;
+                    if (sections[i] != null) sections[i].SetLocation(travelled + p.z);
+                }
                 roads[i].position = p;
             }
             // Obstacles before coins, so a fatal contact cannot also award a coin.
