@@ -22,12 +22,14 @@ namespace TsilaRun
         public const float RoadLength = 24f;
         public const int RoadCount = 9;
         public const int PoolPerKind = 16;
+        public const int ItemKindCount = 5;
+        public const float PersonDriftBudget = 16f;
         public static float JumpSeconds => 2f * JumpVelocity / Gravity;
 
         // Budget even a two-lane recovery plus the longest action, at FUTURE maximum speed.
         // This remains safe when the runner accelerates toward an already-spawned row.
         public static float RowSpacing => MaxSpeed *
-            (ReactionSeconds + 2f * LaneSeconds + Mathf.Max(JumpSeconds, SlideSeconds) + 0.15f);
+            (ReactionSeconds + 2f * LaneSeconds + Mathf.Max(JumpSeconds, SlideSeconds) + 0.15f) + PersonDriftBudget;
 
         public static int NextSafeLane(int previous, System.Random random)
         {

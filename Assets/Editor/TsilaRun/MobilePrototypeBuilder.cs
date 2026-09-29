@@ -75,8 +75,8 @@ namespace TsilaRun.Editor
             light.transform.rotation = Quaternion.Euler(45f, -30f, 0f);
 
             GameObject roadPrefab = RoadPrefab();
-            RunnerItem[] itemPrefabs = new RunnerItem[4];
-            for (int i = 0; i < 4; i++) itemPrefabs[i] = ItemPrefab((RunnerItemKind)i);
+            RunnerItem[] itemPrefabs = new RunnerItem[RunnerRules.ItemKindCount];
+            for (int i = 0; i < itemPrefabs.Length; i++) itemPrefabs[i] = ItemPrefab((RunnerItemKind)i);
             RunnerPlayer playerPrefab = PlayerPrefab();
 
             var game = new GameObject("Tsila Run").AddComponent<RunnerGame>();
@@ -86,6 +86,15 @@ namespace TsilaRun.Editor
             game.player = player; game.world = world;
             world.player = player; world.game = game; world.roadPrefab = roadPrefab; world.itemPrefabs = itemPrefabs;
             player.world = world;
+            var avatar = player.GetComponentInChildren<RunnerAvatar>();
+            avatar.game = game; avatar.player = player;
+            var officerRoot = new GameObject("Officer");
+            var officerRig = PrimitiveAvatarBuilder.Create(officerRoot.transform, ink, sand, ink, gold, true);
+            officerRig.alwaysRun = true;
+            GameObject officerPrefab = SavePrefab(officerRoot, "Officer");
+            var officer = ((GameObject)PrefabUtility.InstantiatePrefab(officerPrefab)).GetComponentInChildren<RunnerAvatar>();
+            var chase = game.gameObject.AddComponent<RunnerChase>();
+            chase.game = game; chase.officer = officer; game.chase = chase;
             var input = game.gameObject.AddComponent<RunnerInput>();
             input.game = game; input.player = player;
 
@@ -165,7 +174,7 @@ namespace TsilaRun.Editor
             return material;
         }
 
-        static GameObject Shape(Transform parent, string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
+        internal static GameObject Shape(Transform parent, string name, PrimitiveType type, Vector3 position, Vector3 scale, Material material)
         {
             GameObject go = GameObject.CreatePrimitive(type);
             go.name = name;
@@ -215,10 +224,7 @@ namespace TsilaRun.Editor
             player.body.isTrigger = true;
             player.visual = new GameObject("Visual").transform;
             player.visual.SetParent(root.transform, false);
-            Shape(player.visual, "Suit", PrimitiveType.Capsule, Vector3.up * 0.9f, new Vector3(0.68f, 0.9f, 0.68f), teal);
-            Shape(player.visual, "Helmet", PrimitiveType.Sphere, new Vector3(0f, 1.5f, 0f), Vector3.one * 0.76f, white);
-            Shape(player.visual, "Visor", PrimitiveType.Cube, new Vector3(0f, 1.52f, 0.34f), new Vector3(0.52f, 0.22f, 0.12f), ink);
-            Shape(player.visual, "Backpack", PrimitiveType.Cube, new Vector3(0f, 1f, -0.36f), new Vector3(0.45f, 0.55f, 0.22f), coral);
+            PrimitiveAvatarBuilder.Create(player.visual, teal, sand, ink, coral).player = player;
             return SavePrefab(root, "Tsila").GetComponent<RunnerPlayer>();
         }
 
@@ -232,6 +238,10 @@ namespace TsilaRun.Editor
             Vector3 center, size;
             switch (kind)
             {
+                case RunnerItemKind.RunningPerson:
+                    center = new Vector3(0f, 0.94f, 0f); size = new Vector3(0.95f, 1.88f, 0.8f);
+                    PrimitiveAvatarBuilder.Create(root.transform, coral, sand, ink, white).alwaysRun = true;
+                    break;
                 case RunnerItemKind.Barrier:
                     center = new Vector3(0f, 0.425f, 0f); size = new Vector3(1.7f, 0.85f, 0.9f);
                     Shape(root.transform, "Jump Block", PrimitiveType.Cube, center, size, coral);

@@ -5,10 +5,12 @@ namespace TsilaRun
 {
     public sealed class RunnerGame : MonoBehaviour
     {
-        public enum RunState { Ready, Running, Paused, GameOver }
+        public enum RunState { Ready, Running, Paused, GameOver, Intro, Shop }
         const string BestKey = "TsilaRun.BestDistance.v1";
         public RunnerPlayer player;
         public RunnerWorld world;
+        public RunnerChase chase;
+        RunState resumeState = RunState.Running;
         public RunState State { get; private set; }
         public double Distance { get; private set; }
         public int Score => (int)Math.Min(int.MaxValue, Distance);
@@ -38,11 +40,23 @@ namespace TsilaRun
             Speed = RunnerRules.StartSpeed;
             world.ResetWorld(Environment.TickCount);
             player.ResetPlayer();
-            SetState(hasFocus && !backgrounded ? RunState.Running : RunState.Paused);
+            if (chase != null) chase.ResetChase();
+            resumeState = chase != null ? RunState.Intro : RunState.Running;
+            SetState(hasFocus && !backgrounded ? resumeState : RunState.Paused);
+        }
+
+        public void CompleteIntro()
+        {
+            if (State == RunState.Intro) SetState(RunState.Running);
         }
 
         void FixedUpdate()
         {
+            if (State == RunState.Intro)
+            {
+                if (chase == null || chase.TickIntro(Time.fixedDeltaTime)) CompleteIntro();
+                return;
+            }
             if (State != RunState.Running) return;
             float dt = Time.fixedDeltaTime;
             Speed = Mathf.Min(RunnerRules.MaxSpeed, Speed + RunnerRules.Acceleration * dt);
@@ -64,14 +78,15 @@ namespace TsilaRun
 
         public void Pause()
         {
-            if (State != RunState.Running) return;
+            if (State != RunState.Running && State != RunState.Intro) return;
+            resumeState = State;
             SaveBest();
             SetState(RunState.Paused);
         }
 
         public void Resume()
         {
-            if (State == RunState.Paused && hasFocus && !backgrounded) SetState(RunState.Running);
+            if (State == RunState.Paused && hasFocus && !backgrounded) SetState(resumeState);
         }
 
         void SetState(RunState state)

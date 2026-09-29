@@ -29,8 +29,8 @@ namespace TsilaRun
             roads = new Transform[RunnerRules.RoadCount];
             for (int i = 0; i < roads.Length; i++)
                 roads[i] = Instantiate(roadPrefab, transform).transform;
-            items = new RunnerItem[4, RunnerRules.PoolPerKind];
-            for (int kind = 0; kind < 4; kind++)
+            items = new RunnerItem[RunnerRules.ItemKindCount, RunnerRules.PoolPerKind];
+            for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++)
                 {
                     items[kind, i] = Instantiate(itemPrefabs[kind], transform);
@@ -47,7 +47,7 @@ namespace TsilaRun
             ActiveItemCount = 0;
             for (int i = 0; i < roads.Length; i++)
                 roads[i].position = new Vector3(0f, 0f, (i - 1) * RunnerRules.RoadLength);
-            for (int kind = 0; kind < 4; kind++)
+            for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++) items[kind, i].Release();
             FillAhead();
         }
@@ -61,13 +61,15 @@ namespace TsilaRun
                 roads[i].position = p;
             }
             // Obstacles before coins, so a fatal contact cannot also award a coin.
-            for (int kind = 0; kind < 4; kind++)
+            for (int pass = 0; pass < RunnerRules.ItemKindCount; pass++)
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++)
                 {
+                    int kind = pass == 3 ? 4 : pass == 4 ? 3 : pass; // All obstacles before coins.
                     RunnerItem item = items[kind, i];
                     if (!item.InUse) continue;
-                    bool hit = RunnerRules.SweptOverlap(previousPlayer, currentPlayer, item.HitBounds, travel);
-                    item.transform.position -= Vector3.forward * travel;
+                    float itemTravel = item.TravelThisTick(travel, travel / Mathf.Max(RunnerRules.StartSpeed, game.Speed));
+                    bool hit = RunnerRules.SweptOverlap(previousPlayer, currentPlayer, item.HitBounds, itemTravel);
+                    item.transform.position -= Vector3.forward * itemTravel;
                     if (hit && game.State == RunnerGame.RunState.Running)
                     {
                         if (item.kind == RunnerItemKind.Coin)
@@ -91,9 +93,9 @@ namespace TsilaRun
         public bool IntersectsObstacle(Bounds bounds)
         {
             if (items == null) return false;
-            for (int kind = 0; kind < 3; kind++)
+            for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++)
-                    if (items[kind, i].InUse && items[kind, i].HitBounds.Intersects(bounds)) return true;
+                    if (kind != (int)RunnerItemKind.Coin && items[kind, i].InUse && items[kind, i].HitBounds.Intersects(bounds)) return true;
             return false;
         }
 
@@ -104,7 +106,10 @@ namespace TsilaRun
                 safeLane = RunnerRules.NextSafeLane(safeLane, random);
                 for (int lane = 0; lane < 3; lane++)
                     if (lane != safeLane)
-                        Place((RunnerItemKind)random.Next(0, 3), lane, nextRow);
+                    {
+                        int kind = random.Next(0, 4);
+                        Place(kind == 3 ? RunnerItemKind.RunningPerson : (RunnerItemKind)kind, lane, nextRow);
+                    }
                 // Coins only occupy the completely clear lane, before and after the row.
                 for (int i = 0; i < 4; i++) Place(RunnerItemKind.Coin, safeLane, nextRow - 8f + i * 4f);
                 nextRow += RunnerRules.RowSpacing;

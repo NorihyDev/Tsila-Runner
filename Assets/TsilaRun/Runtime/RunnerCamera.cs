@@ -12,8 +12,13 @@ namespace TsilaRun
         {
             if (game.State == RunnerGame.RunState.Paused) return;
             Vector3 target = offset + Vector3.right * (player.transform.position.x * 0.3f);
+            if (game.State == RunnerGame.RunState.Intro && game.chase != null)
+                target = Vector3.Lerp(new Vector3(5f, 3.6f, -8f), offset, game.chase.IntroProgress);
             transform.position = Vector3.Lerp(transform.position, target, 1f - Mathf.Exp(-7f * Time.deltaTime));
-            transform.rotation = Quaternion.LookRotation(new Vector3(transform.position.x * 0.4f, 1f, 16f) - transform.position);
+            Vector3 look = new Vector3(transform.position.x * 0.4f, 1f, 16f);
+            if (game.State == RunnerGame.RunState.Intro && game.chase != null)
+                look = Vector3.Lerp(new Vector3(0f, 1f, -1f), look, game.chase.IntroProgress);
+            transform.rotation = Quaternion.LookRotation(look - transform.position);
         }
     }
 }
