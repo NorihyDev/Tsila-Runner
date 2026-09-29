@@ -7,6 +7,7 @@ namespace TsilaRun
         public Transform visual;
         public CapsuleCollider body;
         public RunnerWorld world;
+        public bool animatedSlide;
 
         public int Lane { get; private set; } = 1;
         public bool IsGrounded => transform.position.y <= 0.0001f;
@@ -77,7 +78,7 @@ namespace TsilaRun
             IsSliding = slide;
             body.height = Height;
             body.center = Vector3.up * (Height * 0.5f);
-            visual.localScale = new Vector3(1f, Height / RunnerRules.StandingHeight, 1f);
+            visual.localScale = animatedSlide ? Vector3.one : new Vector3(1f, Height / RunnerRules.StandingHeight, 1f);
         }
     }
 }

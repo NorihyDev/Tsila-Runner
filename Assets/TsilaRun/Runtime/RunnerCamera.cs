@@ -11,6 +11,12 @@ namespace TsilaRun
         void LateUpdate()
         {
             if (game.State == RunnerGame.RunState.Paused) return;
+            if (game.State == RunnerGame.RunState.Ready || game.State == RunnerGame.RunState.Shop)
+            {
+                transform.position = new Vector3(0f, 1.45f, -4.3f);
+                transform.LookAt(new Vector3(0f, 0.98f, 0f));
+                return;
+            }
             Vector3 target = offset + Vector3.right * (player.transform.position.x * 0.3f);
             if (game.State == RunnerGame.RunState.Intro && game.chase != null)
                 target = Vector3.Lerp(new Vector3(7f, 5f, -11f), offset, game.chase.IntroProgress);

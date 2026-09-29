@@ -98,6 +98,18 @@ namespace TsilaRun
             player.GetComponentInChildren<RunnerAvatar>().SetSuit(skinMaterials[Progress.Selected]);
         }
 
+        public void ReturnToMenu()
+        {
+            SaveBest();
+            Time.timeScale = 1f;
+            Distance = 0d; Coins = 0; Speed = RunnerRules.StartSpeed;
+            player.ResetPlayer();
+            world.ResetWorld(Environment.TickCount);
+            if (chase != null) { chase.ResetChase(); chase.officer.gameObject.SetActive(false); }
+            returnFromShop = RunState.Ready;
+            SetState(RunState.Ready);
+        }
+
         public void EndRun()
         {
             if (State != RunState.Running) return;

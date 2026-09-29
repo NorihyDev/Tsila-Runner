@@ -11,9 +11,14 @@ namespace TsilaRun
         public RunnerPlayer player;
         public bool alwaysRun;
         public bool animate = true;
+        public Animator animator;
+        static readonly int Idle = Animator.StringToHash("Idle"), Run = Animator.StringToHash("Run"),
+            Jump = Animator.StringToHash("Jump"), Slide = Animator.StringToHash("Slide");
+        int currentAnimation;
+        public int CurrentAnimation => currentAnimation;
         float phase;
 
-        void OnEnable() { phase = 0f; Pose(0f, 0f); }
+        void OnEnable() { phase = 0f; currentAnimation = 0; if (animator == null) Pose(0f, 0f); }
 
         void Update() { Animate(Time.deltaTime); }
 
@@ -22,6 +27,19 @@ namespace TsilaRun
             if (Time.timeScale == 0f) return;
             bool running = animate && (alwaysRun || game != null &&
                 (game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro));
+            if (animator != null)
+            {
+                int next = !running ? Idle : player != null && player.IsSliding ? Slide :
+                    player != null && !player.IsGrounded ? Jump : Run;
+                animator.speed = next == Run && game != null ? Mathf.Lerp(0.9f, 1.3f,
+                    Mathf.InverseLerp(RunnerRules.StartSpeed, RunnerRules.MaxSpeed, game.Speed)) : 1f;
+                if (next != currentAnimation)
+                {
+                    animator.CrossFadeInFixedTime(next, currentAnimation == 0 ? 0f : 0.08f, 0);
+                    currentAnimation = next;
+                }
+                return;
+            }
             if (!running) { Pose(0f, 0f); return; }
             phase = Mathf.Repeat(phase + dt * (game == null ? 10f : 9f + game.Speed * 0.25f), Mathf.PI * 2f);
             if (player != null && player.IsSliding) { Pose(-65f, 65f); return; }
@@ -43,7 +61,7 @@ namespace TsilaRun
 
         public void SetSuit(Material material)
         {
-            if (material == null || suitRenderers == null) return;
+            if (animator != null || material == null || suitRenderers == null) return; // Preserve the supplied atlas and logo slots.
             foreach (var part in suitRenderers) part.sharedMaterial = material;
         }
     }
