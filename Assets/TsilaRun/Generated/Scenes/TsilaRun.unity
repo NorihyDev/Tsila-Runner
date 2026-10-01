@@ -261,7 +261,7 @@ MonoBehaviour:
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 76
     m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1063,6 +1063,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4648631327994206681, guid: 6419fb0cf17f51c4bb3cb9ee7ec72ea0, type: 3}
+      propertyPath: game
+      value: 
+      objectReference: {fileID: 1443504124}
+    - target: {fileID: 7980545786410474542, guid: 6419fb0cf17f51c4bb3cb9ee7ec72ea0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8769074006062626264, guid: 6419fb0cf17f51c4bb3cb9ee7ec72ea0, type: 3}
       propertyPath: m_Name
       value: Officer
@@ -1074,7 +1082,7 @@ PrefabInstance:
   m_SourcePrefab: {fileID: 100100000, guid: 6419fb0cf17f51c4bb3cb9ee7ec72ea0, type: 3}
 --- !u!114 &126827131 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3581142000418161411, guid: 6419fb0cf17f51c4bb3cb9ee7ec72ea0, type: 3}
+  m_CorrespondingSourceObject: {fileID: 4648631327994206681, guid: 6419fb0cf17f51c4bb3cb9ee7ec72ea0, type: 3}
   m_PrefabInstance: {fileID: 126827130}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -1411,7 +1419,7 @@ MonoBehaviour:
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 64
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -2101,7 +2109,7 @@ MonoBehaviour:
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 53
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -2677,7 +2685,7 @@ MonoBehaviour:
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 43
     m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -3655,6 +3663,7 @@ GameObject:
   m_Component:
   - component: {fileID: 942088891}
   - component: {fileID: 942088890}
+  - component: {fileID: 942088892}
   m_Layer: 0
   m_Name: Sun
   m_TagString: Untagged
@@ -3742,6 +3751,35 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &942088892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942088889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &956823803
 GameObject:
   m_ObjectHideFlags: 0
@@ -4541,6 +4579,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tsila
       objectReference: {fileID: 0}
+    - target: {fileID: 8461546180972795460, guid: 7683e1c84221b9d46830f2869c9134cf, type: 3}
+      propertyPath: game
+      value: 
+      objectReference: {fileID: 1443504124}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6208,7 +6250,7 @@ MonoBehaviour:
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 52
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1

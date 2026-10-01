@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Tsila",
+    "triangles_LOD0": 51879,
+    "triangles_LOD1": 20750,
+    "materials": 3,
+    "height_m": 1.809,
+    "bones": 20,
+    "clips": [
+      "Idle",
+      "Run",
+      "Jump",
+      "Slide"
+    ],
+    "texture_sizes": {
+      "body": 1024,
+      "face": 2048,
+      "hair": 1024,
+      "cap_normal": null
+    }
+  },
+  {
+    "name": "Officer_Lucef",
+    "triangles_LOD0": 52188,
+    "triangles_LOD1": 20874,
+    "materials": 3,
+    "height_m": 1.8092,
+    "bones": 20,
+    "clips": [
+      "Idle",
+      "Run",
+      "Jump",
+      "Slide"
+    ],
+    "texture_sizes": {
+      "body": 1024,
+      "face": 2048,
+      "hair": 1024,
+      "cap_normal": null
+    }
+  },
+  {
+    "name": "RunningPerson",
+    "triangles_LOD0": 29650,
+    "triangles_LOD1": 11859,
+    "materials": 4,
+    "height_m": 1.815,
+    "bones": 20,
+    "clips": [
+      "Idle",
+      "Run",
+      "Jump",
+      "Slide"
+    ],
+    "texture_sizes": {
+      "body": 1024,
+      "face": 2048,
+      "hair": 1024,
+      "cap_normal": 1024
+    }
+  }
+]

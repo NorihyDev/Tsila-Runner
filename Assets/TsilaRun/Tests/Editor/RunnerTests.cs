@@ -104,7 +104,7 @@ namespace TsilaRun.Tests
             Assert.AreEqual(-2, RunnerInput.ClassifySwipe(new Vector2(0f, -width * 0.06f), width, height));
         }
 
-        [Test, Order(0)]
+        [Test, Order(0), Category("SceneGeneration")]
         public void GeneratorIsRepeatableAndPreservesSampleScene()
         {
             string sample = System.IO.File.ReadAllText("Assets/Scenes/SampleScene.unity");
@@ -407,27 +407,27 @@ namespace TsilaRun.Tests
         public void MethodModelsMatchRoadCoinAndSlideConventions()
         {
             var coin = AssetDatabase.LoadAssetAtPath<GameObject>(MobilePrototypeBuilder.Root + "/Prefabs/Coin.prefab");
-            var coinMesh = coin.GetComponentInChildren<MeshFilter>();
-            Assert.AreEqual(0.9f, coinMesh.transform.localPosition.y + coinMesh.sharedMesh.bounds.center.y, .001f);
+            Assert.AreEqual(0.9f, BlenderPackIntegration.VisualBounds(coin).center.y, .001f);
             var road = AssetDatabase.LoadAssetAtPath<GameObject>(MobilePrototypeBuilder.Root + "/Prefabs/RoadSection.prefab");
-            var roadMesh = road.transform.Find("RoadSection").GetComponent<MeshFilter>();
-            Assert.AreEqual(0f, roadMesh.transform.localPosition.z + roadMesh.sharedMesh.bounds.center.z, .001f);
-            Assert.AreEqual(24f, roadMesh.sharedMesh.bounds.size.z, .001f);
-            var character = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(MethodVisualBuilder.Art + "Tsila.prefab"));
+            var roadModel = road.transform.Find("RoadSection");
+            var roadBounds = BlenderPackIntegration.VisualBounds(roadModel.gameObject);
+            Assert.AreEqual(0f, roadModel.localPosition.z + roadBounds.center.z, .001f);
+            Assert.AreEqual(24f, roadBounds.size.z, .001f);
+            bool integrated = AssetDatabase.LoadAssetAtPath<GameObject>(BlenderPackIntegration.PrefabPath("Tsila")) != null;
+            string art = integrated ? BlenderPackIntegration.Generated + "/" : MethodVisualBuilder.Art;
+            var character = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(art + "Tsila.prefab"));
             try
             {
-                var slide = AssetDatabase.LoadAssetAtPath<AnimationClip>(MethodVisualBuilder.Art + "Tsila_Slide.anim");
+                var slide = AssetDatabase.LoadAssetAtPath<AnimationClip>(art + "Tsila_Slide.anim");
                 slide.SampleAnimation(character, .4f);
-                var baked = new Mesh();
-                character.GetComponent<SkinnedMeshRenderer>().BakeMesh(baked);
-                Bounds low = baked.bounds;
+                var skin = character.GetComponentInChildren<SkinnedMeshRenderer>();
+                Bounds low = BlenderPackIntegration.SkinnedBounds(character, skin);
                 Assert.GreaterOrEqual(low.min.y, -.02f, "Slide must stay above the road.");
                 Assert.LessOrEqual(low.max.y, .72f, "Slide mesh must fit beneath the beam.");
                 slide.SampleAnimation(character, 1f);
-                character.GetComponent<SkinnedMeshRenderer>().BakeMesh(baked);
-                Assert.AreEqual(low.center.y, baked.bounds.center.y, .001f, "Hold the pose until gameplay allows standing.");
-                Debug.Log("TSILA_SLIDE_BOUNDS " + baked.bounds);
-                Object.DestroyImmediate(baked);
+                Bounds held = BlenderPackIntegration.SkinnedBounds(character, skin);
+                Assert.AreEqual(low.center.y, held.center.y, .001f, "Hold the pose until gameplay allows standing.");
+                Debug.Log("TSILA_SLIDE_BOUNDS " + held);
             }
             finally { Object.DestroyImmediate(character); }
         }
@@ -462,11 +462,9 @@ namespace TsilaRun.Tests
             Assert.AreEqual(Animator.StringToHash("Slide"), avatar.CurrentAnimation);
             Assert.AreEqual(Vector3.one, game.player.visual.localScale, "A real slide clip must not squash the model.");
             avatar.animator.Update(1.2f);
-            var slideMesh = new Mesh();
-            avatar.GetComponent<SkinnedMeshRenderer>().BakeMesh(slideMesh);
-            Assert.GreaterOrEqual(slideMesh.bounds.min.y, -.02f);
-            Assert.LessOrEqual(slideMesh.bounds.max.y, .72f, "Runtime Animator must preserve the low pose too.");
-            Object.Destroy(slideMesh);
+            var slideBounds = BlenderPackIntegration.SkinnedBounds(avatar.gameObject, avatar.GetComponentInChildren<SkinnedMeshRenderer>());
+            Assert.GreaterOrEqual(slideBounds.min.y, -.02f);
+            Assert.LessOrEqual(slideBounds.max.y, .72f, "Runtime Animator must preserve the low pose too.");
             game.player.ResetPlayer();
             var items = game.world.GetComponentsInChildren<RunnerItem>(true);
             foreach (var item in items) item.Release();

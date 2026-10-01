@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -81,10 +82,10 @@ namespace TsilaRun.Editor
                         camera.transform.LookAt(new Vector3(0f, 0.98f, 0f));
                     }
                     var avatar = hud.game.player.GetComponentInChildren<RunnerAvatar>();
-                    var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(MethodVisualBuilder.Art + "Tsila_" + (menu ? "Idle" : "Run") + ".anim");
+                    var clip = avatar.animator.runtimeAnimatorController.animationClips.First(c => c.name == (menu ? "Idle" : "Run"));
                     clip.SampleAnimation(avatar.gameObject, .25f);
                     if (state == 4)
-                        AssetDatabase.LoadAssetAtPath<AnimationClip>(MethodVisualBuilder.Art + "Officer_Run.anim").SampleAnimation(hud.game.chase.officer.gameObject, .2f);
+                        hud.game.chase.officer.animator.runtimeAnimatorController.animationClips.First(c => c.name == "Run").SampleAnimation(hud.game.chase.officer.gameObject, .2f);
 
                     Canvas.ForceUpdateCanvases();
                     foreach (var text in canvas.GetComponentsInChildren<Text>())
