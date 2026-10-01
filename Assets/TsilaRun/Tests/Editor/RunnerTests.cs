@@ -446,6 +446,7 @@ namespace TsilaRun.Tests
             var avatar = game.player.GetComponentInChildren<RunnerAvatar>();
             Assert.AreSame(game, avatar.game);
             Assert.AreSame(game.player, avatar.player);
+            avatar.animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             Quaternion before = avatar.leftArm.localRotation;
             avatar.Animate(0.1f); // Drive the actual imported Animator deterministically.
             avatar.animator.Update(0.15f);
