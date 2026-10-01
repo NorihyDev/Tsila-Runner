@@ -12,6 +12,13 @@ namespace TsilaRun
         public RunnerChase chase;
         public RunnerVfx vfx;
         public Material[] skinMaterials;
+        static readonly Color[] SkinTints =
+        {
+            Color.white,
+            new Color(1f, .55f, .52f),
+            new Color(1f, .82f, .35f),
+            new Color(.42f, .48f, .75f)
+        };
         public RunnerProgress Progress { get; private set; }
         RunState resumeState = RunState.Running;
         RunState returnFromShop = RunState.Ready;
@@ -148,8 +155,13 @@ namespace TsilaRun
 
         public void ApplySkin()
         {
-            if (Progress == null || skinMaterials == null || skinMaterials.Length <= Progress.Selected) return;
-            player.GetComponentInChildren<RunnerAvatar>().SetSuit(skinMaterials[Progress.Selected]);
+            if (Progress == null || player == null) return;
+            var avatar = player.GetComponentInChildren<RunnerAvatar>();
+            if (avatar == null) return;
+            int selected = Mathf.Clamp(Progress.Selected, 0, SkinTints.Length - 1);
+            if (skinMaterials != null && selected < skinMaterials.Length && skinMaterials[selected] != null)
+                avatar.SetSuit(skinMaterials[selected]);
+            else avatar.SetSuitTint(SkinTints[selected]);
         }
 
         public void ReturnToMenu()

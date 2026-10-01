@@ -61,8 +61,28 @@ namespace TsilaRun
 
         public void SetSuit(Material material)
         {
-            if (animator != null || material == null || suitRenderers == null) return; // Preserve the supplied atlas and logo slots.
+            if (material == null || suitRenderers == null) return;
+            if (animator != null) { SetSuitTint(material.color); return; }
             foreach (var part in suitRenderers) part.sharedMaterial = material;
+        }
+
+        public void SetSuitTint(Color tint)
+        {
+            if (suitRenderers == null) return;
+            var block = new MaterialPropertyBlock();
+            foreach (var part in suitRenderers)
+            {
+                if (part == null) continue;
+                var materials = part.sharedMaterials;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    if (materials[i] == null || !materials[i].name.Contains("Body")) continue;
+                    part.GetPropertyBlock(block, i);
+                    block.SetColor("_BaseColor", tint);
+                    part.SetPropertyBlock(block, i);
+                    block.Clear();
+                }
+            }
         }
     }
 }

@@ -23,21 +23,7 @@ namespace TsilaRun
             if (Camera.main != null) Camera.main.backgroundColor = menu ? menuTint : RenderSettings.fogColor;
             if (stage != null)
             {
-                var image = stage.GetComponent<UnityEngine.UI.Image>() ?? stage.AddComponent<UnityEngine.UI.Image>();
-                image.color = new Color32(16, 24, 38, 240);
-                image.raycastTarget = false;
-                if (stage.GetComponent<UnityEngine.UI.Outline>() == null)
-                {
-                    var outline = stage.AddComponent<UnityEngine.UI.Outline>();
-                    outline.effectColor = new Color32(95, 141, 255, 80);
-                    outline.effectDistance = new Vector2(0f, 3f);
-                }
-                if (stage.GetComponent<UnityEngine.UI.Shadow>() == null)
-                {
-                    var shadow = stage.AddComponent<UnityEngine.UI.Shadow>();
-                    shadow.effectColor = new Color32(0, 0, 0, 130);
-                    shadow.effectDistance = new Vector2(0f, -12f);
-                }
+                stage.SetActive(menu);
                 stage.transform.localScale = menu ? Vector3.one : new Vector3(0.96f, 0.96f, 1f);
             }
             if (game != null && game.world != null) game.world.gameObject.SetActive(!menu);

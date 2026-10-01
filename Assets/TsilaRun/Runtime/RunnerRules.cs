@@ -79,15 +79,14 @@ namespace TsilaRun
 
         public static bool CanCoinRideObstacle(RunnerItemKind kind)
         {
-            return kind == RunnerItemKind.Barrier || kind == RunnerItemKind.Overhead || kind == RunnerItemKind.Tower;
+            return kind == RunnerItemKind.Barrier || kind == RunnerItemKind.Overhead;
         }
 
         public static float ObstacleCoinHeight(RunnerItemKind kind)
         {
             switch (kind)
             {
-                case RunnerItemKind.Overhead: return 1.5f;
-                case RunnerItemKind.Tower: return 1.2f;
+                case RunnerItemKind.Overhead: return -0.3f;
                 case RunnerItemKind.Barrier: return 0.9f;
                 default: return 0.8f;
             }

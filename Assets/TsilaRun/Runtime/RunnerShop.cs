@@ -76,7 +76,7 @@ namespace TsilaRun
                 wallet.verticalOverflow = VerticalWrapMode.Truncate;
             }
 
-            for (int i = 0; i < skinButtons.Length; i++)
+            for (int i = 0; i < skinButtons.Length && i < RunnerProgress.SkinNames.Length; i++)
             {
                 if (skinButtons[i] == null) continue;
                 var img = skinButtons[i].GetComponent<Image>() ?? skinButtons[i].gameObject.AddComponent<Image>();
@@ -117,23 +117,17 @@ namespace TsilaRun
         void EnsureSkinButtons()
         {
             if (panel == null) return;
-            var buttons = panel.GetComponentsInChildren<Button>(true);
-            if (buttons != null && buttons.Length > 0)
+            if (skinButtons == null) skinButtons = new Button[0];
+            if (skinLabels == null || skinLabels.Length != skinButtons.Length)
+                skinLabels = new Text[skinButtons.Length];
+            for (int i = 0; i < skinButtons.Length && i < RunnerProgress.SkinNames.Length; i++)
             {
-                skinButtons = buttons;
-                skinLabels = new Text[buttons.Length];
-                for (int i = 0; i < buttons.Length; i++)
-                {
-                    skinLabels[i] = buttons[i].GetComponentInChildren<Text>();
-                    int index = i;
-                    buttons[i].onClick.RemoveAllListeners();
-                    buttons[i].onClick.AddListener(() => SelectSkin(index));
-                }
-            }
-            else if (skinButtons == null || skinButtons.Length == 0)
-            {
-                skinButtons = new Button[RunnerProgress.SkinNames.Length];
-                skinLabels = new Text[RunnerProgress.SkinNames.Length];
+                var button = skinButtons[i];
+                if (button == null) continue;
+                skinLabels[i] = button.GetComponentInChildren<Text>();
+                int index = i;
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => SelectSkin(index));
             }
         }
 
@@ -158,7 +152,7 @@ namespace TsilaRun
             if (panel != null) panel.SetActive(game != null && game.State == RunnerGame.RunState.Shop);
             if (game == null || game.Progress == null || panel == null || !panel.activeSelf) return;
             if (wallet != null) wallet.text = "COINS  " + game.Progress.Wallet;
-            for (int i = 0; i < skinButtons.Length; i++)
+            for (int i = 0; i < skinButtons.Length && i < RunnerProgress.SkinNames.Length; i++)
             {
                 if (skinButtons[i] == null) continue;
                 bool owned = game.Progress.Owns(i);

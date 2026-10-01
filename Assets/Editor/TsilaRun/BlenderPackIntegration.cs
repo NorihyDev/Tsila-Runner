@@ -52,11 +52,32 @@ namespace TsilaRun.Editor
                 BuildCharacter(name);
             }
             foreach (string name in Props) { ConfigureModel(name, false); BuildProp(name); }
+            BuildPowerUpPrefabs();
             PatchGameplayPrefabs();
             PatchScene();
             AssetDatabase.SaveAssets();
             ValidateAssets();
             Debug.Log("TSILA_BLENDER_INTEGRATION_OK");
+        }
+
+        [MenuItem("Tools/Tsila Run/Reconcile Blender Pack with Latest Gameplay")]
+        public static void ReconcileMenu()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            ReconcileBatch();
+        }
+
+        public static void ReconcileBatch()
+        {
+            BackupGameplay();
+            BuildPowerUpPrefabs();
+            PatchGameplayPrefabs();
+            PatchScene();
+            ModernUiUpdater.RefreshBatch();
+            AssetDatabase.SaveAssets();
+            ValidateAssets();
+            Debug.Log("TSILA_BLENDER_RECONCILE_OK");
         }
 
         static void BackupGameplay()
@@ -320,6 +341,48 @@ namespace TsilaRun.Editor
             finally { Object.DestroyImmediate(root); }
         }
 
+        static void BuildPowerUpPrefabs()
+        {
+            string folder = MobilePrototypeBuilder.Root + "/Prefabs/";
+            foreach (RunnerItemKind kind in new[] { RunnerItemKind.CoinMagnet, RunnerItemKind.Shield, RunnerItemKind.SpeedBoost })
+            {
+                string path = folder + kind + ".prefab";
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null) continue;
+                string materialPath = MobilePrototypeBuilder.Root + "/Materials/PowerUp" + kind + ".mat";
+                var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+                if (material == null)
+                {
+                    var shader = Shader.Find("Universal Render Pipeline/Simple Lit");
+                    if (shader == null) throw new InvalidOperationException("URP Simple Lit shader is missing.");
+                    material = new Material(shader);
+                    material.color = kind == RunnerItemKind.CoinMagnet ? new Color(1f, .68f, .12f) :
+                        kind == RunnerItemKind.Shield ? new Color(.20f, .78f, 1f) : new Color(1f, .36f, .15f);
+                    material.enableInstancing = true;
+                    AssetDatabase.CreateAsset(material, materialPath);
+                }
+                var root = new GameObject(kind.ToString());
+                try
+                {
+                    var item = root.AddComponent<RunnerItem>();
+                    item.kind = kind;
+                    item.hitbox = root.AddComponent<BoxCollider>();
+                    item.hitbox.isTrigger = true;
+                    item.hitbox.center = Vector3.up * .9f;
+                    item.hitbox.size = Vector3.one * .9f;
+                    var visual = GameObject.CreatePrimitive(kind == RunnerItemKind.Shield ? PrimitiveType.Cube : PrimitiveType.Sphere);
+                    visual.name = kind + " Visual";
+                    visual.transform.SetParent(root.transform, false);
+                    visual.transform.localPosition = Vector3.up * .9f;
+                    visual.transform.localScale = kind == RunnerItemKind.Shield ? new Vector3(.65f, .65f, .18f) : Vector3.one * .68f;
+                    if (kind == RunnerItemKind.Shield) visual.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                    Object.DestroyImmediate(visual.GetComponent<Collider>());
+                    visual.GetComponent<Renderer>().sharedMaterial = material;
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally { Object.DestroyImmediate(root); }
+            }
+        }
+
         static void PatchGameplayPrefabs()
         {
             string folder = MobilePrototypeBuilder.Root + "/Prefabs/";
@@ -333,7 +396,9 @@ namespace TsilaRun.Editor
                     {
                         var player = root.GetComponent<RunnerPlayer>();
                         ClearChildren(player.visual);
-                        MethodVisualBuilder.Character(player.visual, "Tsila").player = player;
+                        var avatar = MethodVisualBuilder.Character(player.visual, "Tsila");
+                        avatar.player = player;
+                        player.rig = avatar.GetComponent<RunnerCharacterRig>();
                         player.animatedSlide = true;
                     }
                     else if (name == "Officer" || name == "RunningPerson")
@@ -395,10 +460,21 @@ namespace TsilaRun.Editor
             var game = Object.FindAnyObjectByType<RunnerGame>();
             var avatar = game.player.GetComponentInChildren<RunnerAvatar>(true);
             avatar.game = game; avatar.player = game.player;
+            game.player.rig = avatar.GetComponent<RunnerCharacterRig>();
+            var prefabs = new RunnerItem[RunnerRules.ItemKindCount];
+            for (int i = 0; i < prefabs.Length; i++)
+            {
+                string path = MobilePrototypeBuilder.Root + "/Prefabs/" + (RunnerItemKind)i + ".prefab";
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                prefabs[i] = prefab != null ? prefab.GetComponent<RunnerItem>() : null;
+                if (prefabs[i] == null) throw new InvalidDataException("Missing gameplay item prefab: " + path);
+            }
+            game.world.itemPrefabs = prefabs;
             var officer = scene.GetRootGameObjects().First(o => o.name == "Officer").GetComponentInChildren<RunnerAvatar>(true);
             game.chase.officer = officer; officer.game = game; officer.alwaysRun = true;
             officer.gameObject.SetActive(false);
             PrefabUtility.RecordPrefabInstancePropertyModifications(avatar);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(game.player);
             PrefabUtility.RecordPrefabInstancePropertyModifications(officer);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);

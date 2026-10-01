@@ -381,7 +381,8 @@ namespace TsilaRun.Tests
                     if (item.kind != RunnerItemKind.Coin) continue;
                     foreach (var other in items)
                         if (other.InUse && RunnerRules.IsObstacle(other.kind))
-                            Assert.IsFalse(item.HitBounds.Intersects(other.HitBounds));
+                            Assert.IsFalse(item.HitBounds.Intersects(other.HitBounds),
+                                $"Coin {item.transform.position} intersects {other.kind} {other.transform.position} at step {step}");
                 }
             }
             game.Pause(); game.StartRun();

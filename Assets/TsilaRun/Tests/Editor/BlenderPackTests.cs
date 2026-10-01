@@ -58,6 +58,11 @@ namespace TsilaRun.Tests
             var avatar = game.player.GetComponentInChildren<RunnerAvatar>(true);
             Assert.AreSame(game, avatar.game);
             Assert.AreSame(game.player, avatar.player);
+            Assert.AreSame(avatar.GetComponent<RunnerCharacterRig>(), game.player.rig);
+            Assert.AreEqual(RunnerRules.ItemKindCount, game.world.itemPrefabs.Length);
+            Assert.IsTrue(game.world.itemPrefabs.All(item => item != null));
+            Assert.AreEqual(RunnerProgress.SkinNames.Length,
+                Object.FindAnyObjectByType<RunnerShop>().skinButtons.Length);
             Assert.IsNotNull(game.chase.officer);
             Assert.AreSame(game, game.chase.officer.game);
             foreach (var character in new[] { avatar, game.chase.officer,
@@ -68,6 +73,29 @@ namespace TsilaRun.Tests
                 Assert.That(AssetDatabase.GetAssetPath(character.animator.runtimeAnimatorController), Does.StartWith(BlenderPackIntegration.Generated));
             }
             Assert.IsTrue(game.player.animatedSlide);
+        }
+
+        [Test]
+        public void OutfitTintChangesBodyWithoutReplacingFaceOrHair()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(MobilePrototypeBuilder.Root + "/Prefabs/Tsila.prefab");
+            var instance = Object.Instantiate(prefab);
+            try
+            {
+                var avatar = instance.GetComponentInChildren<RunnerAvatar>();
+                avatar.SetSuitTint(Color.magenta);
+                foreach (var skin in avatar.GetComponentsInChildren<SkinnedMeshRenderer>())
+                {
+                    var materials = skin.sharedMaterials;
+                    int body = System.Array.FindIndex(materials, material => material != null && material.name.Contains("Body"));
+                    Assert.GreaterOrEqual(body, 0);
+                    var block = new MaterialPropertyBlock();
+                    skin.GetPropertyBlock(block, body);
+                    Assert.AreEqual(Color.magenta, block.GetColor("_BaseColor"));
+                    Assert.IsNotNull(materials.First(material => material.name.Contains("Face")).GetTexture("_BaseMap"));
+                }
+            }
+            finally { Object.DestroyImmediate(instance); }
         }
 
         [Test]

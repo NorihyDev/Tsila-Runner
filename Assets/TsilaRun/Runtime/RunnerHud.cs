@@ -91,7 +91,7 @@ namespace TsilaRun
             Transform frame = transform.Find("Safe Area/Method Logo Frame");
             if (frame == null) return;
             var logo = frame.GetComponentInChildren<RawImage>(true);
-            if (logo != null) logo.enabled = false;
+            if (logo != null && logo.texture != null) { logo.enabled = true; return; }
             var label = frame.GetComponent<Text>() ?? frame.gameObject.AddComponent<Text>();
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             label.text = "METHOD";

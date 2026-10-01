@@ -92,7 +92,15 @@ namespace TsilaRun.Editor
             shop.skinLabels = skinLabels;
             shop.close = Button(market, "Back", "BACK", .1f, .065f, .9f, .145f, Violet);
 
-            Text(safe, "Method Brand", "METHOD", 19, .79f, .905f, .97f, .995f).color = Neon;
+            var methodLogo = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/TsilaRunArt/Textures/MethodLogo.png");
+            if (methodLogo != null)
+            {
+                var logoFrame = Rect(safe, "Method Logo Frame", .81f, .91f, .96f, .995f);
+                var logo = Rect(logoFrame, "Method Logo", 0f, 0f, 1f, 1f).gameObject.AddComponent<RawImage>();
+                logo.texture = methodLogo;
+                logo.raycastTarget = false;
+            }
+            else Text(safe, "Method Brand", "METHOD", 19, .79f, .905f, .97f, .995f).color = Neon;
             Text(safe, "Copyright", "Copyright by Method", 13, .08f, .009f, .92f, .039f).color = Muted;
             foreach (var panel in new[] { start, pause, over, intro, market }) panel.gameObject.AddComponent<UiPanelMotion>();
             pause.gameObject.SetActive(false); over.gameObject.SetActive(false); intro.gameObject.SetActive(false);

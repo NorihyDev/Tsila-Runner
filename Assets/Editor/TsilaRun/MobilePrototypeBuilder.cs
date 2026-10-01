@@ -254,7 +254,7 @@ namespace TsilaRun.Editor
             player.visual.SetParent(root.transform, false);
             var character = MethodVisualBuilder.Character(player.visual, "Tsila");
             character.player = player;
-            player.rig = player.visual.GetComponent<RunnerCharacterRig>();
+            player.rig = character.GetComponent<RunnerCharacterRig>();
             player.animatedSlide = true;
             return SavePrefab(root, "Tsila").GetComponent<RunnerPlayer>();
         }
@@ -271,7 +271,6 @@ namespace TsilaRun.Editor
             {
                 case RunnerItemKind.RunningPerson:
                     center = new Vector3(0f, 0.94f, 0f); size = new Vector3(0.95f, 1.88f, 0.8f);
-                    MethodVisualBuilder.Character(root.transform, "RunningPerson").alwaysRun = true;
                     break;
                 case RunnerItemKind.Barrier:
                     center = new Vector3(0f, 0.425f, 0f); size = new Vector3(1.7f, 0.85f, 0.9f); break;

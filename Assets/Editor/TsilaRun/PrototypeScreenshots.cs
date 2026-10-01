@@ -62,9 +62,12 @@ namespace TsilaRun.Editor
                     if (state == 5)
                     {
                         shop.wallet.text = "COINS  150";
-                        for (int skin = 0; skin < shop.skinLabels.Length; skin++)
-                            shop.skinLabels[skin].text = "TSILA ORIGINAL  /  EQUIPPED";
+                        for (int skin = 0; skin < shop.skinLabels.Length && skin < RunnerProgress.SkinNames.Length; skin++)
+                            shop.skinLabels[skin].text = RunnerProgress.SkinNames[skin].ToUpperInvariant() +
+                                (skin == 0 ? "  /  EQUIPPED" : "  /  " + RunnerProgress.Prices[skin] + " COINS");
                     }
+                    if (hud.missionText != null) hud.missionText.gameObject.SetActive(state == 1 || state == 6 || state == 7);
+                    if (hud.powerUpText != null) hud.powerUpText.gameObject.SetActive(false);
                     hud.zoneText.gameObject.SetActive(state != 0 && state != 5);
                     hud.zoneText.text = RunnerRoadSection.ZoneNames[state == 6 ? 1 : state == 7 ? 2 : 0];
                     foreach (var section in hud.game.world.GetComponentsInChildren<RunnerRoadSection>())

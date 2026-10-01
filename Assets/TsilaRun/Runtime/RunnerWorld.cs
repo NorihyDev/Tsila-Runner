@@ -66,7 +66,8 @@ namespace TsilaRun
             visual.transform.SetParent(root.transform, false);
             visual.transform.localPosition = Vector3.up * 0.9f;
             visual.transform.localScale = Vector3.one * 0.72f;
-            Destroy(visual.GetComponent<Collider>());
+            if (Application.isPlaying) Destroy(visual.GetComponent<Collider>());
+            else DestroyImmediate(visual.GetComponent<Collider>());
             var renderer = visual.GetComponent<Renderer>();
             var block = new MaterialPropertyBlock();
             Color color = kind == RunnerItemKind.CoinMagnet ? new Color(1f, 0.72f, 0.12f) :
@@ -229,6 +230,14 @@ namespace TsilaRun
 
         void PlaceCoinAt(float x, float z, float y)
         {
+            RunnerItem coinPrefab = items[(int)RunnerItemKind.Coin, 0];
+            Bounds coinBounds = new Bounds(new Vector3(x, y, z) + coinPrefab.hitbox.center, coinPrefab.hitbox.size);
+            for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
+            {
+                if (!RunnerRules.IsObstacle((RunnerItemKind)kind)) continue;
+                for (int i = 0; i < RunnerRules.PoolPerKind; i++)
+                    if (items[kind, i].InUse && coinBounds.Intersects(items[kind, i].HitBounds)) return;
+            }
             for (int i = 0; i < RunnerRules.PoolPerKind; i++)
             {
                 RunnerItem item = items[(int)RunnerItemKind.Coin, i];
