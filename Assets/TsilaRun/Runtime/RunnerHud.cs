@@ -50,21 +50,16 @@ namespace TsilaRun
             StyleButton(resultsMenuButton, new Color32(15, 140, 120, 255), new Color32(236, 255, 246, 255));
             if (skipIntroButton != null) StyleButton(skipIntroButton, new Color32(64, 72, 92, 255), new Color32(255, 255, 255, 255));
 
-            if (startPanel != null)
-            {
-                var panel = startPanel.GetComponent<Image>() ?? startPanel.AddComponent<Image>();
-                panel.color = new Color32(10, 15, 25, 230);
-            }
-            if (pausePanel != null)
-            {
-                var panel = pausePanel.GetComponent<Image>() ?? pausePanel.AddComponent<Image>();
-                panel.color = new Color32(10, 15, 25, 230);
-            }
-            if (gameOverPanel != null)
-            {
-                var panel = gameOverPanel.GetComponent<Image>() ?? gameOverPanel.AddComponent<Image>();
-                panel.color = new Color32(10, 15, 25, 230);
-            }
+            StylePanel(startPanel, new Color32(9, 16, 33, 210));
+            StylePanel(pausePanel, new Color32(9, 16, 33, 210));
+            StylePanel(gameOverPanel, new Color32(9, 16, 33, 210));
+            StylePanel(hud, new Color32(9, 16, 33, 120));
+
+            StyleText(distanceText, new Color32(255, 255, 255, 255), 28, true);
+            StyleText(coinsText, new Color32(255, 206, 82, 255), 24, true);
+            StyleText(bestText, new Color32(168, 207, 255, 255), 24, true);
+            StyleText(resultText, new Color32(255, 255, 255, 255), 32, true);
+            if (zoneText != null) StyleText(zoneText, new Color32(255, 213, 92, 255), 20, true);
         }
 
         static void StyleButton(Button button, Color fill, Color textColor)
@@ -101,6 +96,7 @@ namespace TsilaRun
                 text.color = textColor;
                 text.fontSize = Mathf.Max(text.fontSize, 20);
                 text.alignment = TextAnchor.MiddleCenter;
+                text.fontStyle = FontStyle.Bold;
             }
 
             RectTransform rect = button.GetComponent<RectTransform>();
@@ -108,7 +104,34 @@ namespace TsilaRun
             {
                 rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Max(rect.rect.width, 260f));
                 rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(rect.rect.height, 62f));
+                rect.localScale = Vector3.one;
             }
+        }
+
+        static void StylePanel(GameObject panelObj, Color tone)
+        {
+            if (panelObj == null) return;
+            var image = panelObj.GetComponent<Image>() ?? panelObj.AddComponent<Image>();
+            image.color = tone;
+            image.raycastTarget = false;
+            image.type = Image.Type.Sliced;
+            var rect = panelObj.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
+            }
+        }
+
+        static void StyleText(Text text, Color color, int size, bool bold)
+        {
+            if (text == null) return;
+            text.color = color;
+            text.fontSize = size;
+            text.fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
+            text.alignment = TextAnchor.MiddleCenter;
         }
 
         void OnDisable()

@@ -19,11 +19,16 @@ namespace TsilaRun
         }
         public void ShowMenu(bool menu)
         {
-            if (Camera.main != null) Camera.main.backgroundColor = menu ? new Color32(10, 15, 25, 255) : RenderSettings.fogColor;
+            Color menuTint = menu ? new Color32(11, 18, 30, 255) : new Color32(5, 10, 18, 255);
+            if (Camera.main != null) Camera.main.backgroundColor = menu ? menuTint : RenderSettings.fogColor;
             stage.SetActive(menu);
             game.world.gameObject.SetActive(!menu);
             game.player.visual.localRotation = menu ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
-            if (title != null) title.localScale = Vector3.one;
+            if (title != null)
+            {
+                title.localScale = Vector3.one;
+                title.anchoredPosition = menu ? new Vector2(0f, 15f) : Vector2.zero;
+            }
         }
         void Update()
         {
