@@ -5,10 +5,11 @@ namespace TsilaRun
 {
     public sealed class RunnerHud : MonoBehaviour
     {
+        public const string GameOverTitle = "Hay lery maty";
         public RunnerGame game;
         public GameObject startPanel, pausePanel, gameOverPanel, hud;
         public Button playButton, pauseButton, resumeButton, pausedRestartButton, restartButton;
-        public Text distanceText, coinsText, bestText, resultText;
+        public Text distanceText, coinsText, bestText, resultText, gameOverTitleText;
         public Text missionText, powerUpText;
         public GameObject introPanel;
         public Button skipIntroButton;
@@ -291,8 +292,16 @@ namespace TsilaRun
             if (powerUpText != null) powerUpText.gameObject.SetActive(game.State == RunnerGame.RunState.Running && game.PowerUpStatus.Length > 0);
             if (introPanel != null) introPanel.SetActive(game.State == RunnerGame.RunState.Intro);
             if (pauseButton != null) pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro);
-            if (game.State == RunnerGame.RunState.GameOver && resultText != null)
-                resultText.text = game.Score + " METRES\n" + game.Coins + " COINS\nBEST  " + game.Best + " m";
+            if (game.State == RunnerGame.RunState.GameOver)
+            {
+                if (gameOverTitleText == null && gameOverPanel != null)
+                {
+                    Transform title = gameOverPanel.transform.Find("Title");
+                    if (title != null) gameOverTitleText = title.GetComponent<Text>();
+                }
+                if (gameOverTitleText != null) gameOverTitleText.text = GameOverTitle;
+                if (resultText != null) resultText.text = game.Score + " METRES\n" + game.Coins + " COINS\nBEST  " + game.Best + " m";
+            }
             RefreshNumbers();
         }
     }

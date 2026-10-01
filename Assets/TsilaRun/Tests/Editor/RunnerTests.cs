@@ -238,6 +238,7 @@ namespace TsilaRun.Tests
             world.Simulate(2f, player.HitBounds, player.HitBounds);
             game.EndRun();
             Assert.AreEqual(RunnerGame.RunState.GameOver, game.State);
+            Assert.AreEqual(RunnerHud.GameOverTitle, hud.gameOverTitleText.text);
             Assert.AreEqual(1, gameOverEvents);
             game.StateChanged -= CountGameOver;
             var shop = hud.GetComponent<RunnerShop>();

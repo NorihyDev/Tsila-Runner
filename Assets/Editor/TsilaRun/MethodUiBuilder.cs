@@ -61,7 +61,8 @@ namespace TsilaRun.Editor
             view.pausedMenuButton = Button(pause, "Menu", "MAIN MENU", .09f, .08f, .91f, .23f, Violet, 29);
 
             var over = Panel(safe, "Results", .07f, .17f, .93f, .82f); view.gameOverPanel = over.gameObject;
-            Text(over, "Title", "NICE RUN!", 53, .05f, .80f, .95f, .96f).color = Neon;
+            view.gameOverTitleText = Text(over, "Title", RunnerHud.GameOverTitle, 53, .05f, .80f, .95f, .96f);
+            view.gameOverTitleText.color = Neon;
             view.resultText = Text(over, "Result", "0 METRES\n0 COINS\nBEST  0 m", 32, .05f, .49f, .95f, .79f);
             view.restartButton = Button(over, "Restart", "PLAY AGAIN", .09f, .34f, .91f, .47f, Neon);
             shop.openFromResults = Button(over, "Shop", "SHOP", .09f, .19f, .91f, .32f, Violet);
