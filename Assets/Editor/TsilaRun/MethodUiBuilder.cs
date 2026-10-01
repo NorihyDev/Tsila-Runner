@@ -36,6 +36,9 @@ namespace TsilaRun.Editor
             title.fontStyle = FontStyle.Bold; title.alignment = TextAnchor.MiddleLeft; title.color = Pale;
             title.lineSpacing = .88f;
             presentation.title = title.rectTransform;
+            Text(start, "Tagline", "ONE ISLAND. ENDLESS POSSIBILITIES.", 18, .08f, .735f, .92f, .78f).color = Muted;
+            var outfit = Panel(start, "Outfit Badge", .18f, .30f, .82f, .34f);
+            Text(outfit, "Outfit", "ORIGINAL COLLECTION / METHOD", 16, .02f, .04f, .98f, .96f).color = Pale;
             view.playButton = Button(start, "Play", "PLAY", .1f, .205f, .9f, .28f, Neon);
             shop.openFromStart = Button(start, "Shop", "SHOP", .1f, .12f, .9f, .187f, Violet);
             Text(start, "Controls", "LEFT / RIGHT: MOVE\nUP: JUMP    DOWN: SLIDE", 18, .06f, .045f, .94f, .105f);
@@ -68,9 +71,9 @@ namespace TsilaRun.Editor
             shop.openFromResults = Button(over, "Shop", "SHOP", .09f, .19f, .91f, .32f, Violet);
             view.resultsMenuButton = Button(over, "Menu", "MAIN MENU", .09f, .04f, .91f, .17f, Violet, 29);
 
-            var intro = Panel(safe, "Chase Intro", .06f, .64f, .94f, .81f); view.introPanel = intro.gameObject;
-            Text(intro, "Caption", "SWIPE TO MOVE", 27, .04f, .44f, .96f, .95f);
-            view.skipIntroButton = Button(intro, "Skip", "LET'S RUN", .12f, .04f, .88f, .41f, Neon, 29);
+            var intro = Panel(safe, "Chase Intro", .14f, .82f, .86f, .96f); view.introPanel = intro.gameObject;
+            Text(intro, "Caption", "READY?", 22, .04f, .08f, .68f, .92f);
+            view.skipIntroButton = Button(intro, "Skip", "SKIP", .72f, .12f, .96f, .88f, Neon, 18);
 
             var market = Rect(safe, "Shop", 0, 0, 1, 1); shop.panel = market.gameObject;
             Text(market, "Title", "SHOP", 52, .06f, .825f, .77f, .945f).color = Neon;
@@ -90,6 +93,7 @@ namespace TsilaRun.Editor
             shop.close = Button(market, "Back", "BACK", .1f, .065f, .9f, .145f, Violet);
 
             Text(safe, "Method Brand", "METHOD", 19, .79f, .905f, .97f, .995f).color = Neon;
+            Text(safe, "Copyright", "Copyright by Method", 13, .08f, .009f, .92f, .039f).color = Muted;
             foreach (var panel in new[] { start, pause, over, intro, market }) panel.gameObject.AddComponent<UiPanelMotion>();
             pause.gameObject.SetActive(false); over.gameObject.SetActive(false); intro.gameObject.SetActive(false);
             market.gameObject.SetActive(false); hud.gameObject.SetActive(false);

@@ -24,23 +24,66 @@ namespace TsilaRun
         void Awake()
         {
             EnsureBrandMark();
-            HideLegacyMenuCopy();
+            ApplyMobileLayout();
+            UpdateLegacyIntroCopy();
             if (missionText == null) missionText = CreateStatusText("Mission Status", new Vector2(0.1f, 0.78f), new Vector2(0.9f, 0.825f));
             if (powerUpText == null) powerUpText = CreateStatusText("Power Up Status", new Vector2(0.1f, 0.73f), new Vector2(0.9f, 0.775f));
             ApplyModernMobileStyle();
         }
 
-        void HideLegacyMenuCopy()
+        void ApplyMobileLayout()
         {
-            HideObject("Safe Area/Main Menu/Tagline");
-            HideObject("Safe Area/Main Menu/Outfit Badge");
-            HideObject("Safe Area/Copyright");
+            SetAnchors(hud, new Vector2(0.025f, 0.83f), new Vector2(0.975f, 0.99f));
+            SetAnchors(distanceText, new Vector2(0.04f, 0.46f), new Vector2(0.54f, 0.94f));
+            SetAnchors(bestText, new Vector2(0.04f, 0.08f), new Vector2(0.50f, 0.40f));
+            SetAnchors(coinsText, new Vector2(0.43f, 0.08f), new Vector2(0.68f, 0.40f));
+            SetAnchors(menuButton, new Vector2(0.66f, 0.16f), new Vector2(0.83f, 0.84f));
+            SetAnchors(pauseButton, new Vector2(0.86f, 0.16f), new Vector2(0.97f, 0.84f));
+            SetAnchors(missionText, new Vector2(0.1f, 0.78f), new Vector2(0.9f, 0.825f));
+            SetAnchors(powerUpText, new Vector2(0.1f, 0.73f), new Vector2(0.9f, 0.775f));
+            SetAnchors(zoneText, new Vector2(0.1f, 0.045f), new Vector2(0.9f, 0.08f));
+            SetAnchors(introPanel, new Vector2(0.14f, 0.82f), new Vector2(0.86f, 0.96f));
+            SetAnchors(skipIntroButton, new Vector2(0.72f, 0.12f), new Vector2(0.96f, 0.88f));
+            if (introPanel != null)
+            {
+                Transform caption = introPanel.transform.Find("Caption");
+                SetAnchors(caption != null ? caption.GetComponent<RectTransform>() : null,
+                    new Vector2(0.04f, 0.08f), new Vector2(0.68f, 0.92f));
+            }
         }
 
-        void HideObject(string path)
+        static void SetAnchors(GameObject target, Vector2 min, Vector2 max)
         {
-            Transform target = transform.Find(path);
-            if (target != null) target.gameObject.SetActive(false);
+            if (target != null) SetAnchors(target.GetComponent<RectTransform>(), min, max);
+        }
+
+        static void SetAnchors(Component target, Vector2 min, Vector2 max)
+        {
+            if (target != null) SetAnchors(target.GetComponent<RectTransform>(), min, max);
+        }
+
+        static void SetAnchors(RectTransform rect, Vector2 min, Vector2 max)
+        {
+            if (rect == null) return;
+            rect.anchorMin = min;
+            rect.anchorMax = max;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            rect.anchoredPosition = Vector2.zero;
+            rect.localScale = Vector3.one;
+        }
+
+        void UpdateLegacyIntroCopy()
+        {
+            if (introPanel == null) return;
+            Transform caption = introPanel.transform.Find("Caption");
+            Text captionText = caption != null ? caption.GetComponent<Text>() : null;
+            if (captionText != null) captionText.text = "READY?";
+            if (skipIntroButton != null)
+            {
+                Text buttonText = skipIntroButton.GetComponentInChildren<Text>();
+                if (buttonText != null) buttonText.text = "SKIP";
+            }
         }
 
         void EnsureBrandMark()
