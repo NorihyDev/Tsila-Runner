@@ -65,6 +65,7 @@ namespace TsilaRun
             if (coinsText != null) AddShadow(coinsText, new Color32(45, 22, 0, 160), 2, 2);
             if (bestText != null) AddShadow(bestText, new Color32(15, 28, 54, 170), 2, 2);
             if (zoneText != null) AddShadow(zoneText, new Color32(38, 22, 0, 170), 2, 2);
+            if (resultText != null) AddShadow(resultText, new Color32(0, 0, 0, 100), 2, -2);
         }
 
         static void StyleButton(Button button, Color fill, Color textColor)
@@ -92,6 +93,13 @@ namespace TsilaRun
                 outline.effectDistance = new Vector2(0f, 3f);
             }
 
+            if (button.gameObject.GetComponent<Shadow>() == null)
+            {
+                var shadow = button.gameObject.AddComponent<Shadow>();
+                shadow.effectColor = new Color32(8, 16, 28, 180);
+                shadow.effectDistance = new Vector2(0f, -4f);
+            }
+
             if (button.gameObject.GetComponent<UiButtonMotion>() == null)
                 button.gameObject.AddComponent<UiButtonMotion>();
 
@@ -102,6 +110,9 @@ namespace TsilaRun
                 text.fontSize = Mathf.Max(text.fontSize, 20);
                 text.alignment = TextAnchor.MiddleCenter;
                 text.fontStyle = FontStyle.Bold;
+                text.resizeTextForBestFit = true;
+                text.resizeTextMinSize = 14;
+                text.resizeTextMaxSize = 30;
             }
 
             RectTransform rect = button.GetComponent<RectTransform>();
@@ -120,6 +131,12 @@ namespace TsilaRun
             image.color = tone;
             image.raycastTarget = false;
             image.type = Image.Type.Sliced;
+            if (panelObj.GetComponent<Shadow>() == null)
+            {
+                var shadow = panelObj.AddComponent<Shadow>();
+                shadow.effectColor = new Color32(4, 9, 18, 120);
+                shadow.effectDistance = new Vector2(0f, -5f);
+            }
             var rect = panelObj.GetComponent<RectTransform>();
             if (rect != null)
             {

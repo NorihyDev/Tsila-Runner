@@ -26,6 +26,12 @@ namespace TsilaRun
                 var image = stage.GetComponent<UnityEngine.UI.Image>() ?? stage.AddComponent<UnityEngine.UI.Image>();
                 image.color = new Color32(16, 24, 38, 240);
                 image.raycastTarget = false;
+                if (stage.GetComponent<UnityEngine.UI.Shadow>() == null)
+                {
+                    var shadow = stage.AddComponent<UnityEngine.UI.Shadow>();
+                    shadow.effectColor = new Color32(0, 0, 0, 130);
+                    shadow.effectDistance = new Vector2(0f, -8f);
+                }
             }
             stage.SetActive(menu);
             game.world.gameObject.SetActive(!menu);
