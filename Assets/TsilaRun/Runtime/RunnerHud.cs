@@ -85,6 +85,13 @@ namespace TsilaRun
             colors.colorMultiplier = 1f;
             button.colors = colors;
 
+            if (button.gameObject.GetComponent<Outline>() == null)
+            {
+                var outline = button.gameObject.AddComponent<Outline>();
+                outline.effectColor = new Color32(7, 12, 20, 175);
+                outline.effectDistance = new Vector2(0f, 3f);
+            }
+
             if (button.gameObject.GetComponent<UiButtonMotion>() == null)
                 button.gameObject.AddComponent<UiButtonMotion>();
 
