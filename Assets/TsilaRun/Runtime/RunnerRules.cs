@@ -28,7 +28,8 @@ namespace TsilaRun
         public const float ShieldDuration = 10f;
         public const float SpeedBoostDuration = 5f;
         public const float SpeedBoostBonus = 6f;
-        public const float MagnetPullSpeed = 22f;
+        public const float MagnetRadius = 16f;
+        public const float MagnetPullSpeed = 34f;
         public static float JumpSeconds => 2f * JumpVelocity / Gravity;
 
         public static bool IsObstacle(RunnerItemKind kind)

@@ -120,10 +120,14 @@ namespace TsilaRun
                     float itemTravel = item.TravelThisTick(travel, travel / Mathf.Max(RunnerRules.StartSpeed, game.TravelSpeed));
                     item.transform.position -= Vector3.forward * itemTravel;
                     float dt = travel / Mathf.Max(RunnerRules.StartSpeed, game.TravelSpeed);
-                    if (item.kind == RunnerItemKind.Coin && game.MagnetRemaining > 0f)
+                    Vector3 target = player.transform.position + Vector3.up * player.Height * 0.5f;
+                    float magnetDistance = Vector3.Distance(item.transform.position, target);
+                    if (item.kind == RunnerItemKind.Coin && game.MagnetRemaining > 0f &&
+                        item.transform.position.z >= target.z && magnetDistance <= RunnerRules.MagnetRadius)
                     {
-                        Vector3 target = new Vector3(player.transform.position.x, player.HitBounds.center.y, item.transform.position.z);
-                        item.transform.position = Vector3.MoveTowards(item.transform.position, target, RunnerRules.MagnetPullSpeed * dt);
+                        float closeInFactor = 1f + Mathf.InverseLerp(RunnerRules.MagnetRadius, 0f, magnetDistance);
+                        item.transform.position = Vector3.MoveTowards(item.transform.position, target,
+                            RunnerRules.MagnetPullSpeed * closeInFactor * dt);
                     }
                     Bounds itemTo = item.HitBounds;
                     bool hit = RunnerRules.SweptOverlap(previousPlayer, currentPlayer, itemFrom, itemTo);

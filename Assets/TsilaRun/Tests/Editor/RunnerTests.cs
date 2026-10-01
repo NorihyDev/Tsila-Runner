@@ -212,8 +212,10 @@ namespace TsilaRun.Tests
             Assert.AreEqual(RunnerRules.MagnetDuration, game.MagnetRemaining);
             var attractedCoin = pool.First(i => i.kind == RunnerItemKind.Coin);
             attractedCoin.Place(RunnerRules.LaneWidth, 4f, 0.9f);
+            float distanceBeforeAttraction = Vector3.Distance(attractedCoin.transform.position, player.HitBounds.center);
             world.Simulate(0.1f, player.HitBounds, player.HitBounds);
-            Assert.Less(attractedCoin.transform.position.x, RunnerRules.LaneWidth, "The magnet should pull coins toward the runner's lane.");
+            float distanceAfterAttraction = Vector3.Distance(attractedCoin.transform.position, player.HitBounds.center);
+            Assert.Less(distanceAfterAttraction, distanceBeforeAttraction, "The magnet should pull coins toward the runner in three dimensions.");
 
             var boost = pool.First(i => i.kind == RunnerItemKind.SpeedBoost);
             boost.Place(0f, 0f);

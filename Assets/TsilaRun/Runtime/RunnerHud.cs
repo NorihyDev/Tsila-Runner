@@ -24,9 +24,23 @@ namespace TsilaRun
         void Awake()
         {
             EnsureBrandMark();
+            HideLegacyMenuCopy();
             if (missionText == null) missionText = CreateStatusText("Mission Status", new Vector2(0.1f, 0.78f), new Vector2(0.9f, 0.825f));
             if (powerUpText == null) powerUpText = CreateStatusText("Power Up Status", new Vector2(0.1f, 0.73f), new Vector2(0.9f, 0.775f));
             ApplyModernMobileStyle();
+        }
+
+        void HideLegacyMenuCopy()
+        {
+            HideObject("Safe Area/Main Menu/Tagline");
+            HideObject("Safe Area/Main Menu/Outfit Badge");
+            HideObject("Safe Area/Copyright");
+        }
+
+        void HideObject(string path)
+        {
+            Transform target = transform.Find(path);
+            if (target != null) target.gameObject.SetActive(false);
         }
 
         void EnsureBrandMark()
@@ -183,8 +197,6 @@ namespace TsilaRun
             RectTransform rect = button.GetComponent<RectTransform>();
             if (rect != null)
             {
-                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Max(rect.rect.width, 256f));
-                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(rect.rect.height, 68f));
                 rect.localPosition = new Vector3(rect.localPosition.x, rect.localPosition.y, 0f);
                 rect.localScale = Vector3.one;
             }
@@ -212,10 +224,6 @@ namespace TsilaRun
             var rect = panelObj.GetComponent<RectTransform>();
             if (rect != null)
             {
-                rect.anchorMin = Vector2.zero;
-                rect.anchorMax = Vector2.one;
-                rect.offsetMin = Vector2.zero;
-                rect.offsetMax = Vector2.zero;
                 rect.localScale = Vector3.one;
             }
         }
