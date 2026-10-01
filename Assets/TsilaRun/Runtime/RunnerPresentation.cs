@@ -21,6 +21,12 @@ namespace TsilaRun
         {
             Color menuTint = menu ? new Color32(11, 18, 30, 255) : new Color32(5, 10, 18, 255);
             if (Camera.main != null) Camera.main.backgroundColor = menu ? menuTint : RenderSettings.fogColor;
+            if (stage != null)
+            {
+                var image = stage.GetComponent<UnityEngine.UI.Image>() ?? stage.AddComponent<UnityEngine.UI.Image>();
+                image.color = new Color32(16, 24, 38, 240);
+                image.raycastTarget = false;
+            }
             stage.SetActive(menu);
             game.world.gameObject.SetActive(!menu);
             game.player.visual.localRotation = menu ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;

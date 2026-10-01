@@ -60,6 +60,11 @@ namespace TsilaRun
             StyleText(bestText, new Color32(168, 207, 255, 255), 24, true);
             StyleText(resultText, new Color32(255, 255, 255, 255), 32, true);
             if (zoneText != null) StyleText(zoneText, new Color32(255, 213, 92, 255), 20, true);
+
+            if (distanceText != null) AddShadow(distanceText, new Color32(12, 22, 45, 140), 2, 2);
+            if (coinsText != null) AddShadow(coinsText, new Color32(45, 22, 0, 160), 2, 2);
+            if (bestText != null) AddShadow(bestText, new Color32(15, 28, 54, 170), 2, 2);
+            if (zoneText != null) AddShadow(zoneText, new Color32(38, 22, 0, 170), 2, 2);
         }
 
         static void StyleButton(Button button, Color fill, Color textColor)
@@ -132,6 +137,14 @@ namespace TsilaRun
             text.fontSize = size;
             text.fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
             text.alignment = TextAnchor.MiddleCenter;
+        }
+
+        static void AddShadow(Text text, Color shadowColor, float x, float y)
+        {
+            if (text == null) return;
+            var shadow = text.GetComponent<Shadow>() ?? text.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = shadowColor;
+            shadow.effectDistance = new Vector2(x, -y);
         }
 
         void OnDisable()
