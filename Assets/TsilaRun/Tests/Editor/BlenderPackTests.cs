@@ -23,7 +23,7 @@ namespace TsilaRun.Tests
                 Assert.IsTrue(animator.avatar.isValid);
                 Assert.IsFalse(animator.applyRootMotion);
                 var clips = animator.runtimeAnimatorController.animationClips;
-                CollectionAssert.AreEquivalent(new[] { "Idle", "Run", "Jump", "Slide" }, clips.Select(c => c.name).Distinct());
+                CollectionAssert.AreEquivalent(new[] { "Idle", "Run", "Jump", "Slide" }, clips.Select(c => c.name.Substring(name.Length + 1)).Distinct());
                 var levels = instance.GetComponent<LODGroup>().GetLODs();
                 Assert.AreEqual(2, levels.Length);
                 var high = (SkinnedMeshRenderer)levels[0].renderers[0];
@@ -42,7 +42,7 @@ namespace TsilaRun.Tests
                     foreach (var weight in skin.sharedMesh.boneWeights)
                         Assert.AreEqual(1f, weight.weight0 + weight.weight1 + weight.weight2 + weight.weight3, .002f);
                 }
-                clips.Single(c => c.name == "Slide").SampleAnimation(instance, .5f);
+                clips.Single(c => c.name == name + "_Slide").SampleAnimation(instance, .5f);
                 var slide = BlenderPackIntegration.SkinnedBounds(instance, high);
                 Assert.GreaterOrEqual(slide.min.y, -.02f);
                 Assert.LessOrEqual(slide.max.y, RunnerRules.SlideHeight + .02f);

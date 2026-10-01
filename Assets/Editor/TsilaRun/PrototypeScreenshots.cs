@@ -82,10 +82,10 @@ namespace TsilaRun.Editor
                         camera.transform.LookAt(new Vector3(0f, 0.98f, 0f));
                     }
                     var avatar = hud.game.player.GetComponentInChildren<RunnerAvatar>();
-                    var clip = avatar.animator.runtimeAnimatorController.animationClips.First(c => c.name == (menu ? "Idle" : "Run"));
+                    var clip = avatar.animator.runtimeAnimatorController.animationClips.First(c => c.name.EndsWith("_" + (menu ? "Idle" : "Run")));
                     clip.SampleAnimation(avatar.gameObject, .25f);
                     if (state == 4)
-                        hud.game.chase.officer.animator.runtimeAnimatorController.animationClips.First(c => c.name == "Run").SampleAnimation(hud.game.chase.officer.gameObject, .2f);
+                        hud.game.chase.officer.animator.runtimeAnimatorController.animationClips.First(c => c.name.EndsWith("_Run")).SampleAnimation(hud.game.chase.officer.gameObject, .2f);
 
                     Canvas.ForceUpdateCanvases();
                     foreach (var text in canvas.GetComponentsInChildren<Text>())
