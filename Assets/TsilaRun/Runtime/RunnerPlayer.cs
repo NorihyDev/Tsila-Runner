@@ -7,6 +7,7 @@ namespace TsilaRun
         public Transform visual;
         public CapsuleCollider body;
         public RunnerWorld world;
+        public RunnerCharacterRig rig;
         public bool animatedSlide;
 
         public int Lane { get; private set; } = 1;
@@ -26,6 +27,7 @@ namespace TsilaRun
             verticalVelocity = slideRemaining = laneElapsed = laneDuration = laneStart = 0f;
             transform.position = Vector3.zero;
             SetSlide(false);
+            if (rig != null) rig.ApplyRuntimePose(RunnerRules.StartSpeed, false, IsSliding, IsGrounded);
         }
 
         public void ChangeLane(int direction)
@@ -71,6 +73,7 @@ namespace TsilaRun
             if (position.y <= 0f) { position.y = 0f; verticalVelocity = Mathf.Max(0f, verticalVelocity); }
             position.z = 0f;
             transform.position = position;
+            if (rig != null) rig.ApplyRuntimePose(Mathf.Max(0f, transform.position.magnitude * 0.1f), false, IsSliding, IsGrounded);
         }
 
         void SetSlide(bool slide)
@@ -78,7 +81,8 @@ namespace TsilaRun
             IsSliding = slide;
             body.height = Height;
             body.center = Vector3.up * (Height * 0.5f);
-            visual.localScale = animatedSlide ? Vector3.one : new Vector3(1f, Height / RunnerRules.StandingHeight, 1f);
+            if (visual != null) visual.localScale = animatedSlide ? Vector3.one : new Vector3(1f, Height / RunnerRules.StandingHeight, 1f);
+            if (rig != null) rig.ApplyRuntimePose(RunnerRules.StartSpeed, false, IsSliding, IsGrounded);
         }
     }
 }

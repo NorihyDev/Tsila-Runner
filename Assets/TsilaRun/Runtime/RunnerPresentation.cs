@@ -19,17 +19,44 @@ namespace TsilaRun
         }
         public void ShowMenu(bool menu)
         {
-            if (Camera.main != null) Camera.main.backgroundColor = menu ? new Color32(10, 15, 25, 255) : RenderSettings.fogColor;
-            stage.SetActive(menu);
-            game.world.gameObject.SetActive(!menu);
-            game.player.visual.localRotation = menu ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
-            if (title != null) title.localScale = Vector3.one;
+            Color menuTint = menu ? new Color32(11, 18, 30, 255) : new Color32(5, 10, 18, 255);
+            if (Camera.main != null) Camera.main.backgroundColor = menu ? menuTint : RenderSettings.fogColor;
+            if (stage != null)
+            {
+                var image = stage.GetComponent<UnityEngine.UI.Image>() ?? stage.AddComponent<UnityEngine.UI.Image>();
+                image.color = new Color32(16, 24, 38, 240);
+                image.raycastTarget = false;
+                if (stage.GetComponent<UnityEngine.UI.Outline>() == null)
+                {
+                    var outline = stage.AddComponent<UnityEngine.UI.Outline>();
+                    outline.effectColor = new Color32(95, 141, 255, 80);
+                    outline.effectDistance = new Vector2(0f, 3f);
+                }
+                if (stage.GetComponent<UnityEngine.UI.Shadow>() == null)
+                {
+                    var shadow = stage.AddComponent<UnityEngine.UI.Shadow>();
+                    shadow.effectColor = new Color32(0, 0, 0, 130);
+                    shadow.effectDistance = new Vector2(0f, -12f);
+                }
+                stage.transform.localScale = menu ? Vector3.one : new Vector3(0.96f, 0.96f, 1f);
+            }
+            if (game != null && game.world != null) game.world.gameObject.SetActive(!menu);
+            if (game != null && game.player != null && game.player.visual != null)
+                game.player.visual.localRotation = menu ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
+            if (title != null)
+            {
+                title.localScale = menu ? Vector3.one : new Vector3(0.93f, 0.93f, 1f);
+                title.anchoredPosition = menu ? new Vector2(0f, 15f) : Vector2.zero;
+            }
         }
         void Update()
         {
-            if (game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop) return;
+            if (game == null || (game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop)) return;
             menuTime = Mathf.Repeat(menuTime + Time.deltaTime, Mathf.PI * 200f);
-            game.player.visual.localRotation = Quaternion.Euler(0f, 180f + Mathf.Sin(menuTime * 0.45f) * 28f, 0f);
+            if (game.player != null && game.player.visual != null)
+                game.player.visual.localRotation = Quaternion.Euler(0f, 180f + Mathf.Sin(menuTime * 0.45f) * 28f, 0f);
+            if (game.player != null && game.player.rig != null)
+                game.player.rig.ApplyRuntimePose(RunnerRules.StartSpeed, true, false, true);
             if (title != null) title.localScale = Vector3.one * (1f + Mathf.Sin(menuTime * 1.8f) * 0.012f);
         }
     }

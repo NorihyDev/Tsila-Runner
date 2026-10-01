@@ -35,6 +35,9 @@ namespace TsilaRun.Editor
         {
             var model = Model(parent, name);
             var avatar = model.AddComponent<RunnerAvatar>();
+            var rig = model.AddComponent<RunnerCharacterRig>();
+            rig.root = model.transform;
+            rig.defaultScale = Vector3.one;
             avatar.animator = model.GetComponent<Animator>();
             avatar.animator.applyRootMotion = false;
             avatar.animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
