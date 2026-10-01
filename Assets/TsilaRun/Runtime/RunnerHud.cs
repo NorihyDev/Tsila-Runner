@@ -23,9 +23,29 @@ namespace TsilaRun
 
         void Awake()
         {
+            EnsureBrandMark();
             if (missionText == null) missionText = CreateStatusText("Mission Status", new Vector2(0.1f, 0.78f), new Vector2(0.9f, 0.825f));
             if (powerUpText == null) powerUpText = CreateStatusText("Power Up Status", new Vector2(0.1f, 0.73f), new Vector2(0.9f, 0.775f));
             ApplyModernMobileStyle();
+        }
+
+        void EnsureBrandMark()
+        {
+            Transform frame = transform.Find("Safe Area/Method Logo Frame");
+            if (frame == null) return;
+            var logo = frame.GetComponentInChildren<RawImage>(true);
+            if (logo != null) logo.enabled = false;
+            var label = frame.GetComponent<Text>() ?? frame.gameObject.AddComponent<Text>();
+            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            label.text = "METHOD";
+            label.fontSize = 19;
+            label.fontStyle = FontStyle.Bold;
+            label.color = new Color32(105, 239, 195, 255);
+            label.alignment = TextAnchor.MiddleRight;
+            label.raycastTarget = false;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 12;
+            label.resizeTextMaxSize = 19;
         }
 
         Text CreateStatusText(string objectName, Vector2 anchorMin, Vector2 anchorMax)
@@ -70,15 +90,19 @@ namespace TsilaRun
 
         void ApplyModernMobileStyle()
         {
-            StyleButton(playButton, new Color32(20, 96, 255, 255), new Color32(245, 248, 255, 255));
-            StyleButton(pauseButton, new Color32(18, 25, 44, 255), new Color32(212, 220, 255, 255));
-            StyleButton(resumeButton, new Color32(20, 96, 255, 255), new Color32(245, 248, 255, 255));
-            StyleButton(pausedRestartButton, new Color32(18, 25, 44, 255), new Color32(212, 220, 255, 255));
-            StyleButton(restartButton, new Color32(20, 96, 255, 255), new Color32(245, 248, 255, 255));
-            StyleButton(menuButton, new Color32(15, 140, 120, 255), new Color32(236, 255, 246, 255));
-            StyleButton(pausedMenuButton, new Color32(15, 140, 120, 255), new Color32(236, 255, 246, 255));
-            StyleButton(resultsMenuButton, new Color32(15, 140, 120, 255), new Color32(236, 255, 246, 255));
-            if (skipIntroButton != null) StyleButton(skipIntroButton, new Color32(64, 72, 92, 255), new Color32(255, 255, 255, 255));
+            Color primary = new Color32(105, 239, 195, 255);
+            Color secondary = new Color32(39, 50, 70, 255);
+            Color ink = new Color32(13, 19, 31, 255);
+            Color pale = new Color32(242, 246, 255, 255);
+            StyleButton(playButton, primary, ink);
+            StyleButton(pauseButton, secondary, pale);
+            StyleButton(resumeButton, primary, ink);
+            StyleButton(pausedRestartButton, secondary, pale);
+            StyleButton(restartButton, primary, ink);
+            StyleButton(menuButton, secondary, pale);
+            StyleButton(pausedMenuButton, secondary, pale);
+            StyleButton(resultsMenuButton, secondary, pale);
+            if (skipIntroButton != null) StyleButton(skipIntroButton, primary, ink);
 
             StylePanel(startPanel, new Color32(9, 16, 33, 210));
             StylePanel(pausePanel, new Color32(9, 16, 33, 210));
@@ -117,8 +141,8 @@ namespace TsilaRun
             button.transition = Selectable.Transition.ColorTint;
             var colors = button.colors;
             colors.normalColor = fill;
-            colors.highlightedColor = new Color(Mathf.Min(1f, fill.r * 1.14f), Mathf.Min(1f, fill.g * 1.14f), Mathf.Min(1f, fill.b * 1.14f), 1f);
-            colors.pressedColor = new Color(fill.r * 0.76f, fill.g * 0.76f, fill.b * 0.76f, 1f);
+            colors.highlightedColor = Color.Lerp(fill, Color.white, 0.12f);
+            colors.pressedColor = Color.Lerp(fill, Color.black, 0.16f);
             colors.selectedColor = fill;
             colors.disabledColor = new Color(fill.r * 0.6f, fill.g * 0.6f, fill.b * 0.6f, 0.7f);
             colors.colorMultiplier = 1f;

@@ -89,15 +89,7 @@ namespace TsilaRun.Editor
             shop.skinLabels = skinLabels;
             shop.close = Button(market, "Back", "BACK", .1f, .065f, .9f, .145f, Violet);
 
-            // Branding stays above every panel and inside the device safe area.
-            var brand = Rect(safe, "Method Logo Frame", .79f, .905f, .97f, .995f);
-            var logoRect = Rect(brand, "Method Logo", 0, 0, 1, 1);
-            var logo = logoRect.gameObject.AddComponent<RawImage>();
-            logo.texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/TsilaRunArt/Textures/MethodLogo.png");
-            logo.raycastTarget = false;
-            var fit = logoRect.gameObject.AddComponent<AspectRatioFitter>();
-            fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
-            fit.aspectRatio = (float)logo.texture.width / logo.texture.height;
+            Text(safe, "Method Brand", "METHOD", 19, .79f, .905f, .97f, .995f).color = Neon;
             foreach (var panel in new[] { start, pause, over, intro, market }) panel.gameObject.AddComponent<UiPanelMotion>();
             pause.gameObject.SetActive(false); over.gameObject.SetActive(false); intro.gameObject.SetActive(false);
             market.gameObject.SetActive(false); hud.gameObject.SetActive(false);
