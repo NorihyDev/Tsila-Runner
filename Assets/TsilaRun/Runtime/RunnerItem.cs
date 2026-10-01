@@ -15,7 +15,12 @@ namespace TsilaRun
 
         public void Place(float x, float z)
         {
-            transform.position = new Vector3(x, 0f, z);
+            Place(x, z, 0f);
+        }
+
+        public void Place(float x, float z, float y)
+        {
+            transform.position = new Vector3(x, y, z);
             forwardDrift = 0f;
             InUse = true;
             gameObject.SetActive(true);

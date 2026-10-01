@@ -86,6 +86,16 @@ namespace TsilaRun.Tests
             Assert.IsTrue(RunnerRules.SweptOverlap(standing, standing, overhead, 16f));
         }
 
+        [Test]
+        public void DifficultyScalingAddsMoreObstaclesAndCoinArcs()
+        {
+            Assert.Greater(RunnerRules.RecommendedObstacleCount(0d), 0);
+            Assert.Greater(RunnerRules.RecommendedObstacleCount(420d), RunnerRules.RecommendedObstacleCount(0d));
+            Assert.Greater(RunnerRules.RecommendedCoinTrailLength(420d), RunnerRules.RecommendedCoinTrailLength(0d));
+            Assert.IsTrue(RunnerRules.CanCoinRideObstacle(RunnerItemKind.Barrier));
+            Assert.IsTrue(RunnerRules.CanCoinRideObstacle(RunnerItemKind.Overhead));
+        }
+
         [TestCase(720, 1280, 0, 0)]
         [TestCase(1080, 1920, 0, 48)]
         [TestCase(1170, 2532, 102, 141)]

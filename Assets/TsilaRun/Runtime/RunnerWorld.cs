@@ -119,15 +119,79 @@ namespace TsilaRun
             while (nextRow <= RunnerRules.Horizon)
             {
                 safeLane = RunnerRules.NextSafeLane(safeLane, random);
-                for (int lane = 0; lane < 3; lane++)
-                    if (lane != safeLane)
+                int obstacleCount = RunnerRules.RecommendedObstacleCount(game.Distance);
+                int[] lanes = { 0, 1, 2 };
+                Shuffle(lanes);
+
+                for (int i = 0; i < lanes.Length; i++)
+                {
+                    int lane = lanes[i];
+                    if (lane == safeLane || obstacleCount <= 0) continue;
+                    RunnerItemKind obstacle = PickObstacleKind();
+                    float z = nextRow + (i * 1.5f);
+                    Place(obstacle, lane, z);
+                    if (RunnerRules.CanCoinRideObstacle(obstacle) && random.NextDouble() < 0.75d)
                     {
-                        int kind = random.Next(0, 4);
-                        Place(kind == 3 ? RunnerItemKind.RunningPerson : (RunnerItemKind)kind, lane, nextRow);
+                        float y = RunnerRules.ObstacleCoinHeight(obstacle);
+                        int coinCount = 2 + random.Next(0, 2);
+                        for (int coin = 0; coin < coinCount; coin++)
+                            PlaceCoinAt((lane - 1) * RunnerRules.LaneWidth, z + (coin - 1) * 1.8f, y);
                     }
-                // Coins only occupy the completely clear lane, before and after the row.
-                for (int i = 0; i < 4; i++) Place(RunnerItemKind.Coin, safeLane, nextRow - 8f + i * 4f);
-                nextRow += RunnerRules.RowSpacing;
+                    obstacleCount--;
+                }
+
+                int coinTrailLength = RunnerRules.RecommendedCoinTrailLength(game.Distance);
+                for (int i = 0; i < coinTrailLength; i++)
+                    PlaceCoinAt((safeLane - 1) * RunnerRules.LaneWidth, nextRow - 6f + i * 2.6f, 0.9f);
+
+                if (random.NextDouble() < 0.65d && coinTrailLength >= 5)
+                {
+                    int wideLane = lanes[random.Next(0, lanes.Length)];
+                    if (wideLane != safeLane)
+                    {
+                        RunnerItemKind coinRide = PickObstacleKind();
+                        if (RunnerRules.CanCoinRideObstacle(coinRide))
+                        {
+                            float y = RunnerRules.ObstacleCoinHeight(coinRide);
+                            for (int i = 0; i < 3; i++)
+                                PlaceCoinAt((wideLane - 1) * RunnerRules.LaneWidth, nextRow + 5f + i * 2.3f, y);
+                        }
+                    }
+                }
+
+                nextRow += RunnerRules.RowSpacing * (0.82f + (float)random.NextDouble() * 0.18f);
+            }
+        }
+
+        void PlaceCoinAt(float x, float z, float y)
+        {
+            for (int i = 0; i < RunnerRules.PoolPerKind; i++)
+            {
+                RunnerItem item = items[(int)RunnerItemKind.Coin, i];
+                if (item.InUse) continue;
+                item.Place(x, z, y);
+                ActiveItemCount++;
+                return;
+            }
+        }
+
+        RunnerItemKind PickObstacleKind()
+        {
+            int roll = random.Next(0, 100);
+            if (roll < 36) return RunnerItemKind.Barrier;
+            if (roll < 68) return RunnerItemKind.Overhead;
+            if (roll < 88) return RunnerItemKind.Tower;
+            return RunnerItemKind.RunningPerson;
+        }
+
+        void Shuffle(int[] values)
+        {
+            for (int i = values.Length - 1; i > 0; i--)
+            {
+                int j = random.Next(0, i + 1);
+                int tmp = values[i];
+                values[i] = values[j];
+                values[j] = tmp;
             }
         }
 

@@ -17,6 +17,11 @@ namespace TsilaRun
         int shownZone = -1;
         float nextRefresh;
 
+        void Awake()
+        {
+            ApplyModernMobileStyle();
+        }
+
         void OnEnable()
         {
             playButton.onClick.AddListener(game.StartRun);
@@ -32,6 +37,72 @@ namespace TsilaRun
         }
 
         void Start() { RefreshState(); }
+
+        void ApplyModernMobileStyle()
+        {
+            StyleButton(playButton, new Color32(20, 96, 255, 255), new Color32(245, 248, 255, 255));
+            StyleButton(pauseButton, new Color32(18, 25, 44, 255), new Color32(212, 220, 255, 255));
+            StyleButton(resumeButton, new Color32(20, 96, 255, 255), new Color32(245, 248, 255, 255));
+            StyleButton(pausedRestartButton, new Color32(18, 25, 44, 255), new Color32(212, 220, 255, 255));
+            StyleButton(restartButton, new Color32(20, 96, 255, 255), new Color32(245, 248, 255, 255));
+            StyleButton(menuButton, new Color32(15, 140, 120, 255), new Color32(236, 255, 246, 255));
+            StyleButton(pausedMenuButton, new Color32(15, 140, 120, 255), new Color32(236, 255, 246, 255));
+            StyleButton(resultsMenuButton, new Color32(15, 140, 120, 255), new Color32(236, 255, 246, 255));
+            if (skipIntroButton != null) StyleButton(skipIntroButton, new Color32(64, 72, 92, 255), new Color32(255, 255, 255, 255));
+
+            if (startPanel != null)
+            {
+                var panel = startPanel.GetComponent<Image>() ?? startPanel.AddComponent<Image>();
+                panel.color = new Color32(10, 15, 25, 230);
+            }
+            if (pausePanel != null)
+            {
+                var panel = pausePanel.GetComponent<Image>() ?? pausePanel.AddComponent<Image>();
+                panel.color = new Color32(10, 15, 25, 230);
+            }
+            if (gameOverPanel != null)
+            {
+                var panel = gameOverPanel.GetComponent<Image>() ?? gameOverPanel.AddComponent<Image>();
+                panel.color = new Color32(10, 15, 25, 230);
+            }
+        }
+
+        static void StyleButton(Button button, Color fill, Color textColor)
+        {
+            if (button == null) return;
+            Image image = button.GetComponent<Image>() ?? button.gameObject.AddComponent<Image>();
+            image.color = fill;
+            image.raycastTarget = true;
+            image.type = Image.Type.Sliced;
+            button.targetGraphic = image;
+            button.transition = Selectable.Transition.ColorTint;
+            var colors = button.colors;
+            colors.normalColor = fill;
+            colors.highlightedColor = new Color(fill.r * 1.08f, fill.g * 1.08f, fill.b * 1.08f, 1f);
+            colors.pressedColor = new Color(fill.r * 0.82f, fill.g * 0.82f, fill.b * 0.82f, 1f);
+            colors.selectedColor = fill;
+            colors.disabledColor = new Color(fill.r * 0.6f, fill.g * 0.6f, fill.b * 0.6f, 0.7f);
+            colors.colorMultiplier = 1f;
+            button.colors = colors;
+
+            if (button.gameObject.GetComponent<UiButtonMotion>() == null)
+                button.gameObject.AddComponent<UiButtonMotion>();
+
+            var text = button.GetComponentInChildren<Text>();
+            if (text != null)
+            {
+                text.color = textColor;
+                text.fontSize = Mathf.Max(text.fontSize, 20);
+                text.alignment = TextAnchor.MiddleCenter;
+            }
+
+            RectTransform rect = button.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Max(rect.rect.width, 260f));
+                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(rect.rect.height, 62f));
+            }
+        }
 
         void OnDisable()
         {
