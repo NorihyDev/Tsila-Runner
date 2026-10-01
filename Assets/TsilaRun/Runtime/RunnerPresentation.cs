@@ -49,6 +49,8 @@ namespace TsilaRun
             menuTime = Mathf.Repeat(menuTime + Time.deltaTime, Mathf.PI * 200f);
             if (game.player != null && game.player.visual != null)
                 game.player.visual.localRotation = Quaternion.Euler(0f, 180f + Mathf.Sin(menuTime * 0.45f) * 28f, 0f);
+            if (game.player != null && game.player.rig != null)
+                game.player.rig.ApplyRuntimePose(RunnerRules.StartSpeed, true, false, true);
             if (title != null) title.localScale = Vector3.one * (1f + Mathf.Sin(menuTime * 1.8f) * 0.012f);
         }
     }

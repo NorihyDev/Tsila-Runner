@@ -250,7 +250,9 @@ namespace TsilaRun.Editor
             player.body.isTrigger = true;
             player.visual = new GameObject("Visual").transform;
             player.visual.SetParent(root.transform, false);
-            MethodVisualBuilder.Character(player.visual, "Tsila").player = player;
+            var character = MethodVisualBuilder.Character(player.visual, "Tsila");
+            character.player = player;
+            player.rig = player.visual.GetComponent<RunnerCharacterRig>();
             player.animatedSlide = true;
             return SavePrefab(root, "Tsila").GetComponent<RunnerPlayer>();
         }
