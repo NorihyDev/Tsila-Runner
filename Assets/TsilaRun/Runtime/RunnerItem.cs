@@ -2,7 +2,11 @@ using UnityEngine;
 
 namespace TsilaRun
 {
-    public enum RunnerItemKind { Barrier, Overhead, Tower, Coin, RunningPerson }
+    public enum RunnerItemKind
+    {
+        Barrier, Overhead, Tower, Coin, RunningPerson,
+        CoinMagnet, Shield, SpeedBoost
+    }
 
     public sealed class RunnerItem : MonoBehaviour
     {

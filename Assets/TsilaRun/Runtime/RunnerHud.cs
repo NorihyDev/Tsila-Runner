@@ -9,6 +9,7 @@ namespace TsilaRun
         public GameObject startPanel, pausePanel, gameOverPanel, hud;
         public Button playButton, pauseButton, resumeButton, pausedRestartButton, restartButton;
         public Text distanceText, coinsText, bestText, resultText;
+        public Text missionText, powerUpText;
         public GameObject introPanel;
         public Button skipIntroButton;
         public Button menuButton, pausedMenuButton, resultsMenuButton;
@@ -16,10 +17,37 @@ namespace TsilaRun
         int shownDistance = -1, shownCoins = -1, shownBest = -1;
         int shownZone = -1;
         float nextRefresh;
+        float missionBannerUntil;
+        string missionBanner = "";
 
         void Awake()
         {
+            if (missionText == null) missionText = CreateStatusText("Mission Status", new Vector2(0.1f, 0.78f), new Vector2(0.9f, 0.825f));
+            if (powerUpText == null) powerUpText = CreateStatusText("Power Up Status", new Vector2(0.1f, 0.73f), new Vector2(0.9f, 0.775f));
             ApplyModernMobileStyle();
+        }
+
+        Text CreateStatusText(string objectName, Vector2 anchorMin, Vector2 anchorMax)
+        {
+            Transform safeArea = transform.Find("Safe Area");
+            var textObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            var rect = textObject.GetComponent<RectTransform>();
+            rect.SetParent(safeArea != null ? safeArea : transform, false);
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            var text = textObject.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = 17;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 12;
+            text.resizeTextMaxSize = 17;
+            text.raycastTarget = false;
+            return text;
         }
 
         void OnEnable()
@@ -34,6 +62,7 @@ namespace TsilaRun
             if (pausedMenuButton != null) pausedMenuButton.onClick.AddListener(game.ReturnToMenu);
             if (resultsMenuButton != null) resultsMenuButton.onClick.AddListener(game.ReturnToMenu);
             game.StateChanged += RefreshState;
+            game.MissionCompleted += ShowMissionComplete;
         }
 
         void Start() { RefreshState(); }
@@ -64,12 +93,16 @@ namespace TsilaRun
             StyleText(bestText, new Color32(168, 207, 255, 255), 24, true);
             StyleText(resultText, new Color32(255, 255, 255, 255), 32, true);
             if (zoneText != null) StyleText(zoneText, new Color32(255, 213, 92, 255), 20, true);
+            StyleText(missionText, new Color32(236, 255, 246, 255), 17, true);
+            StyleText(powerUpText, new Color32(255, 216, 115, 255), 17, true);
 
             if (distanceText != null) AddShadow(distanceText, new Color32(12, 22, 45, 140), 2, 2);
             if (coinsText != null) AddShadow(coinsText, new Color32(45, 22, 0, 160), 2, 2);
             if (bestText != null) AddShadow(bestText, new Color32(15, 28, 54, 170), 2, 2);
             if (zoneText != null) AddShadow(zoneText, new Color32(38, 22, 0, 170), 2, 2);
             if (resultText != null) AddShadow(resultText, new Color32(0, 0, 0, 100), 2, -2);
+            if (missionText != null) AddShadow(missionText, new Color32(0, 0, 0, 180), 2, 2);
+            if (powerUpText != null) AddShadow(powerUpText, new Color32(0, 0, 0, 180), 2, 2);
         }
 
         static void StyleButton(Button button, Color fill, Color textColor)
@@ -194,6 +227,7 @@ namespace TsilaRun
         void OnDisable()
         {
             game.StateChanged -= RefreshState;
+            game.MissionCompleted -= ShowMissionComplete;
             if (playButton != null) playButton.onClick.RemoveListener(game.StartRun);
             if (skipIntroButton != null) skipIntroButton.onClick.RemoveListener(game.CompleteIntro);
             if (pauseButton != null) pauseButton.onClick.RemoveListener(game.Pause);
@@ -220,6 +254,30 @@ namespace TsilaRun
             if (shownBest != game.Best) { shownBest = game.Best; bestText.text = "BEST  " + shownBest + " m"; }
             int zone = RunnerRoadSection.ZoneAt(game.Distance);
             if (zoneText != null && zone != shownZone) { shownZone = zone; zoneText.text = RunnerRoadSection.ZoneNames[zone]; }
+            bool running = game.State == RunnerGame.RunState.Running;
+            if (missionText != null)
+            {
+                missionText.gameObject.SetActive(running);
+                if (running && game.Progress != null)
+                {
+                    missionText.text = Time.time < missionBannerUntil
+                        ? missionBanner
+                        : "MISSION  " + game.Progress.ActiveMissionName + "  " + game.Progress.ActiveMissionProgress + "/" + game.Progress.ActiveMissionTarget + "  +" + RunnerProgress.MissionReward;
+                }
+            }
+            if (powerUpText != null)
+            {
+                string status = running ? game.PowerUpStatus : "";
+                powerUpText.text = status;
+                powerUpText.gameObject.SetActive(status.Length > 0);
+            }
+        }
+
+        void ShowMissionComplete(int reward)
+        {
+            missionBanner = "MISSION COMPLETE  +" + reward;
+            missionBannerUntil = Time.time + 2.5f;
+            RefreshNumbers();
         }
 
         void RefreshState()
@@ -229,6 +287,8 @@ namespace TsilaRun
             if (gameOverPanel != null) gameOverPanel.SetActive(game.State == RunnerGame.RunState.GameOver);
             if (hud != null) hud.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
             if (zoneText != null) zoneText.gameObject.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
+            if (missionText != null) missionText.gameObject.SetActive(game.State == RunnerGame.RunState.Running);
+            if (powerUpText != null) powerUpText.gameObject.SetActive(game.State == RunnerGame.RunState.Running && game.PowerUpStatus.Length > 0);
             if (introPanel != null) introPanel.SetActive(game.State == RunnerGame.RunState.Intro);
             if (pauseButton != null) pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro);
             if (game.State == RunnerGame.RunState.GameOver && resultText != null)

@@ -18,7 +18,7 @@ namespace TsilaRun
             if (game.State == RunnerGame.RunState.Paused) return;
             if (cameraRef != null)
             {
-                float speedRatio = Mathf.InverseLerp(RunnerRules.StartSpeed, RunnerRules.MaxSpeed, game.Speed);
+                float speedRatio = Mathf.InverseLerp(RunnerRules.StartSpeed, RunnerRules.MaxSpeed + RunnerRules.SpeedBoostBonus, game.TravelSpeed);
                 float targetFov = baseFov + speedRatio * maxFovBoost;
                 cameraRef.fieldOfView = Mathf.Lerp(cameraRef.fieldOfView, targetFov, 0.12f);
             }

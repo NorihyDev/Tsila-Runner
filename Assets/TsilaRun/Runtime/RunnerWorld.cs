@@ -19,7 +19,9 @@ namespace TsilaRun
 
         public void Initialize()
         {
-            if (roads != null && roads.Length == RunnerRules.RoadCount && roads[0] != null && items != null && sections != null) return;
+            if (roads != null && roads.Length == RunnerRules.RoadCount && roads[0] != null &&
+                items != null && items.GetLength(0) == RunnerRules.ItemKindCount &&
+                items.GetLength(1) == RunnerRules.PoolPerKind && sections != null) return;
             // Unity's fast Enter Play Mode can retain managed fields with destroyed scene objects.
             // Recover once here; normal restarts simply reuse the existing valid pool.
             for (int i = transform.childCount - 1; i >= 0; i--)
@@ -39,9 +41,40 @@ namespace TsilaRun
             for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++)
                 {
-                    items[kind, i] = Instantiate(itemPrefabs[kind], transform);
+                    if (itemPrefabs != null && kind < itemPrefabs.Length && itemPrefabs[kind] != null)
+                        items[kind, i] = Instantiate(itemPrefabs[kind], transform);
+                    else if (RunnerRules.IsPowerUp((RunnerItemKind)kind))
+                        items[kind, i] = CreateFallbackPowerUp((RunnerItemKind)kind);
+                    else
+                        throw new System.InvalidOperationException("Missing runner item prefab: " + (RunnerItemKind)kind);
                     items[kind, i].Release();
                 }
+        }
+
+        RunnerItem CreateFallbackPowerUp(RunnerItemKind kind)
+        {
+            var root = new GameObject(kind.ToString());
+            root.transform.SetParent(transform, false);
+            var item = root.AddComponent<RunnerItem>();
+            item.kind = kind;
+            item.hitbox = root.AddComponent<BoxCollider>();
+            item.hitbox.isTrigger = true;
+            item.hitbox.center = Vector3.up * 0.9f;
+            item.hitbox.size = Vector3.one * 0.9f;
+            var visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            visual.name = "Power Up";
+            visual.transform.SetParent(root.transform, false);
+            visual.transform.localPosition = Vector3.up * 0.9f;
+            visual.transform.localScale = Vector3.one * 0.72f;
+            Destroy(visual.GetComponent<Collider>());
+            var renderer = visual.GetComponent<Renderer>();
+            var block = new MaterialPropertyBlock();
+            Color color = kind == RunnerItemKind.CoinMagnet ? new Color(1f, 0.72f, 0.12f) :
+                kind == RunnerItemKind.Shield ? new Color(0.2f, 0.78f, 1f) : new Color(1f, 0.42f, 0.12f);
+            block.SetColor("_BaseColor", color);
+            block.SetColor("_Color", color);
+            renderer.SetPropertyBlock(block);
+            return item;
         }
 
         public void ResetWorld(int seed)
@@ -76,15 +109,24 @@ namespace TsilaRun
                 roads[i].position = p;
             }
             // Obstacles before coins, so a fatal contact cannot also award a coin.
-            for (int pass = 0; pass < RunnerRules.ItemKindCount; pass++)
+            for (int pass = 0; pass < 2; pass++)
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++)
+                for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
                 {
-                    int kind = pass == 3 ? 4 : pass == 4 ? 3 : pass; // All obstacles before coins.
+                    if (RunnerRules.IsObstacle((RunnerItemKind)kind) != (pass == 0)) continue;
                     RunnerItem item = items[kind, i];
                     if (!item.InUse) continue;
-                    float itemTravel = item.TravelThisTick(travel, travel / Mathf.Max(RunnerRules.StartSpeed, game.Speed));
-                    bool hit = RunnerRules.SweptOverlap(previousPlayer, currentPlayer, item.HitBounds, itemTravel);
+                    Bounds itemFrom = item.HitBounds;
+                    float itemTravel = item.TravelThisTick(travel, travel / Mathf.Max(RunnerRules.StartSpeed, game.TravelSpeed));
                     item.transform.position -= Vector3.forward * itemTravel;
+                    float dt = travel / Mathf.Max(RunnerRules.StartSpeed, game.TravelSpeed);
+                    if (item.kind == RunnerItemKind.Coin && game.MagnetRemaining > 0f)
+                    {
+                        Vector3 target = new Vector3(player.transform.position.x, player.HitBounds.center.y, item.transform.position.z);
+                        item.transform.position = Vector3.MoveTowards(item.transform.position, target, RunnerRules.MagnetPullSpeed * dt);
+                    }
+                    Bounds itemTo = item.HitBounds;
+                    bool hit = RunnerRules.SweptOverlap(previousPlayer, currentPlayer, itemFrom, itemTo);
                     if (hit && game.State == RunnerGame.RunState.Running)
                     {
                         if (item.kind == RunnerItemKind.Coin)
@@ -93,10 +135,22 @@ namespace TsilaRun
                             ActiveItemCount--;
                             game.CollectCoin();
                         }
+                        else if (RunnerRules.IsPowerUp(item.kind))
+                        {
+                            item.Release();
+                            ActiveItemCount--;
+                            game.CollectPowerUp(item.kind);
+                        }
+                        else if (game.TryAbsorbObstacle())
+                        {
+                            item.Release();
+                            ActiveItemCount--;
+                        }
                         else game.EndRun();
                     }
                     if (item.InUse && item.transform.position.z < -12f)
                     {
+                        if (RunnerRules.IsObstacle(item.kind)) game.ObstacleCleared();
                         item.Release();
                         ActiveItemCount--;
                     }
@@ -110,7 +164,7 @@ namespace TsilaRun
             if (items == null) return false;
             for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++)
-                    if (kind != (int)RunnerItemKind.Coin && items[kind, i].InUse && items[kind, i].HitBounds.Intersects(bounds)) return true;
+                    if (RunnerRules.IsObstacle((RunnerItemKind)kind) && items[kind, i].InUse && items[kind, i].HitBounds.Intersects(bounds)) return true;
             return false;
         }
 
@@ -157,6 +211,12 @@ namespace TsilaRun
                                 PlaceCoinAt((wideLane - 1) * RunnerRules.LaneWidth, nextRow + 5f + i * 2.3f, y);
                         }
                     }
+                }
+
+                if (random.NextDouble() < 0.28d)
+                {
+                    var powerUp = (RunnerItemKind)((int)RunnerItemKind.CoinMagnet + random.Next(0, 3));
+                    Place(powerUp, safeLane, nextRow - 8f);
                 }
 
                 nextRow += RunnerRules.RowSpacing * (0.82f + (float)random.NextDouble() * 0.18f);

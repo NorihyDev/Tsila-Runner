@@ -49,6 +49,8 @@ namespace TsilaRun.Editor
             view.bestText.alignment = TextAnchor.MiddleLeft; view.bestText.color = Muted;
             view.pauseButton = Button(hud, "Pause", "II", .82f, .04f, .96f, .42f, Neon);
             view.menuButton = Button(hud, "Menu", "MENU", .59f, .04f, .79f, .42f, Violet, 23);
+            view.missionText = Text(safe, "Mission Status", "MISSION  COLLECT COINS  0/30  +40", 17, .1f, .78f, .9f, .825f);
+            view.powerUpText = Text(safe, "Power Up Status", "", 17, .1f, .73f, .9f, .775f);
             view.zoneText = Text(safe, "Zone", "METHOD ISLAND", 20, .1f, .045f, .9f, .08f);
             view.zoneText.gameObject.AddComponent<Outline>().effectColor = Color.black;
 

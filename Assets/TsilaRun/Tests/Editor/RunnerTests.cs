@@ -96,6 +96,18 @@ namespace TsilaRun.Tests
             Assert.IsTrue(RunnerRules.CanCoinRideObstacle(RunnerItemKind.Overhead));
         }
 
+        [Test]
+        public void PowerUpsHaveTimedEffectsAndAreNotClassifiedAsObstacles()
+        {
+            Assert.AreEqual(RunnerRules.MagnetDuration, RunnerRules.PowerUpDuration(RunnerItemKind.CoinMagnet));
+            Assert.AreEqual(RunnerRules.ShieldDuration, RunnerRules.PowerUpDuration(RunnerItemKind.Shield));
+            Assert.AreEqual(RunnerRules.SpeedBoostDuration, RunnerRules.PowerUpDuration(RunnerItemKind.SpeedBoost));
+            Assert.AreEqual(0f, RunnerRules.PowerUpDuration(RunnerItemKind.Coin));
+            Assert.IsTrue(RunnerRules.IsPowerUp(RunnerItemKind.CoinMagnet));
+            Assert.IsFalse(RunnerRules.IsObstacle(RunnerItemKind.Shield));
+            Assert.IsTrue(RunnerRules.IsObstacle(RunnerItemKind.RunningPerson));
+        }
+
         [TestCase(720, 1280, 0, 0)]
         [TestCase(1080, 1920, 0, 48)]
         [TestCase(1170, 2532, 102, 141)]
@@ -192,6 +204,32 @@ namespace TsilaRun.Tests
             world.Simulate(0f, player.HitBounds, player.HitBounds);
             Assert.AreEqual(1, game.Coins);
             Assert.AreEqual(1, game.Progress.Wallet);
+            Assert.AreEqual(1, game.Progress.ActiveMissionProgress);
+
+            var magnet = pool.First(i => i.kind == RunnerItemKind.CoinMagnet);
+            magnet.Place(0f, 0f);
+            world.Simulate(0f, player.HitBounds, player.HitBounds);
+            Assert.AreEqual(RunnerRules.MagnetDuration, game.MagnetRemaining);
+            var attractedCoin = pool.First(i => i.kind == RunnerItemKind.Coin);
+            attractedCoin.Place(RunnerRules.LaneWidth, 4f, 0.9f);
+            world.Simulate(0.1f, player.HitBounds, player.HitBounds);
+            Assert.Less(attractedCoin.transform.position.x, RunnerRules.LaneWidth, "The magnet should pull coins toward the runner's lane.");
+
+            var boost = pool.First(i => i.kind == RunnerItemKind.SpeedBoost);
+            boost.Place(0f, 0f);
+            world.Simulate(0f, player.HitBounds, player.HitBounds);
+            Assert.AreEqual(RunnerRules.SpeedBoostDuration, game.BoostRemaining);
+            Assert.AreEqual(game.Speed + RunnerRules.SpeedBoostBonus, game.TravelSpeed);
+            var shield = pool.First(i => i.kind == RunnerItemKind.Shield);
+            shield.Place(0f, 0f);
+            world.Simulate(0f, player.HitBounds, player.HitBounds);
+            Assert.AreEqual(RunnerRules.ShieldDuration, game.ShieldRemaining);
+            var absorbedTower = pool.First(i => i.kind == RunnerItemKind.Tower);
+            absorbedTower.Place(0f, 0f);
+            world.Simulate(0f, player.HitBounds, player.HitBounds);
+            Assert.AreEqual(RunnerGame.RunState.Running, game.State);
+            Assert.AreEqual(0f, game.ShieldRemaining);
+
             var tower = pool.First(i => i.kind == RunnerItemKind.Tower);
             tower.Place(0f, 1f);
             gameOverEvents = 0;
@@ -339,7 +377,7 @@ namespace TsilaRun.Tests
                     Assert.That(item.transform.position.z, Is.InRange(-12f, RunnerRules.Horizon + 4f));
                     if (item.kind != RunnerItemKind.Coin) continue;
                     foreach (var other in items)
-                        if (other.InUse && other.kind != RunnerItemKind.Coin)
+                        if (other.InUse && RunnerRules.IsObstacle(other.kind))
                             Assert.IsFalse(item.HitBounds.Intersects(other.HitBounds));
                 }
             }
@@ -411,6 +449,30 @@ namespace TsilaRun.Tests
             Assert.AreEqual(0, progress.Wallet);
             Assert.AreEqual(0, progress.Selected);
             Assert.IsTrue(progress.Owns(0));
+        }
+
+        [Test]
+        public void MissionProgressPersistsAndPaysOnceBeforeRotating()
+        {
+            PlayerPrefs.DeleteKey(TestSave);
+            var progress = new RunnerProgress(TestSave);
+            for (int i = 0; i < 12; i++) Assert.AreEqual(0, progress.AdvanceMission(RunnerMissionKind.CollectCoins));
+            progress.Save();
+
+            progress = new RunnerProgress(TestSave);
+            Assert.AreEqual(RunnerMissionKind.CollectCoins, progress.ActiveMission);
+            Assert.AreEqual(12, progress.ActiveMissionProgress);
+            Assert.AreEqual(0, progress.AdvanceMission(RunnerMissionKind.DodgeObstacles));
+            for (int i = 12; i < 29; i++) Assert.AreEqual(0, progress.AdvanceMission(RunnerMissionKind.CollectCoins));
+            Assert.AreEqual(RunnerProgress.MissionReward, progress.AdvanceMission(RunnerMissionKind.CollectCoins));
+            Assert.AreEqual(RunnerProgress.MissionReward, progress.Wallet);
+            Assert.AreEqual(RunnerMissionKind.DodgeObstacles, progress.ActiveMission);
+            Assert.AreEqual(0, progress.ActiveMissionProgress);
+
+            progress = new RunnerProgress(TestSave);
+            Assert.AreEqual(RunnerProgress.MissionReward, progress.Wallet);
+            Assert.AreEqual(0, progress.AdvanceMission(RunnerMissionKind.CollectCoins));
+            PlayerPrefs.DeleteKey(TestSave);
         }
 
         [Test]

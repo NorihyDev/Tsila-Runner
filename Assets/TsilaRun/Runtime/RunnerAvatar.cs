@@ -32,7 +32,7 @@ namespace TsilaRun
                 int next = !running ? Idle : player != null && player.IsSliding ? Slide :
                     player != null && !player.IsGrounded ? Jump : Run;
                 animator.speed = next == Run && game != null ? Mathf.Lerp(0.9f, 1.3f,
-                    Mathf.InverseLerp(RunnerRules.StartSpeed, RunnerRules.MaxSpeed, game.Speed)) : 1f;
+                    Mathf.InverseLerp(RunnerRules.StartSpeed, RunnerRules.MaxSpeed + RunnerRules.SpeedBoostBonus, game.TravelSpeed)) : 1f;
                 if (next != currentAnimation)
                 {
                     animator.CrossFadeInFixedTime(next, currentAnimation == 0 ? 0f : 0.08f, 0);
@@ -41,7 +41,7 @@ namespace TsilaRun
                 return;
             }
             if (!running) { Pose(0f, 0f); return; }
-            phase = Mathf.Repeat(phase + dt * (game == null ? 10f : 9f + game.Speed * 0.25f), Mathf.PI * 2f);
+            phase = Mathf.Repeat(phase + dt * (game == null ? 10f : 9f + game.TravelSpeed * 0.25f), Mathf.PI * 2f);
             if (player != null && player.IsSliding) { Pose(-65f, 65f); return; }
             if (player != null && !player.IsGrounded) { Pose(-65f, -25f); return; }
             float swing = Mathf.Sin(phase) * 42f;

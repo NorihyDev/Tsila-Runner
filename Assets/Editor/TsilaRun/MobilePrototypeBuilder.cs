@@ -19,7 +19,7 @@ namespace TsilaRun.Editor
     {
         public const string Root = "Assets/TsilaRun/Generated";
         public const string ScenePath = Root + "/Scenes/TsilaRun.unity";
-        static Material road, sand, teal, coral, gold, ink, white, green;
+        static Material road, sand, teal, coral, gold, ink, white, green, magnet, shield, boost;
         static Font font;
 
         [MenuItem("Tools/Tsila Run/Create or Update Mobile Prototype")]
@@ -60,6 +60,8 @@ namespace TsilaRun.Editor
             teal = Material("Teal", "00EF88"); coral = Material("Coral", "6946AC");
             gold = Material("Gold", "B9FF51"); ink = Material("Ink", "071A1C");
             white = Material("Cream", "DBFFEE"); green = Material("Green", "438C6E");
+            magnet = Material("PowerUpMagnet", "FFB52E"); shield = Material("PowerUpShield", "32C5FF");
+            boost = Material("PowerUpBoost", "FF643B");
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             RenderSettings.skybox = null;
             RenderSettings.ambientMode = AmbientMode.Flat;
@@ -277,12 +279,43 @@ namespace TsilaRun.Editor
                     center = new Vector3(0f, 1.9f, 0f); size = new Vector3(1.9f, 1.8f, 0.9f); break;
                 case RunnerItemKind.Tower:
                     center = new Vector3(0f, 1.8f, 0f); size = new Vector3(1.8f, 3.6f, 1.1f); break;
+                case RunnerItemKind.CoinMagnet:
+                case RunnerItemKind.Shield:
+                case RunnerItemKind.SpeedBoost:
+                    center = new Vector3(0f, 0.9f, 0f); size = Vector3.one * 0.9f; break;
                 default:
                     center = new Vector3(0f, 0.9f, 0f); size = new Vector3(0.65f, 0.65f, 0.3f); break;
             }
-            if (kind != RunnerItemKind.RunningPerson) MethodVisualBuilder.Model(root.transform, kind.ToString());
+            if (kind == RunnerItemKind.RunningPerson) MethodVisualBuilder.Character(root.transform, "RunningPerson").alwaysRun = true;
+            else if (RunnerRules.IsPowerUp(kind)) PowerUpVisual(root.transform, kind);
+            else MethodVisualBuilder.Model(root.transform, kind.ToString());
             item.hitbox.center = center; item.hitbox.size = size;
             return SavePrefab(root, kind.ToString()).GetComponent<RunnerItem>();
+        }
+
+        static void PowerUpVisual(Transform parent, RunnerItemKind kind)
+        {
+            if (kind == RunnerItemKind.CoinMagnet)
+            {
+                Shape(parent, "Magnet Left", PrimitiveType.Cube, new Vector3(-0.22f, 0.98f, 0f), new Vector3(0.16f, 0.62f, 0.2f), magnet);
+                Shape(parent, "Magnet Right", PrimitiveType.Cube, new Vector3(0.22f, 0.98f, 0f), new Vector3(0.16f, 0.62f, 0.2f), magnet);
+                Shape(parent, "Magnet Base", PrimitiveType.Cube, new Vector3(0f, 0.68f, 0f), new Vector3(0.6f, 0.16f, 0.2f), magnet);
+                Shape(parent, "Magnet Tip Left", PrimitiveType.Cube, new Vector3(-0.22f, 1.3f, 0f), new Vector3(0.18f, 0.12f, 0.22f), white);
+                Shape(parent, "Magnet Tip Right", PrimitiveType.Cube, new Vector3(0.22f, 1.3f, 0f), new Vector3(0.18f, 0.12f, 0.22f), teal);
+            }
+            else if (kind == RunnerItemKind.Shield)
+            {
+                var plate = Shape(parent, "Shield Plate", PrimitiveType.Cube, new Vector3(0f, 0.92f, 0f), new Vector3(0.62f, 0.62f, 0.16f), shield);
+                plate.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                Shape(parent, "Shield Core", PrimitiveType.Sphere, new Vector3(0f, 0.92f, -0.11f), Vector3.one * 0.2f, white);
+            }
+            else
+            {
+                var core = Shape(parent, "Boost Core", PrimitiveType.Sphere, new Vector3(0f, 1f, 0f), Vector3.one * 0.42f, boost);
+                core.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                Shape(parent, "Boost Flame Left", PrimitiveType.Cube, new Vector3(-0.22f, 0.68f, 0f), new Vector3(0.12f, 0.34f, 0.12f), gold);
+                Shape(parent, "Boost Flame Right", PrimitiveType.Cube, new Vector3(0.22f, 0.68f, 0f), new Vector3(0.12f, 0.34f, 0.12f), white);
+            }
         }
 
         internal static void ConfigureUIInput(InputSystemUIInputModule module)
