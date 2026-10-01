@@ -7,9 +7,9 @@ namespace TsilaRun
     {
         public const float LaneWidth = 2.4f;
         public const float LaneSeconds = 0.24f;
-        public const float StartSpeed = 11f;
-        public const float MaxSpeed = 24f;
-        public const float Acceleration = 0.16f;
+        public const float StartSpeed = 12f;
+        public const float MaxSpeed = 26f;
+        public const float Acceleration = 0.18f;
         public const float Gravity = 24f;
         public const float JumpVelocity = 9.2f;
         public const float SlideSeconds = 1f;
@@ -37,16 +37,16 @@ namespace TsilaRun
 
         public static int RecommendedObstacleCount(double distance)
         {
-            if (distance >= 540d) return 3;
-            if (distance >= 240d) return 2;
-            return 1;
+            if (distance >= 540d) return 4;
+            if (distance >= 240d) return 3;
+            return 2;
         }
 
         public static int RecommendedCoinTrailLength(double distance)
         {
-            if (distance >= 540d) return 7;
-            if (distance >= 240d) return 6;
-            return 4;
+            if (distance >= 540d) return 9;
+            if (distance >= 240d) return 7;
+            return 5;
         }
 
         public static bool CanCoinRideObstacle(RunnerItemKind kind)

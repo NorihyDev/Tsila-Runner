@@ -83,8 +83,8 @@ namespace TsilaRun
             button.transition = Selectable.Transition.ColorTint;
             var colors = button.colors;
             colors.normalColor = fill;
-            colors.highlightedColor = new Color(fill.r * 1.08f, fill.g * 1.08f, fill.b * 1.08f, 1f);
-            colors.pressedColor = new Color(fill.r * 0.82f, fill.g * 0.82f, fill.b * 0.82f, 1f);
+            colors.highlightedColor = new Color(Mathf.Min(1f, fill.r * 1.14f), Mathf.Min(1f, fill.g * 1.14f), Mathf.Min(1f, fill.b * 1.14f), 1f);
+            colors.pressedColor = new Color(fill.r * 0.76f, fill.g * 0.76f, fill.b * 0.76f, 1f);
             colors.selectedColor = fill;
             colors.disabledColor = new Color(fill.r * 0.6f, fill.g * 0.6f, fill.b * 0.6f, 0.7f);
             colors.colorMultiplier = 1f;
@@ -94,15 +94,18 @@ namespace TsilaRun
             {
                 var outline = button.gameObject.AddComponent<Outline>();
                 outline.effectColor = new Color32(7, 12, 20, 175);
-                outline.effectDistance = new Vector2(0f, 3f);
+                outline.effectDistance = new Vector2(0f, 5f);
             }
 
             if (button.gameObject.GetComponent<Shadow>() == null)
             {
                 var shadow = button.gameObject.AddComponent<Shadow>();
                 shadow.effectColor = new Color32(8, 16, 28, 180);
-                shadow.effectDistance = new Vector2(0f, -4f);
+                shadow.effectDistance = new Vector2(0f, -8f);
             }
+
+            if (button.gameObject.GetComponent<CanvasGroup>() == null)
+                button.gameObject.AddComponent<CanvasGroup>();
 
             if (button.gameObject.GetComponent<UiButtonMotion>() == null)
                 button.gameObject.AddComponent<UiButtonMotion>();
@@ -122,8 +125,9 @@ namespace TsilaRun
             RectTransform rect = button.GetComponent<RectTransform>();
             if (rect != null)
             {
-                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Max(rect.rect.width, 260f));
-                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(rect.rect.height, 62f));
+                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Max(rect.rect.width, 256f));
+                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(rect.rect.height, 68f));
+                rect.localPosition = new Vector3(rect.localPosition.x, rect.localPosition.y, 0f);
                 rect.localScale = Vector3.one;
             }
         }
@@ -135,11 +139,17 @@ namespace TsilaRun
             image.color = tone;
             image.raycastTarget = false;
             image.type = Image.Type.Sliced;
+            if (panelObj.GetComponent<Outline>() == null)
+            {
+                var outline = panelObj.AddComponent<Outline>();
+                outline.effectColor = new Color32(90, 120, 175, 60);
+                outline.effectDistance = new Vector2(0f, 2f);
+            }
             if (panelObj.GetComponent<Shadow>() == null)
             {
                 var shadow = panelObj.AddComponent<Shadow>();
                 shadow.effectColor = new Color32(4, 9, 18, 120);
-                shadow.effectDistance = new Vector2(0f, -5f);
+                shadow.effectDistance = new Vector2(0f, -10f);
             }
             var rect = panelObj.GetComponent<RectTransform>();
             if (rect != null)
@@ -148,6 +158,7 @@ namespace TsilaRun
                 rect.anchorMax = Vector2.one;
                 rect.offsetMin = Vector2.zero;
                 rect.offsetMax = Vector2.zero;
+                rect.localScale = Vector3.one;
             }
         }
 
@@ -165,6 +176,11 @@ namespace TsilaRun
             text.fontSize = size;
             text.fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
             text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 12;
+            text.resizeTextMaxSize = size;
         }
 
         static void AddShadow(Text text, Color shadowColor, float x, float y)

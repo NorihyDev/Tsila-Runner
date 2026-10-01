@@ -36,12 +36,9 @@ namespace TsilaRun.Editor
             title.fontStyle = FontStyle.Bold; title.alignment = TextAnchor.MiddleLeft; title.color = Pale;
             title.lineSpacing = .88f;
             presentation.title = title.rectTransform;
-            Text(start, "Tagline", "ONE ISLAND. ENDLESS POSSIBILITIES.", 19, .08f, .735f, .92f, .78f).color = Muted;
-            var outfit = Panel(start, "Outfit Badge", .18f, .30f, .82f, .34f);
-            Text(outfit, "Outfit", "ORIGINAL COLLECTION / METHOD", 18, .02f, .04f, .98f, .96f).color = Pale;
             view.playButton = Button(start, "Play", "PLAY", .1f, .205f, .9f, .28f, Neon);
             shop.openFromStart = Button(start, "Shop", "SHOP", .1f, .12f, .9f, .187f, Violet);
-            Text(start, "Controls", "SWIPE LEFT / RIGHT TO SWITCH LANES\nSWIPE UP TO JUMP / DOWN TO SLIDE", 20, .04f, .055f, .96f, .105f);
+            Text(start, "Controls", "LEFT / RIGHT: MOVE\nUP: JUMP    DOWN: SLIDE", 18, .06f, .045f, .94f, .105f);
 
             var hud = Panel(safe, "HUD", .025f, .83f, .975f, .99f); view.hud = hud.gameObject;
             view.distanceText = Text(hud, "Distance", "0 m", 43, .04f, .46f, .67f, .94f);
@@ -57,7 +54,6 @@ namespace TsilaRun.Editor
 
             var pause = Panel(safe, "Pause", .07f, .22f, .93f, .79f); view.pausePanel = pause.gameObject;
             Text(pause, "Title", "PAUSE", 64, .08f, .76f, .92f, .94f).color = Neon;
-            Text(pause, "Message", "Take a moment. Your run can wait.", 26, .06f, .63f, .94f, .75f);
             view.resumeButton = Button(pause, "Resume", "RESUME", .09f, .44f, .91f, .59f, Neon);
             view.pausedRestartButton = Button(pause, "Restart", "RESTART", .09f, .26f, .91f, .41f, Violet);
             view.pausedMenuButton = Button(pause, "Menu", "MAIN MENU", .09f, .08f, .91f, .23f, Violet, 29);
@@ -70,7 +66,7 @@ namespace TsilaRun.Editor
             view.resultsMenuButton = Button(over, "Menu", "MAIN MENU", .09f, .04f, .91f, .17f, Violet, 29);
 
             var intro = Panel(safe, "Chase Intro", .06f, .64f, .94f, .81f); view.introPanel = intro.gameObject;
-            Text(intro, "Caption", "RUN, TSILA!\nThe patrol is right behind you.", 27, .04f, .44f, .96f, .95f);
+            Text(intro, "Caption", "SWIPE TO MOVE", 27, .04f, .44f, .96f, .95f);
             view.skipIntroButton = Button(intro, "Skip", "LET'S RUN", .12f, .04f, .88f, .41f, Neon, 29);
 
             var market = Rect(safe, "Shop", 0, 0, 1, 1); shop.panel = market.gameObject;
@@ -99,7 +95,6 @@ namespace TsilaRun.Editor
             var fit = logoRect.gameObject.AddComponent<AspectRatioFitter>();
             fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
             fit.aspectRatio = (float)logo.texture.width / logo.texture.height;
-            Text(safe, "Copyright", "Copyright by Method", 17, .08f, .009f, .92f, .039f).color = Muted;
             foreach (var panel in new[] { start, pause, over, intro, market }) panel.gameObject.AddComponent<UiPanelMotion>();
             pause.gameObject.SetActive(false); over.gameObject.SetActive(false); intro.gameObject.SetActive(false);
             market.gameObject.SetActive(false); hud.gameObject.SetActive(false);
@@ -123,6 +118,11 @@ namespace TsilaRun.Editor
             var text = Rect(parent, name, x0, y0, x1, y1).gameObject.AddComponent<Text>();
             text.font = font; text.text = value; text.fontSize = size; text.color = Pale;
             text.alignment = TextAnchor.MiddleCenter; text.raycastTarget = false;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 12;
+            text.resizeTextMaxSize = size;
             return text;
         }
         static Button Button(Transform parent, string name, string value, float x0, float y0, float x1, float y1, Color color, int size = 32)
