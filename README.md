@@ -4,12 +4,12 @@
 
 Run through three lanes, collect coins, evade the patrol, and keep moving as the island gives way to mountain passes and underground tunnels. Built with Unity, Tsila Run combines animated 3D characters with an English interface designed for portrait screens.
 
-**Status:** Playable prototype · **Primary platforms:** Android and iOS · **Editor:** Unity 6000.6.3f1
+**Status:** Playable prototype with the Blender character pack integrated · **Primary platforms:** Android and iOS · **Editor:** Unity 6000.6.3f1
 
 <p align="center">
-  <img src="Docs/Verification/ModernMenu.png" alt="Tsila Run main menu with the Method character, Play and Shop buttons" width="280" />
+  <img src="Docs/Verification/BlenderPack-Menu.png" alt="Tsila Run main menu with the Blender Tsila character" width="280" />
   &nbsp;
-  <img src="Docs/Verification/ModernHud.png" alt="Tsila Run gameplay with three lanes, coins and obstacles" width="280" />
+  <img src="Docs/Verification/BlenderPack-Run.png" alt="Tsila Run gameplay with the Blender road, coins and obstacles" width="280" />
 </p>
 
 ## Features
@@ -81,8 +81,11 @@ All project tools are available under **Tools → Tsila Run**.
 | **Create or Update Mobile Prototype** | Import the Method pack, rebuild the gameplay prefabs and scene, connect references, and register the scene in the appropriate build scene list. |
 | **Refresh Modern UI** | Rebuild the English interface while preserving the existing artwork and material edits. |
 | **Import Asset Pack** | Rebuild the Method art assets from their supplied mesh and animation data. |
+| **Apply Blender Character Pack** | Import the supplied FBXs and textures, generate URP materials and LOD prefabs, then patch the existing gameplay prefabs and scene. |
 
 Leave Play mode before using these tools. Scene-changing menu tools prompt you to save unsaved scene changes.
+
+The Blender integration backs up the existing scene and gameplay prefabs under `Logs/BlenderPackBackup-*` before patching them. Use **Apply Blender Character Pack** to reapply imported FBX changes; do not use full prototype regeneration for this task. The source models are reference-based approximations, not exact scans or likenesses.
 
 Full regeneration rewrites content inside `Assets/TsilaRun/Generated` and `Assets/TsilaRunArt/Generated`. Keep custom variants outside those folders, or update the relevant generator to make changes reproducible. Commit Unity `.meta` files alongside their assets to preserve references.
 
@@ -116,6 +119,8 @@ Runtime scripts contain no UnityEditor dependencies. The main responsibilities a
 | `RunnerPresentation` | Menu character presentation and backdrop |
 | `UiButtonMotion` / `UiPanelMotion` | Button feedback and panel transitions that also work while paused |
 
+`Assets/TsilaRun/BlenderPack/Source` contains the supplied FBXs and textures. `Assets/TsilaRun/BlenderPack/Generated` contains the imported URP materials, animation controllers, clips, and visual prefabs. The playable scene remains at `Assets/TsilaRun/Generated/Scenes/TsilaRun.unity`.
+
 ## Android development build
 
 1. Install **Android Build Support**, **Android SDK & NDK Tools**, and **OpenJDK** for this Editor version through Unity Hub if they are missing.
@@ -143,11 +148,11 @@ Materials are reused, collision volumes are simple, and the game avoids heavy po
 
 ## Verification and limitations
 
-The latest English UI update compiled and generated successfully in Unity. Menu and gameplay HUD previews were rendered and visually reviewed at **720 × 1280**, including text-fit checks.
+The Blender integration ran successfully in Unity 6000.6.3f1. Five Blender asset tests and 15 gameplay tests passed in the Editor. The gameplay run included simulated touch input, jumping, sliding, collisions, coin collection, pooling, menu and restart flow, and portrait UI checks. The scene-generation test was excluded because it rewrites generated content.
 
-Earlier prototype revisions passed 14 automated tests. The current expanded suite contains 16 checks, but **a complete passing run is not claimed for the latest Method integration**. No Android/iOS build, physical-device test, 4K visual validation, or measured mobile performance result is claimed.
+Editor screenshots were rendered at **720 × 1280**, **1170 × 2532**, **1080 × 2400**, and **2160 × 3840**. The menu, run, and pursuit captures in `Docs/Verification` were visually reviewed. These are Editor renderings; physical-device gestures, background/resume, thermals, and frame rate remain untested. Android build status is recorded in [Blender pack verification](Docs/BlenderPack-Integration.md).
 
-Run the available checks through **Window → General → Test Runner → EditMode**. Save your work first: integration tests regenerate/open the prototype scene and enter Play mode. Use a disposable project copy when preserving an Editor session is important.
+Run the available checks through **Window → General → Test Runner → EditMode**. Save your work first: gameplay tests open the prototype scene and enter Play mode. Exclude the `SceneGeneration` category when validating this integrated scene.
 
 Current scope excludes purchasable items, cloud saves, missions, and audio. Mountain and tunnel scenery share a flat gameplay surface; terrain slopes are not simulated.
 
@@ -159,6 +164,7 @@ See the [verification record](Docs/TsilaRun-Verification.md) for the distinction
 - [Method edition guide](Docs/TsilaRun-Method.md) — French guide with an English UI update section
 - [Asset dimensions and handoff brief](Docs/TsilaRun-Asset-Brief.md)
 - [Verification history](Docs/TsilaRun-Verification.md)
+- [Blender pack integration and verification](Docs/BlenderPack-Integration.md)
 
 ## Credits
 
