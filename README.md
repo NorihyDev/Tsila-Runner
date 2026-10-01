@@ -23,7 +23,7 @@ Run through three lanes, collect coins, evade the patrol, and keep moving as the
 - **Complete navigation:** start, pause, resume, restart, results, and return to the main menu.
 - **Mobile controls:** responsive swipes, safe-area-aware layouts, and explicit resume after a running game loses focus.
 
-The shop currently displays **Tsila Original**, already equipped. **There are no purchasable skins or gameplay items in this version.** Previously stored ownership data is retained, while the Method base outfit is used for gameplay.
+The shop has four locally saved outfit colorways: Island Teal (equipped by default), Sunset Coral, Golden Trail, and Midnight. Collected coins can unlock the latter three. Coin magnet, shield, and speed boost pickups also appear during runs; there are no real-money purchases.
 
 ## Requirements
 
@@ -82,6 +82,7 @@ All project tools are available under **Tools → Tsila Run**.
 | **Refresh Modern UI** | Rebuild the English interface while preserving the existing artwork and material edits. |
 | **Import Asset Pack** | Rebuild the Method art assets from their supplied mesh and animation data. |
 | **Apply Blender Character Pack** | Import the supplied FBXs and textures, generate URP materials and LOD prefabs, then patch the existing gameplay prefabs and scene. |
+| **Reconcile Blender Pack with Latest Gameplay** | Patch the Blender visuals into the latest gameplay scene, restore power-up references, and refresh the mobile UI without regenerating the world. |
 
 Leave Play mode before using these tools. Scene-changing menu tools prompt you to save unsaved scene changes.
 
@@ -115,7 +116,7 @@ Runtime scripts contain no UnityEditor dependencies. The main responsibilities a
 | `RunnerWorld` / `RunnerItem` | Object pools, obstacle patterns, recycling, and swept collision checks |
 | `RunnerInput` | Mobile gestures and Editor keyboard controls |
 | `RunnerAvatar` / `RunnerChase` | Character animation and the introductory pursuit |
-| `RunnerHud` / `RunnerShop` | Gameplay displays, screen navigation, and the base-outfit showcase |
+| `RunnerHud` / `RunnerShop` | Gameplay displays, screen navigation, and the four-outfit coin shop |
 | `RunnerPresentation` | Menu character presentation and backdrop |
 | `UiButtonMotion` / `UiPanelMotion` | Button feedback and panel transitions that also work while paused |
 
@@ -148,13 +149,13 @@ Materials are reused, collision volumes are simple, and the game avoids heavy po
 
 ## Verification and limitations
 
-The Blender integration ran successfully in Unity 6000.6.3f1. Five Blender asset tests and 15 gameplay tests passed in the Editor. The gameplay run included simulated touch input, jumping, sliding, collisions, coin collection, pooling, menu and restart flow, and portrait UI checks. The scene-generation test was excluded because it rewrites generated content.
+The reconciled Blender integration ran successfully in Unity 6000.6.3f1. All 24 selected Editor tests passed, covering Blender assets, simulated touch input, jumping, sliding, collisions, coins, power-ups, pooling, shop and menu flow, restart, and portrait UI. The scene-generation test was excluded because it rewrites generated content.
 
 Editor screenshots were rendered at **720 × 1280**, **1170 × 2532**, **1080 × 2400**, and **2160 × 3840**. The menu, run, and pursuit captures in `Docs/Verification` were visually reviewed. These are Editor renderings; physical-device gestures, background/resume, thermals, and frame rate remain untested. Android build status is recorded in [Blender pack verification](Docs/BlenderPack-Integration.md).
 
 Run the available checks through **Window → General → Test Runner → EditMode**. Save your work first: gameplay tests open the prototype scene and enter Play mode. Exclude the `SceneGeneration` category when validating this integrated scene.
 
-Current scope excludes purchasable items, cloud saves, missions, and audio. Mountain and tunnel scenery share a flat gameplay surface; terrain slopes are not simulated.
+Current scope excludes real-money purchases, cloud saves, and audio. Missions and coin-purchased outfit colorways are local prototype systems. Mountain and tunnel scenery share a flat gameplay surface; terrain slopes are not simulated.
 
 See the [verification record](Docs/TsilaRun-Verification.md) for the distinction between completed checks and outstanding device validation.
 
