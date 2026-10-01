@@ -14,6 +14,13 @@ namespace TsilaRun.Editor
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             RefreshBatch();
         }
+
+        [MenuItem("Tools/Tsila Run/Fix Generated UI Now")]
+        public static void FixGeneratedUi()
+        {
+            Refresh();
+        }
+
         public static void RefreshBatch()
         {
             for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
