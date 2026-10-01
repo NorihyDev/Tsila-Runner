@@ -10,6 +10,7 @@ namespace TsilaRun
         public RunnerPlayer player;
         public RunnerWorld world;
         public RunnerChase chase;
+        public RunnerVfx vfx;
         public Material[] skinMaterials;
         public RunnerProgress Progress { get; private set; }
         RunState resumeState = RunState.Running;
@@ -30,6 +31,8 @@ namespace TsilaRun
             Screen.orientation = ScreenOrientation.Portrait;
             Best = PlayerPrefs.GetInt(BestKey, 0);
             Progress = new RunnerProgress();
+            if (vfx == null) vfx = GetComponent<RunnerVfx>() ?? gameObject.AddComponent<RunnerVfx>();
+            if (vfx != null) vfx.Bind(this);
             ApplySkin();
             Speed = RunnerRules.StartSpeed;
             world.ResetWorld(Environment.TickCount);
@@ -48,6 +51,7 @@ namespace TsilaRun
             player.ResetPlayer();
             if (chase != null) chase.ResetChase();
             resumeState = chase != null ? RunState.Intro : RunState.Running;
+            if (vfx != null) vfx.SetRunning(true);
             SetState(hasFocus && !backgrounded ? resumeState : RunState.Paused);
         }
 
@@ -77,6 +81,7 @@ namespace TsilaRun
         {
             if (State != RunState.Running || Coins == int.MaxValue) return;
             Coins++;
+            if (vfx != null) vfx.SpawnCoinBurst(player != null ? player.transform.position + Vector3.up * 0.8f : transform.position);
             Progress?.EarnCoin();
         }
 
@@ -106,6 +111,7 @@ namespace TsilaRun
             player.ResetPlayer();
             world.ResetWorld(Environment.TickCount);
             if (chase != null) { chase.ResetChase(); chase.officer.gameObject.SetActive(false); }
+            if (vfx != null) vfx.SetRunning(false);
             returnFromShop = RunState.Ready;
             SetState(RunState.Ready);
         }
@@ -114,6 +120,7 @@ namespace TsilaRun
         {
             if (State != RunState.Running) return;
             SaveBest();
+            if (vfx != null) vfx.SpawnCrashBurst(player != null ? player.transform.position : transform.position);
             SetState(RunState.GameOver);
         }
 
@@ -134,6 +141,7 @@ namespace TsilaRun
         {
             State = state;
             Time.timeScale = state == RunState.Paused ? 0f : 1f;
+            if (vfx != null) vfx.SetRunning(state == RunState.Running || state == RunState.Intro);
             StateChanged?.Invoke();
         }
 

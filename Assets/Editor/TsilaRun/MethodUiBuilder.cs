@@ -76,10 +76,18 @@ namespace TsilaRun.Editor
             var market = Rect(safe, "Shop", 0, 0, 1, 1); shop.panel = market.gameObject;
             Text(market, "Title", "SHOP", 52, .06f, .825f, .77f, .945f).color = Neon;
             shop.wallet = Text(market, "Wallet", "COINS  0", 25, .1f, .77f, .9f, .825f);
-            var baseSkin = Button(market, "Base Skin", "TSILA ORIGINAL  /  EQUIPPED", .1f, .265f, .9f, .33f, Neon, 25);
-            baseSkin.interactable = false;
-            shop.skinButtons = new[] { baseSkin }; shop.skinLabels = new[] { baseSkin.GetComponentInChildren<Text>() };
-            Text(market, "Empty Catalog", "Your original outfit is equipped.\nNo items available yet.", 24, .06f, .16f, .94f, .25f);
+            Text(market, "Catalog Title", "OUTFITS", 24, .1f, .70f, .9f, .76f).color = Muted;
+            var skinButtons = new Button[RunnerProgress.SkinNames.Length];
+            var skinLabels = new Text[RunnerProgress.SkinNames.Length];
+            for (int i = 0; i < RunnerProgress.SkinNames.Length; i++)
+            {
+                string label = i == 0 ? RunnerProgress.SkinNames[i].ToUpper() + "  /  FREE" : RunnerProgress.SkinNames[i].ToUpper() + "  /  " + RunnerProgress.Prices[i] + " COINS";
+                var button = Button(market, "Skin " + i, label, .1f, .61f - i * 0.14f, .9f, .68f - i * 0.14f, i == 0 ? Neon : Violet, 22);
+                skinButtons[i] = button;
+                skinLabels[i] = button.GetComponentInChildren<Text>();
+            }
+            shop.skinButtons = skinButtons;
+            shop.skinLabels = skinLabels;
             shop.close = Button(market, "Back", "BACK", .1f, .065f, .9f, .145f, Violet);
 
             // Branding stays above every panel and inside the device safe area.

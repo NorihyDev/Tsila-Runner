@@ -205,10 +205,10 @@ namespace TsilaRun.Tests
             var shop = hud.GetComponent<RunnerShop>();
             shop.openFromResults.onClick.Invoke();
             Assert.AreEqual(RunnerGame.RunState.Shop, game.State);
-            Assert.AreEqual(1, shop.skinButtons.Length);
-            Assert.IsFalse(shop.skinButtons[0].interactable);
+            Assert.AreEqual(RunnerProgress.SkinNames.Length, shop.skinButtons.Length);
+            Assert.IsFalse(shop.skinButtons[0].interactable, "The starter skin should remain equipped.");
             shop.skinButtons[0].onClick.Invoke();
-            Assert.AreEqual(1, game.Progress.Wallet, "The showcase must never charge coins.");
+            Assert.AreEqual(1, game.Progress.Wallet, "The starter skin should stay free and never charge coins.");
             Assert.IsNotNull(player.GetComponentInChildren<Animator>());
             shop.close.onClick.Invoke();
             Assert.AreEqual(RunnerGame.RunState.GameOver, game.State);

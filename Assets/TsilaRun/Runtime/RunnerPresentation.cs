@@ -32,21 +32,23 @@ namespace TsilaRun
                     shadow.effectColor = new Color32(0, 0, 0, 130);
                     shadow.effectDistance = new Vector2(0f, -8f);
                 }
+                stage.transform.localScale = menu ? Vector3.one : new Vector3(0.96f, 0.96f, 1f);
             }
-            stage.SetActive(menu);
-            game.world.gameObject.SetActive(!menu);
-            game.player.visual.localRotation = menu ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
+            if (game != null && game.world != null) game.world.gameObject.SetActive(!menu);
+            if (game != null && game.player != null && game.player.visual != null)
+                game.player.visual.localRotation = menu ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
             if (title != null)
             {
-                title.localScale = Vector3.one;
+                title.localScale = menu ? Vector3.one : new Vector3(0.93f, 0.93f, 1f);
                 title.anchoredPosition = menu ? new Vector2(0f, 15f) : Vector2.zero;
             }
         }
         void Update()
         {
-            if (game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop) return;
+            if (game == null || (game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop)) return;
             menuTime = Mathf.Repeat(menuTime + Time.deltaTime, Mathf.PI * 200f);
-            game.player.visual.localRotation = Quaternion.Euler(0f, 180f + Mathf.Sin(menuTime * 0.45f) * 28f, 0f);
+            if (game.player != null && game.player.visual != null)
+                game.player.visual.localRotation = Quaternion.Euler(0f, 180f + Mathf.Sin(menuTime * 0.45f) * 28f, 0f);
             if (title != null) title.localScale = Vector3.one * (1f + Mathf.Sin(menuTime * 1.8f) * 0.012f);
         }
     }

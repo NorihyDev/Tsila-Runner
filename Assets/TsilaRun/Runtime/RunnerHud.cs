@@ -24,15 +24,15 @@ namespace TsilaRun
 
         void OnEnable()
         {
-            playButton.onClick.AddListener(game.StartRun);
+            if (playButton != null) playButton.onClick.AddListener(game.StartRun);
             if (skipIntroButton != null) skipIntroButton.onClick.AddListener(game.CompleteIntro);
-            pauseButton.onClick.AddListener(game.Pause);
-            resumeButton.onClick.AddListener(game.Resume);
-            pausedRestartButton.onClick.AddListener(game.StartRun);
-            restartButton.onClick.AddListener(game.StartRun);
-            menuButton.onClick.AddListener(game.ReturnToMenu);
-            pausedMenuButton.onClick.AddListener(game.ReturnToMenu);
-            resultsMenuButton.onClick.AddListener(game.ReturnToMenu);
+            if (pauseButton != null) pauseButton.onClick.AddListener(game.Pause);
+            if (resumeButton != null) resumeButton.onClick.AddListener(game.Resume);
+            if (pausedRestartButton != null) pausedRestartButton.onClick.AddListener(game.StartRun);
+            if (restartButton != null) restartButton.onClick.AddListener(game.StartRun);
+            if (menuButton != null) menuButton.onClick.AddListener(game.ReturnToMenu);
+            if (pausedMenuButton != null) pausedMenuButton.onClick.AddListener(game.ReturnToMenu);
+            if (resultsMenuButton != null) resultsMenuButton.onClick.AddListener(game.ReturnToMenu);
             game.StateChanged += RefreshState;
         }
 
@@ -54,6 +54,10 @@ namespace TsilaRun
             StylePanel(pausePanel, new Color32(9, 16, 33, 210));
             StylePanel(gameOverPanel, new Color32(9, 16, 33, 210));
             StylePanel(hud, new Color32(9, 16, 33, 120));
+            EnsurePanelMotion(startPanel);
+            EnsurePanelMotion(pausePanel);
+            EnsurePanelMotion(gameOverPanel);
+            EnsurePanelMotion(hud);
 
             StyleText(distanceText, new Color32(255, 255, 255, 255), 28, true);
             StyleText(coinsText, new Color32(255, 206, 82, 255), 24, true);
@@ -147,6 +151,13 @@ namespace TsilaRun
             }
         }
 
+        static void EnsurePanelMotion(GameObject panelObj)
+        {
+            if (panelObj == null) return;
+            if (panelObj.GetComponent<CanvasGroup>() == null) panelObj.AddComponent<CanvasGroup>();
+            if (panelObj.GetComponent<UiPanelMotion>() == null) panelObj.AddComponent<UiPanelMotion>();
+        }
+
         static void StyleText(Text text, Color color, int size, bool bold)
         {
             if (text == null) return;
@@ -167,15 +178,15 @@ namespace TsilaRun
         void OnDisable()
         {
             game.StateChanged -= RefreshState;
-            playButton.onClick.RemoveListener(game.StartRun);
+            if (playButton != null) playButton.onClick.RemoveListener(game.StartRun);
             if (skipIntroButton != null) skipIntroButton.onClick.RemoveListener(game.CompleteIntro);
-            pauseButton.onClick.RemoveListener(game.Pause);
-            resumeButton.onClick.RemoveListener(game.Resume);
-            pausedRestartButton.onClick.RemoveListener(game.StartRun);
-            restartButton.onClick.RemoveListener(game.StartRun);
-            menuButton.onClick.RemoveListener(game.ReturnToMenu);
-            pausedMenuButton.onClick.RemoveListener(game.ReturnToMenu);
-            resultsMenuButton.onClick.RemoveListener(game.ReturnToMenu);
+            if (pauseButton != null) pauseButton.onClick.RemoveListener(game.Pause);
+            if (resumeButton != null) resumeButton.onClick.RemoveListener(game.Resume);
+            if (pausedRestartButton != null) pausedRestartButton.onClick.RemoveListener(game.StartRun);
+            if (restartButton != null) restartButton.onClick.RemoveListener(game.StartRun);
+            if (menuButton != null) menuButton.onClick.RemoveListener(game.ReturnToMenu);
+            if (pausedMenuButton != null) pausedMenuButton.onClick.RemoveListener(game.ReturnToMenu);
+            if (resultsMenuButton != null) resultsMenuButton.onClick.RemoveListener(game.ReturnToMenu);
         }
 
         void Update()
@@ -197,14 +208,14 @@ namespace TsilaRun
 
         void RefreshState()
         {
-            startPanel.SetActive(game.State == RunnerGame.RunState.Ready);
-            pausePanel.SetActive(game.State == RunnerGame.RunState.Paused);
-            gameOverPanel.SetActive(game.State == RunnerGame.RunState.GameOver);
-            hud.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
+            if (startPanel != null) startPanel.SetActive(game.State == RunnerGame.RunState.Ready);
+            if (pausePanel != null) pausePanel.SetActive(game.State == RunnerGame.RunState.Paused);
+            if (gameOverPanel != null) gameOverPanel.SetActive(game.State == RunnerGame.RunState.GameOver);
+            if (hud != null) hud.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
             if (zoneText != null) zoneText.gameObject.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
             if (introPanel != null) introPanel.SetActive(game.State == RunnerGame.RunState.Intro);
-            pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro);
-            if (game.State == RunnerGame.RunState.GameOver)
+            if (pauseButton != null) pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro);
+            if (game.State == RunnerGame.RunState.GameOver && resultText != null)
                 resultText.text = game.Score + " METRES\n" + game.Coins + " COINS\nBEST  " + game.Best + " m";
             RefreshNumbers();
         }

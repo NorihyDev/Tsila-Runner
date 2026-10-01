@@ -14,15 +14,16 @@ namespace TsilaRun
 
         void Awake()
         {
+            EnsureSkinButtons();
             ApplyModernShopStyle();
         }
 
         void OnEnable()
         {
-            openFromStart.onClick.AddListener(game.OpenShop);
-            openFromResults.onClick.AddListener(game.OpenShop);
-            close.onClick.AddListener(game.CloseShop);
-            game.StateChanged += Refresh;
+            if (openFromStart != null) openFromStart.onClick.AddListener(game.OpenShop);
+            if (openFromResults != null) openFromResults.onClick.AddListener(game.OpenShop);
+            if (close != null) close.onClick.AddListener(game.CloseShop);
+            if (game != null) game.StateChanged += Refresh;
         }
 
         void Start() { Refresh(); }
@@ -78,23 +79,69 @@ namespace TsilaRun
             }
         }
 
+        void EnsureSkinButtons()
+        {
+            if (panel == null) return;
+            var buttons = panel.GetComponentsInChildren<Button>(true);
+            if (buttons != null && buttons.Length > 0)
+            {
+                skinButtons = buttons;
+                skinLabels = new Text[buttons.Length];
+                for (int i = 0; i < buttons.Length; i++)
+                {
+                    skinLabels[i] = buttons[i].GetComponentInChildren<Text>();
+                    int index = i;
+                    buttons[i].onClick.RemoveAllListeners();
+                    buttons[i].onClick.AddListener(() => SelectSkin(index));
+                }
+            }
+            else if (skinButtons == null || skinButtons.Length == 0)
+            {
+                skinButtons = new Button[RunnerProgress.SkinNames.Length];
+                skinLabels = new Text[RunnerProgress.SkinNames.Length];
+            }
+        }
+
         void OnDisable()
         {
-            game.StateChanged -= Refresh;
-            openFromStart.onClick.RemoveListener(game.OpenShop);
-            openFromResults.onClick.RemoveListener(game.OpenShop);
-            close.onClick.RemoveListener(game.CloseShop);
+            if (game != null) game.StateChanged -= Refresh;
+            if (openFromStart != null) openFromStart.onClick.RemoveListener(game.OpenShop);
+            if (openFromResults != null) openFromResults.onClick.RemoveListener(game.OpenShop);
+            if (close != null) close.onClick.RemoveListener(game.CloseShop);
+        }
+
+        void SelectSkin(int index)
+        {
+            if (game == null || game.Progress == null) return;
+            if (!game.Progress.BuyOrEquip(index)) return;
+            game.ApplySkin();
+            Refresh();
         }
 
         void Refresh()
         {
-            panel.SetActive(game.State == RunnerGame.RunState.Shop);
-            if (!panel.activeSelf || game.Progress == null) return;
-            wallet.text = "COINS  " + game.Progress.Wallet;
+            if (panel != null) panel.SetActive(game != null && game.State == RunnerGame.RunState.Shop);
+            if (game == null || game.Progress == null || panel == null || !panel.activeSelf) return;
+            if (wallet != null) wallet.text = "COINS  " + game.Progress.Wallet;
             for (int i = 0; i < skinButtons.Length; i++)
             {
-                skinButtons[i].interactable = false;
-                skinLabels[i].text = "TSILA ORIGINAL  /  EQUIPPED";
+                if (skinButtons[i] == null) continue;
+                bool owned = game.Progress.Owns(i);
+                bool selected = game.Progress.Selected == i;
+                int price = RunnerProgress.Prices[i];
+                string label = selected
+                    ? RunnerProgress.SkinNames[i] + "  /  EQUIPPED"
+                    : owned
+                        ? RunnerProgress.SkinNames[i] + "  /  EQUIP"
+                        : RunnerProgress.SkinNames[i] + "  /  " + price + " COINS";
+                if (skinLabels[i] != null) skinLabels[i].text = label;
+                var img = skinButtons[i].GetComponent<Image>();
+                if (img != null) img.color = selected ? new Color32(20, 96, 255, 255) : owned ? new Color32(15, 140, 120, 255) : new Color32(16, 50, 82, 255);
+                skinButtons[i].interactable = !selected;
+                var colors = skinButtons[i].colors;
+                colors.normalColor = img != null ? img.color : colors.normalColor;
+                colors.highlightedColor = new Color(img != null ? img.color.r * 1.08f : 1f, img != null ? img.color.g * 1.08f : 1f, img != null ? img.color.b * 1.08f : 1f, 1f);
+                skinButtons[i].colors = colors;
             }
         }
     }
