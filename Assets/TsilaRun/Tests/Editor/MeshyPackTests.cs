@@ -1,14 +1,67 @@
+using System;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using TsilaRun.Editor;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace TsilaRun.Tests
 {
     public sealed class MeshyPackTests
     {
+        [Serializable]
+        sealed class ManifestEntry
+        {
+            public string name;
+            public string input;
+            public int triangles;
+            public int lodTriangles;
+        }
+
+        [Serializable]
+        sealed class ManifestContainer
+        {
+            public ManifestEntry[] models;
+        }
+
+        [Test]
+        public void EveryGlbHasAnOptimizedTexturedPrefabAndLod()
+        {
+            string manifestPath = MeshyPackIntegration.Root + "/Manifest.json";
+            var manifest = JsonUtility.FromJson<ManifestContainer>(
+                "{\"models\":" + File.ReadAllText(manifestPath) + "}");
+            Assert.IsNotNull(manifest);
+            Assert.IsNotNull(manifest.models);
+
+            string[] sources = Directory.GetFiles("Assets/TsilaRun/Art/AI", "*.glb")
+                .Select(Path.GetFileName).OrderBy(name => name).ToArray();
+            string[] mapped = manifest.models.Select(model => model.input).OrderBy(name => name).ToArray();
+            CollectionAssert.AreEqual(sources, mapped);
+
+            foreach (var entry in manifest.models)
+            {
+                Assert.Greater(entry.triangles, 0, entry.name);
+                Assert.Greater(entry.lodTriangles, 0, entry.name);
+                Assert.IsNotNull(AssetDatabase.LoadAssetAtPath<GameObject>(
+                    MeshyPackIntegration.Source + "/" + entry.name + ".fbx"), entry.name);
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPackIntegration.PrefabPath(entry.name));
+                Assert.IsNotNull(prefab, entry.name);
+                var lods = prefab.GetComponent<LODGroup>().GetLODs();
+                Assert.AreEqual(2, lods.Length, entry.name);
+                Assert.IsTrue(lods.All(lod => lod.renderers.Length > 0), entry.name);
+                Assert.IsTrue(prefab.GetComponentsInChildren<Renderer>(true)
+                    .SelectMany(renderer => renderer.sharedMaterials)
+                    .All(material => material != null && material.GetTexture("_BaseMap") != null), entry.name);
+            }
+
+            var footprints = AssetDatabase.LoadAssetAtPath<Material>(
+                MeshyPackIntegration.Generated + "/Materials/SandFootprints_Material.mat");
+            Assert.AreEqual(1f, footprints.GetFloat("_Surface"));
+        }
+
         [TestCase("Tsila")]
         [TestCase("Officer")]
         public void TexturedCharactersAnimateAndFitSlidingClearance(string name)
@@ -79,6 +132,10 @@ namespace TsilaRun.Tests
             Assert.AreEqual(RunnerRules.StandingHeight, game.player.body.height, .001f);
             var tower = game.world.itemPrefabs[(int)RunnerItemKind.Tower];
             Assert.AreEqual(3.6f, tower.hitbox.size.y, .001f);
+            var barrier = game.world.itemPrefabs[(int)RunnerItemKind.Barrier];
+            Assert.AreEqual(.85f, barrier.hitbox.size.y, .001f);
+            Assert.AreEqual(1, barrier.GetComponentsInChildren<Collider>(true).Length);
+            Assert.IsNotNull(barrier.GetComponentInChildren<MeshFilter>(true));
             var overhead = game.world.itemPrefabs[(int)RunnerItemKind.Overhead];
             Assert.AreEqual(1f, overhead.hitbox.center.y - overhead.hitbox.size.y * .5f, .001f);
             Assert.AreEqual(1, overhead.GetComponentsInChildren<Collider>().Length);
@@ -94,6 +151,11 @@ namespace TsilaRun.Tests
             Assert.Less(Vector3.Distance(BlenderPackIntegration.VisualBounds(coin.gameObject).center, coin.hitbox.center), .02f);
             var magnet = game.world.itemPrefabs[(int)RunnerItemKind.CoinMagnet];
             Assert.Less(Vector3.Distance(BlenderPackIntegration.VisualBounds(magnet.gameObject).center, magnet.hitbox.center), .02f);
+            var speedBoost = game.world.itemPrefabs[(int)RunnerItemKind.SpeedBoost];
+            Assert.AreEqual(Vector3.one * .9f, speedBoost.hitbox.size);
+            Assert.IsNotNull(speedBoost.GetComponentInChildren<MeshFilter>(true));
+            foreach (var zone in road.GetComponent<RunnerRoadSection>().scenery)
+                Assert.Greater(zone.GetComponentsInChildren<Renderer>(true).Length, 0);
         }
     }
 }

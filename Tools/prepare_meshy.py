@@ -22,7 +22,25 @@ SPECS={
  'coins':('Coin',1000,(.6,.2,.6)),
  'aimant':('CoinMagnet',1800,(.65,.25,.65)),
  'arbre-tropical':('Tree',4500,None), 'palmier':('Palm',5500,None),
- 'house':('House',6000,(3.5,5,4.425)), 'immeuble':('Building',6500,None)}
+ 'house':('House',6000,(3.5,5,4.425)), 'immeuble':('Building',6500,None),
+ 'asia_building':('AsiaBuildings',8000,(30,24,18)),
+ 'bailey_bridge_dd_type':('BaileyBridge',75000,(8.5,24,.5)),
+ 'bird_footprints_in_the_sand':('SandFootprints',1200,(7,5,.02)),
+ 'cliffs':('Cliffs',5000,(28,24,12)),
+ 'dirty_tunnel':('DirtyTunnel',8000,(11,24,9)),
+ 'jungle_house_3d_model_free':('JungleHouse',4000,(4,5,4.2)),
+ 'lampadaire_stylise':('StreetLamp',1500,(.8,.8,4)),
+ 'modular_sidewalk_curb_kit':('SidewalkCurbKit',4000,(28,28,2)),
+ 'modular_tunnel':('ModularTunnel',8000,(11,24,9)),
+ 'oak_trees_pack_17var_lods_seasons_gameready':('OakTree',12000,(30,20,12)),
+ 'road_section':('RoadSectionAlt',1000,(8,24,.36)),
+ 'rock':('Rock',1200,(6,5,5)),
+ 'rock_terrain':('RockTerrain',10000,(26,6,20)),
+ 'safety_rail_single_model_from_asset_pack':('SafetyRail',1200,(5,.25,.15)),
+ 'speed_pickup':('SpeedBoost',600,(.85,.85,.85)),
+ 'street_barrier_-_5mb':('Barrier',1200,(1.7,.85,.9)),
+ 'stylized_tropical_pack':('TropicalTreePack',8000,(14,10,9)),
+ 'tropical_house_2':('TropicalHouse',4000,(4,5,4.2))}
 
 def select(obj):
  bpy.ops.object.select_all(action='DESELECT'); obj.select_set(True); bpy.context.view_layer.objects.active=obj
@@ -33,14 +51,28 @@ def bounds(obj):
  hi=Vector([max(v[i] for v in vs) for i in range(3)])
  return lo,hi
 
+def match_bounds(obj, target_lo, target_hi):
+ lo,hi=bounds(obj); size=hi-lo; target_size=target_hi-target_lo
+ if min(size)<=0:raise RuntimeError('Cannot preserve LOD bounds for '+obj.name)
+ center=(lo+hi)*.5; target_center=(target_lo+target_hi)*.5
+ for vertex in obj.data.vertices:
+  vertex.co=target_center+Vector(tuple((vertex.co[i]-center[i])*target_size[i]/size[i] for i in range(3)))
+ obj.data.update()
+
 def simplify(obj,budget):
  select(obj)
- count=sum(len(p.vertices)-2 for p in obj.data.polygons)
- if count>budget:
-  mod=obj.modifiers.new('Mobile triangle budget','DECIMATE'); mod.ratio=budget/count; mod.use_collapse_triangulate=True
+ original=sum(len(p.vertices)-2 for p in obj.data.polygons)
+ count=original
+ for _ in range(6):
+  if count<=budget:break
+  mod=obj.modifiers.new('Mobile triangle budget','DECIMATE')
+  mod.ratio=max(.001,min(.5,(budget/count)*.8)); mod.use_collapse_triangulate=True
   bpy.ops.object.modifier_apply(modifier=mod.name)
- print('MOBILE_MESH',obj.name,count,'->',sum(len(p.vertices)-2 for p in obj.data.polygons),flush=True)
- return count
+  reduced=sum(len(p.vertices)-2 for p in obj.data.polygons)
+  if reduced>=count:break
+  count=reduced
+ print('MOBILE_MESH',obj.name,original,'->',count,'target',budget,flush=True)
+ return original
 
 def mobile_bake(obj,name,budget):
  """Project original Meshy shading onto fresh low-mesh UVs, retaining glTF mappings."""
@@ -65,8 +97,12 @@ def mobile_bake(obj,name,budget):
  # Bake emission from the original color socket so metallic assets retain their color too.
  restore=[]
  for source in high.data.materials:
-  bsdf=next(n for n in source.node_tree.nodes if n.type=='BSDF_PRINCIPLED')
   output=next(n for n in source.node_tree.nodes if n.type=='OUTPUT_MATERIAL')
+  bsdf=next((n for n in source.node_tree.nodes if n.type=='BSDF_PRINCIPLED'),None)
+  if bsdf is None:
+   if not any(n.type=='EMISSION' for n in source.node_tree.nodes):
+    raise RuntimeError('Unsupported source material: '+source.name)
+   continue
   emit=source.node_tree.nodes.new('ShaderNodeEmission')
   base=bsdf.inputs['Base Color']
   if base.is_linked:source.node_tree.links.new(base.links[0].from_socket,emit.inputs['Color'])
@@ -183,8 +219,18 @@ for stem,(name,budget,target) in SPECS.items():
  bpy.ops.wm.read_factory_settings(use_empty=True)
  bpy.ops.import_scene.gltf(filepath=str(ROOT/'Assets/TsilaRun/Art/AI'/ (stem+'.glb')))
  meshes=[o for o in bpy.context.scene.objects if o.type=='MESH']
+ if stem=='oak_trees_pack_17var_lods_seasons_gameready':
+  meshes=[o for o in meshes if '_LOD0_' in o.name]
+  if not meshes:raise RuntimeError('Oak tree pack contains no LOD0 meshes')
+ if not meshes:raise RuntimeError('No mesh objects found in '+stem)
  for o in meshes:
   select(o); bpy.ops.object.transform_apply(location=True,rotation=True,scale=True)
+ source_triangles=sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in meshes)
+ if len(meshes)>1:
+  part_counts=[sum(len(p.vertices)-2 for p in o.data.polygons) for o in meshes]
+  total_triangles=sum(part_counts)
+  for o,part_count in zip(meshes,part_counts):
+   simplify(o,max(50,int(budget*part_count/total_triangles)))
  obj=meshes[0]; obj.name=name+'_Mesh'
  if len(meshes)>1:
   bpy.ops.object.select_all(action='DESELECT')
@@ -228,11 +274,19 @@ for stem,(name,budget,target) in SPECS.items():
  bpy.context.scene.render.fps=24
  bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'.fbx')),use_selection=True,object_types={'MESH','ARMATURE'},axis_forward='-Z',axis_up='Y',apply_scale_options='FBX_SCALE_ALL',add_leaf_bones=False,bake_anim=bool(rig),bake_anim_use_all_actions=bool(rig),bake_anim_use_nla_strips=False,bake_anim_simplify_factor=0.0,path_mode='RELATIVE')
  lo,hi=bounds(obj)
- entry={'name':name,'input':stem+'.glb','sourceTriangles':original,'triangles':sum(len(p.vertices)-2 for p in obj.data.polygons),'boundsMin':list(lo),'boundsMax':list(hi),'textures':{k:str(pathlib.Path(v).relative_to(ROOT)).replace('\\','/') for k,v in tex.items()},'rigged':bool(rig)}
+ entry={'name':name,'input':stem+'.glb','sourceTriangles':source_triangles,'triangles':sum(len(p.vertices)-2 for p in obj.data.polygons),'boundsMin':list(lo),'boundsMax':list(hi),'textures':{k:str(pathlib.Path(v).relative_to(ROOT)).replace('\\','/') for k,v in tex.items()},'rigged':bool(rig)}
  if rig:
   # LOD uses the same skeleton and weights, exported without duplicated animation.
   simplify(obj,8000); select(obj); rig.select_set(True)
   bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'_LOD1.fbx')),use_selection=True,object_types={'MESH','ARMATURE'},axis_forward='-Z',axis_up='Y',apply_scale_options='FBX_SCALE_ALL',add_leaf_bones=False,bake_anim=False,path_mode='RELATIVE')
+  entry['lodTriangles']=sum(len(p.vertices)-2 for p in obj.data.polygons)
+ else:
+  # Keep distant scenery and pickups cheap while reusing the baked mobile material.
+  high_lo,high_hi=bounds(obj)
+  lod_budget=max(200,budget//4)
+  simplify(obj,lod_budget); select(obj)
+  match_bounds(obj,high_lo,high_hi)
+  bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'_LOD1.fbx')),use_selection=True,object_types={'MESH'},axis_forward='-Z',axis_up='Y',apply_scale_options='FBX_SCALE_ALL',add_leaf_bones=False,bake_anim=False,path_mode='RELATIVE')
   entry['lodTriangles']=sum(len(p.vertices)-2 for p in obj.data.polygons)
  REPORT.append(entry); print('PREPARED',entry,flush=True)
 manifest=OUT.parent/'Manifest.json'
