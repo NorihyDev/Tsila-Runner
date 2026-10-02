@@ -16,6 +16,7 @@ namespace TsilaRun
         public float Height => IsSliding ? RunnerRules.SlideHeight : RunnerRules.StandingHeight;
         public Bounds HitBounds => BoundsAtHeight(Height);
         float verticalVelocity, slideRemaining, laneElapsed, laneDuration, laneStart;
+        bool jumpWhenClear;
 
         Bounds BoundsAtHeight(float height) => new Bounds(
             transform.position + Vector3.up * (height * 0.5f),
@@ -24,6 +25,7 @@ namespace TsilaRun
         public void ResetPlayer()
         {
             Lane = 1;
+            jumpWhenClear = false;
             verticalVelocity = slideRemaining = laneElapsed = laneDuration = laneStart = 0f;
             transform.position = Vector3.zero;
             SetSlide(false);
@@ -43,24 +45,39 @@ namespace TsilaRun
 
         public void Jump()
         {
-            if (!IsGrounded || IsSliding) return;
+            if (IsSliding)
+            {
+                if (world != null && world.IntersectsObstacle(BoundsAtHeight(RunnerRules.StandingHeight)))
+                {
+                    jumpWhenClear = true;
+                    return;
+                }
+                SetSlide(false);
+            }
+            jumpWhenClear = false;
+            if (!IsGrounded) return;
             verticalVelocity = RunnerRules.JumpVelocity;
         }
 
         public void Slide()
         {
-            if (!IsGrounded || IsSliding || verticalVelocity > 0f) return;
+            if (IsSliding) return;
+            jumpWhenClear = false;
             slideRemaining = RunnerRules.SlideSeconds;
             SetSlide(true);
+            if (!IsGrounded) verticalVelocity = Mathf.Min(verticalVelocity, -RunnerRules.FastFallSpeed);
         }
 
         public void Simulate(float dt)
         {
             if (IsSliding)
             {
-                slideRemaining -= dt;
+                if (IsGrounded) slideRemaining -= dt;
+                if (jumpWhenClear && (world == null || !world.IntersectsObstacle(BoundsAtHeight(RunnerRules.StandingHeight))))
+                    Jump();
                 // Never expand the collider into an overhead obstacle.
-                if (slideRemaining <= 0f && !world.IntersectsObstacle(BoundsAtHeight(RunnerRules.StandingHeight)))
+                if (IsSliding && slideRemaining <= 0f &&
+                    (world == null || !world.IntersectsObstacle(BoundsAtHeight(RunnerRules.StandingHeight))))
                     SetSlide(false);
             }
             Vector3 position = transform.position;

@@ -179,14 +179,19 @@ namespace TsilaRun
             {
                 safeLane = RunnerRules.NextSafeLane(safeLane, random);
                 int obstacleCount = RunnerRules.RecommendedObstacleCount(game.Distance);
+                bool fullRow = obstacleCount >= 3;
+                int dodgeLane = fullRow ? (safeLane + 1 + random.Next(0, 2)) % 3 : -1;
                 int[] lanes = { 0, 1, 2 };
                 Shuffle(lanes);
 
                 for (int i = 0; i < lanes.Length; i++)
                 {
                     int lane = lanes[i];
-                    if (lane == safeLane || obstacleCount <= 0) continue;
-                    RunnerItemKind obstacle = PickObstacleKind();
+                    if ((!fullRow && lane == safeLane) || obstacleCount <= 0) continue;
+                    // Three-lane waves always offer a jump or slide route. The tower must be dodged.
+                    RunnerItemKind obstacle = lane == safeLane && fullRow
+                        ? (random.Next(0, 2) == 0 ? RunnerItemKind.Barrier : RunnerItemKind.Overhead)
+                        : lane == dodgeLane ? RunnerItemKind.Tower : PickObstacleKind();
                     float z = nextRow + (i * 1.5f);
                     Place(obstacle, lane, z);
                     if (RunnerRules.CanCoinRideObstacle(obstacle) && random.NextDouble() < 0.75d)

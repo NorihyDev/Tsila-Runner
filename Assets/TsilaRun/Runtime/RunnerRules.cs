@@ -12,6 +12,7 @@ namespace TsilaRun
         public const float Acceleration = 0.18f;
         public const float Gravity = 24f;
         public const float JumpVelocity = 9.2f;
+        public const float FastFallSpeed = 18f;
         public const float SlideSeconds = 1f;
         public const float ReactionSeconds = 0.7f;
         public const float StandingHeight = 1.8f;
@@ -65,7 +66,7 @@ namespace TsilaRun
 
         public static int RecommendedObstacleCount(double distance)
         {
-            if (distance >= 540d) return 4;
+            if (distance >= 540d) return 3;
             if (distance >= 240d) return 3;
             return 2;
         }
