@@ -161,7 +161,8 @@ namespace TsilaRun
             StyleButton(resultsMenuButton, secondary, pale);
             if (skipIntroButton != null) StyleButton(skipIntroButton, primary, ink);
 
-            StylePanel(startPanel, new Color32(9, 16, 33, 210));
+            // The menu is a showcase: keep its 3D character clear of a full-screen tint.
+            if (startPanel != null && startPanel.TryGetComponent<Image>(out var menuImage)) menuImage.enabled = false;
             StylePanel(pausePanel, new Color32(9, 16, 33, 210));
             StylePanel(gameOverPanel, new Color32(9, 16, 33, 210));
             StylePanel(hud, new Color32(9, 16, 33, 120));

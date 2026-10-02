@@ -33,7 +33,8 @@ namespace TsilaRun
             Vector3 pose = anchorOffset;
             pose.y += lift;
             root.localPosition = pose;
-            root.localRotation = Quaternion.Euler(menuMode ? 0f : 0f, menuMode ? 180f + menuTilt : 0f, sliding ? -8f : 0f);
+            // RunnerPresentation already turns the visual towards the menu camera.
+            root.localRotation = Quaternion.Euler(0f, menuMode ? menuTilt : 0f, sliding ? -8f : 0f);
             root.localScale = defaultScale * (menuMode ? 1.04f : 1f);
         }
     }
