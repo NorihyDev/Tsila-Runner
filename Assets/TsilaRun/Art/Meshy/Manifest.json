@@ -1,0 +1,256 @@
+[
+  {
+    "name": "Tsila",
+    "input": "tsila.glb",
+    "sourceTriangles": 1154205,
+    "triangles": 19999,
+    "boundsMin": [
+      -0.5281593799591064,
+      -0.1944064050912857,
+      0.0
+    ],
+    "boundsMax": [
+      0.5281593799591064,
+      0.1944064050912857,
+      1.8000000715255737
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/Tsila_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/Tsila_Normal.png"
+    },
+    "rigged": true,
+    "lodTriangles": 7999
+  },
+  {
+    "name": "Officer",
+    "input": "officier.glb",
+    "sourceTriangles": 1573300,
+    "triangles": 20000,
+    "boundsMin": [
+      -0.4041929841041565,
+      -0.19340497255325317,
+      0.0
+    ],
+    "boundsMax": [
+      0.4041929841041565,
+      0.19340497255325317,
+      1.7999999523162842
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/Officer_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/Officer_Normal.png"
+    },
+    "rigged": true,
+    "lodTriangles": 8000
+  },
+  {
+    "name": "RoadSection",
+    "input": "road.glb",
+    "sourceTriangles": 4501,
+    "triangles": 4501,
+    "boundsMin": [
+      -4.0,
+      -12.0,
+      -0.3100000023841858
+    ],
+    "boundsMax": [
+      4.0,
+      12.0,
+      0.050000015646219254
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/RoadSection_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/RoadSection_Normal.png"
+    },
+    "rigged": false
+  },
+  {
+    "name": "Curb",
+    "input": "border.glb",
+    "sourceTriangles": 860,
+    "triangles": 860,
+    "boundsMin": [
+      -0.10000000149011612,
+      -12.0,
+      0.0
+    ],
+    "boundsMax": [
+      0.10000000149011612,
+      12.0,
+      0.1599999964237213
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/Curb_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/Curb_Normal.png"
+    },
+    "rigged": false
+  },
+  {
+    "name": "Tower",
+    "input": "barriere.glb",
+    "sourceTriangles": 298518,
+    "triangles": 1800,
+    "boundsMin": [
+      -0.8999999761581421,
+      -0.550000011920929,
+      0.0
+    ],
+    "boundsMax": [
+      0.8999999761581421,
+      0.550000011920929,
+      3.6000001430511475
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/Tower_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/Tower_Normal.png"
+    },
+    "rigged": false
+  },
+  {
+    "name": "Overhead",
+    "input": "obstacle-slide.glb",
+    "sourceTriangles": 712,
+    "triangles": 712,
+    "boundsMin": [
+      -1.1200000047683716,
+      -0.44999998807907104,
+      0.0
+    ],
+    "boundsMax": [
+      1.1200000047683716,
+      0.44999998807907104,
+      2.799999952316284
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/Overhead_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/Overhead_Normal.png"
+    },
+    "rigged": false
+  },
+  {
+    "name": "Coin",
+    "input": "coins.glb",
+    "sourceTriangles": 336534,
+    "triangles": 1000,
+    "boundsMin": [
+      -0.29999998211860657,
+      -0.10000000894069672,
+      -0.30000001192092896
+    ],
+    "boundsMax": [
+      0.29999998211860657,
+      0.10000000894069672,
+      0.30000001192092896
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/Coin_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/Coin_Normal.png"
+    },
+    "rigged": false
+  },
+  {
+    "name": "CoinMagnet",
+    "input": "aimant.glb",
+    "sourceTriangles": 3674,
+    "triangles": 1800,
+    "boundsMin": [
+      -0.32500001788139343,
+      -0.125,
+      0.0
+    ],
+    "boundsMax": [
+      0.32500001788139343,
+      0.125,
+      0.6499999761581421
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/CoinMagnet_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/CoinMagnet_Normal.png"
+    },
+    "rigged": false
+  },
+  {
+    "name": "Tree",
+    "input": "arbre-tropical.glb",
+    "sourceTriangles": 10412,
+    "triangles": 4500,
+    "boundsMin": [
+      -1.3329178094863892,
+      -1.324324607849121,
+      0.0
+    ],
+    "boundsMax": [
+      1.3329178094863892,
+      1.324324607849121,
+      3.950000286102295
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/Tree_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/Tree_Normal.png"
+    },
+    "rigged": false
+  },
+  {
+    "name": "Palm",
+    "input": "palmier.glb",
+    "sourceTriangles": 244124,
+    "triangles": 5500,
+    "boundsMin": [
+      -1.9310468435287476,
+      -1.2869700193405151,
+      0.0
+    ],
+    "boundsMax": [
+      1.9310468435287476,
+      1.2869700193405151,
+      5.200000286102295
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/Palm_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/Palm_Normal.png"
+    },
+    "rigged": false
+  },
+  {
+    "name": "House",
+    "input": "house.glb",
+    "sourceTriangles": 1421423,
+    "triangles": 7183,
+    "boundsMin": [
+      -1.75,
+      -2.5,
+      0.0
+    ],
+    "boundsMax": [
+      1.75,
+      2.5,
+      4.424999713897705
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/House_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/House_Normal.png"
+    },
+    "rigged": false
+  },
+  {
+    "name": "Building",
+    "input": "immeuble.glb",
+    "sourceTriangles": 6440,
+    "triangles": 6440,
+    "boundsMin": [
+      -1.703490972518921,
+      -1.6616005897521973,
+      0.0
+    ],
+    "boundsMax": [
+      1.703490972518921,
+      1.6616005897521973,
+      6.800000190734863
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/Building_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/Building_Normal.png"
+    },
+    "rigged": false
+  }
+]

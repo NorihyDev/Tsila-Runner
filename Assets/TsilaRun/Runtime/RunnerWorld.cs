@@ -241,7 +241,16 @@ namespace TsilaRun
             {
                 if (!RunnerRules.IsObstacle((RunnerItemKind)kind)) continue;
                 for (int i = 0; i < RunnerRules.PoolPerKind; i++)
-                    if (items[kind, i].InUse && coinBounds.Intersects(items[kind, i].HitBounds)) return;
+                {
+                    RunnerItem obstacle = items[kind, i];
+                    if (!obstacle.InUse) continue;
+                    Bounds exclusion = obstacle.HitBounds;
+                    // Coins move with the road; a running person can advance relative to them.
+                    // Reserve its whole forward drift corridor, not just today's position.
+                    if (obstacle.kind == RunnerItemKind.RunningPerson)
+                        exclusion.Encapsulate(new Bounds(exclusion.center + Vector3.forward * RunnerRules.PersonDriftBudget, exclusion.size));
+                    if (coinBounds.Intersects(exclusion)) return;
+                }
             }
             for (int i = 0; i < RunnerRules.PoolPerKind; i++)
             {

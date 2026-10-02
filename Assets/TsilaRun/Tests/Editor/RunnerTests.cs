@@ -395,6 +395,7 @@ namespace TsilaRun.Tests
             game.StartRun();
             game.CompleteIntro();
             var world = game.world;
+            world.ResetWorld(42); // Reproduce the same long-run layout on every test run.
             var items = world.GetComponentsInChildren<RunnerItem>(true);
             int initial = world.transform.childCount;
             var away = new Bounds(new Vector3(100f, 0f, 0f), Vector3.one);
@@ -409,7 +410,9 @@ namespace TsilaRun.Tests
                 foreach (var item in items)
                 {
                     if (!item.InUse) continue;
-                    Assert.That(item.transform.position.z, Is.InRange(-12f, RunnerRules.Horizon + 4f));
+                    // Horizon limits row origins. Coin trails extend past those origins,
+                    // but remain within the following 24-metre road module.
+                    Assert.That(item.transform.position.z, Is.InRange(-12f, RunnerRules.Horizon + RunnerRules.RoadLength));
                     if (item.kind != RunnerItemKind.Coin) continue;
                     foreach (var other in items)
                         if (other.InUse && RunnerRules.IsObstacle(other.kind))
@@ -522,7 +525,8 @@ namespace TsilaRun.Tests
             Assert.AreEqual(0f, roadModel.localPosition.z + roadBounds.center.z, .001f);
             Assert.AreEqual(24f, roadBounds.size.z, .001f);
             bool integrated = AssetDatabase.LoadAssetAtPath<GameObject>(BlenderPackIntegration.PrefabPath("Tsila")) != null;
-            string art = integrated ? BlenderPackIntegration.Generated + "/" : MethodVisualBuilder.Art;
+            string art = AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPackIntegration.PrefabPath("Tsila")) != null
+                ? MeshyPackIntegration.Generated + "/" : integrated ? BlenderPackIntegration.Generated + "/" : MethodVisualBuilder.Art;
             var character = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(art + "Tsila.prefab"));
             try
             {
@@ -557,6 +561,7 @@ namespace TsilaRun.Tests
             avatar.animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             Quaternion before = avatar.leftArm.localRotation;
             avatar.Animate(0.1f); // Drive the actual imported Animator deterministically.
+            avatar.animator.Update(0f); // Resolve the queued state change before advancing its clock.
             avatar.animator.Update(0.15f);
             Assert.AreEqual(Animator.StringToHash("Run"), avatar.CurrentAnimation);
             Assert.Greater(Quaternion.Angle(before, avatar.leftArm.localRotation), 0.1f);

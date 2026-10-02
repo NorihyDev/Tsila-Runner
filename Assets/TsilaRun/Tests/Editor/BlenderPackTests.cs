@@ -70,7 +70,8 @@ namespace TsilaRun.Tests
             {
                 Assert.IsNotNull(character.GetComponent<LODGroup>());
                 Assert.IsNotNull(character.leftArm);
-                Assert.That(AssetDatabase.GetAssetPath(character.animator.runtimeAnimatorController), Does.StartWith(BlenderPackIntegration.Generated));
+                string controller = AssetDatabase.GetAssetPath(character.animator.runtimeAnimatorController);
+                Assert.IsTrue(controller.StartsWith(BlenderPackIntegration.Generated) || controller.StartsWith(MeshyPackIntegration.Generated));
             }
             Assert.IsTrue(game.player.animatedSlide);
         }

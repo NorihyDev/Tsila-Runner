@@ -28,6 +28,9 @@ namespace TsilaRun.Editor
             // Bring a representative row into view while keeping the player stationary.
             var outsideRoad = new Bounds(new Vector3(100f, 0f, 0f), Vector3.one);
             hud.game.world.Simulate(30f, outsideRoad, outsideRoad);
+            // Manual Editor camera renders do not tick normal runtime LOD selection.
+            foreach (var group in Object.FindObjectsByType<LODGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                group.ForceLOD(0);
             var canvas = hud.GetComponent<Canvas>();
             var scaler = canvas.GetComponent<CanvasScaler>();
             var safeArea = canvas.GetComponentInChildren<SafeAreaPanel>();

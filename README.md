@@ -4,15 +4,17 @@
 
 Run through three lanes, collect coins, evade the patrol, and keep moving as the island gives way to mountain passes and underground tunnels. Built with Unity, Tsila Run combines animated 3D characters with an English interface designed for portrait screens.
 
-**Status:** Playable prototype with the Blender character pack integrated · **Primary platforms:** Android and iOS · **Editor:** Unity 6000.6.3f1
+**Status:** Playable prototype with Meshy models and the existing Blender fallback pack integrated · **Primary platforms:** Android and iOS · **Editor:** Unity 6000.6.3f1
 
 <p align="center">
-  <img src="Docs/Verification/BlenderPack-Menu.png" alt="Tsila Run main menu with the Blender Tsila character" width="280" />
+  <img src="Docs/Verification/Meshy-Menu.png" alt="Tsila Run main menu with the textured Meshy Tsila character" width="280" />
   &nbsp;
-  <img src="Docs/Verification/BlenderPack-Run.png" alt="Tsila Run gameplay with the Blender road, coins and obstacles" width="280" />
+  <img src="Docs/Verification/Meshy-Run.png" alt="Tsila Run gameplay with Meshy models and tropical scenery" width="280" />
 </p>
 
 ## Features
+
+The supplied Meshy GLBs now replace the player, chaser, road, curbs, tall obstacle, overhead obstacle, coins, magnet and island scenery. Missing models retain the existing artwork. See [Meshy integration](Docs/Meshy-Integration.md) for the asset mapping, preparation workflow and limits.
 
 - **Three-lane running:** automatic forward movement, smooth lane changes, jumping, and sliding. Swipe down while airborne to drop into a slide, or swipe up during a slide to cancel it and jump when clear.
 - **Varied obstacles:** low barriers, overhead beams, tall obstacles, and other runners. Later waves can occupy all three lanes, with a jumpable or slidable route; tall towers must be dodged.

@@ -10,7 +10,8 @@ namespace TsilaRun.Editor
         public const string Art = "Assets/TsilaRunArt/Generated/";
         public static GameObject Model(Transform parent, string name)
         {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(BlenderPackIntegration.PrefabPath(name));
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPackIntegration.PrefabPath(name));
+            if (prefab == null) prefab = AssetDatabase.LoadAssetAtPath<GameObject>(BlenderPackIntegration.PrefabPath(name));
             bool blenderPack = prefab != null;
             if (!blenderPack) prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Art + name + ".prefab");
             if (prefab == null) throw new InvalidOperationException("Missing Method asset: " + name);
