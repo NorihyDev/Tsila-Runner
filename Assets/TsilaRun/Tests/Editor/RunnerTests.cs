@@ -91,6 +91,7 @@ namespace TsilaRun.Tests
         {
             Assert.Greater(RunnerRules.RecommendedObstacleCount(0d), 0);
             Assert.Greater(RunnerRules.RecommendedObstacleCount(420d), RunnerRules.RecommendedObstacleCount(0d));
+            Assert.AreEqual(3, RunnerRules.RecommendedObstacleCount(420d));
             Assert.Greater(RunnerRules.RecommendedCoinTrailLength(420d), RunnerRules.RecommendedCoinTrailLength(0d));
             Assert.IsTrue(RunnerRules.CanCoinRideObstacle(RunnerItemKind.Barrier));
             Assert.IsTrue(RunnerRules.CanCoinRideObstacle(RunnerItemKind.Overhead));
@@ -153,6 +154,18 @@ namespace TsilaRun.Tests
             IsolateWallet(game);
             var player = game.player;
             var world = game.world;
+            Assert.AreSame(player.transform, game.vfx.speedTrail.transform.parent);
+            Assert.IsNotNull(game.vfx.speedTrail.GetComponent<ParticleSystemRenderer>().sharedMaterial);
+            typeof(RunnerGame).GetProperty("Distance").SetValue(game, 420d);
+            world.ResetWorld(123);
+            var openingWave = world.GetComponentsInChildren<RunnerItem>(true)
+                .Where(item => item.InUse && RunnerRules.IsObstacle(item.kind) &&
+                    item.transform.position.z >= RunnerRules.FirstRow &&
+                    item.transform.position.z < RunnerRules.FirstRow + 4f).ToArray();
+            Assert.AreEqual(3, openingWave.Length, "Hard waves should occupy all three lanes.");
+            Assert.AreEqual(3, openingWave.Select(item => item.transform.position.x).Distinct().Count());
+            Assert.IsTrue(openingWave.Any(item => item.kind == RunnerItemKind.Tower));
+            Assert.IsTrue(openingWave.Any(item => item.kind == RunnerItemKind.Barrier || item.kind == RunnerItemKind.Overhead));
             game.enabled = false; // Drive exact simulation ticks while testing input through real Update.
             game.SendMessage("OnApplicationFocus", true);
             game.SendMessage("OnApplicationPause", false);
@@ -188,15 +201,34 @@ namespace TsilaRun.Tests
             Assert.IsFalse(player.IsSliding);
             Assert.AreEqual(RunnerRules.StandingHeight, player.body.height);
 
+            player.ResetPlayer();
+            player.Jump();
+            player.Simulate(0.12f);
+            float heightBeforeDrop = player.transform.position.y;
+            player.Slide();
+            Assert.IsTrue(player.IsSliding, "A downward swipe in the air should start a fast-fall slide.");
+            player.Simulate(0.1f);
+            Assert.Less(player.transform.position.y, heightBeforeDrop);
+            player.ResetPlayer();
+            player.Slide();
+            player.Jump();
+            Assert.IsFalse(player.IsSliding, "An upward swipe should cancel a clear slide.");
+            player.Simulate(0.1f);
+            Assert.Greater(player.transform.position.y, 0f);
+
             var pool = world.GetComponentsInChildren<RunnerItem>(true);
             foreach (var item in pool) item.Release();
             var beam = pool.First(i => i.kind == RunnerItemKind.Overhead);
             beam.Place(0f, 0f);
             player.Slide();
+            player.Jump();
+            Assert.IsTrue(player.IsSliding, "Do not stand or jump inside an overhead beam.");
             for (int i = 0; i < 60; i++) player.Simulate(0.02f);
             Assert.IsTrue(player.IsSliding, "Standing must wait until the overhead is clear.");
             beam.Release(); player.Simulate(0.02f);
             Assert.IsFalse(player.IsSliding);
+            Assert.Greater(player.transform.position.y, 0f, "The queued jump should start once the beam clears.");
+            player.ResetPlayer();
             var coin = pool.First(i => i.kind == RunnerItemKind.Coin);
             coin.Place(0f, 1f);
             world.Simulate(2f, player.HitBounds, player.HitBounds);
