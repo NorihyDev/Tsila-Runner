@@ -17,7 +17,13 @@ namespace TsilaRun.Editor
         public const string Source = Root + "/Source";
         public const string Generated = Root + "/Generated";
         static readonly string[] Characters = { "Tsila", "Officer" };
-        static readonly string[] Props = { "RoadSection", "Curb", "Tower", "Overhead", "Coin", "CoinMagnet", "Tree", "Palm", "House", "Building" };
+        static readonly string[] Props =
+        {
+            "RoadSection", "Curb", "Tower", "Overhead", "Coin", "CoinMagnet", "Tree", "Palm", "House", "Building",
+            "AsiaBuildings", "BaileyBridge", "SandFootprints", "Cliffs", "DirtyTunnel", "JungleHouse", "StreetLamp",
+            "SidewalkCurbKit", "ModularTunnel", "OakTree", "RoadSectionAlt", "Rock", "RockTerrain", "SafetyRail",
+            "SpeedBoost", "Barrier", "TropicalTreePack", "TropicalHouse"
+        };
         public static string PrefabPath(string name) => Generated + "/" + name + ".prefab";
 
         [MenuItem("Tools/Tsila Run/Apply Meshy Art Pack")]
@@ -132,6 +138,17 @@ namespace TsilaRun.Editor
                 mat.SetFloat("_Smoothness", .12f);
                 mat.SetFloat("_Cull", assetName == "Tree" || assetName == "Palm" ? 0f : 2f);
                 mat.SetFloat("_Metallic", assetName == "Coin" ? .45f : 0f);
+                if (assetName == "SandFootprints")
+                {
+                    mat.SetFloat("_Surface", 1f);
+                    mat.SetFloat("_Blend", 0f);
+                    mat.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+                    mat.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+                    mat.SetFloat("_ZWrite", 0f);
+                    mat.SetOverrideTag("RenderType", "Transparent");
+                    mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                    mat.renderQueue = (int)RenderQueue.Transparent;
+                }
                 mat.enableInstancing = true;
                 EditorUtility.SetDirty(mat);
                 importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material), source.name), mat);
@@ -209,9 +226,21 @@ namespace TsilaRun.Editor
             var root = new GameObject(name);
             try
             {
-                var model = InstantiateModel(name); model.transform.SetParent(root.transform, false);
+                var high = InstantiateModel(name); high.transform.SetParent(root.transform, false);
+                var low = InstantiateModel(name + "_LOD1"); low.transform.SetParent(root.transform, false);
                 if (name == "Coin" || name == "CoinMagnet")
-                    model.transform.localPosition = Vector3.up * (.9f - BlenderPackIntegration.VisualBounds(root).center.y);
+                {
+                    Vector3 offset = Vector3.up * (.9f - BlenderPackIntegration.VisualBounds(high).center.y);
+                    high.transform.localPosition = offset;
+                    low.transform.localPosition = offset;
+                }
+                var group = root.AddComponent<LODGroup>();
+                group.SetLODs(new[]
+                {
+                    new LOD(.12f, high.GetComponentsInChildren<Renderer>()),
+                    new LOD(.01f, low.GetComponentsInChildren<Renderer>())
+                });
+                group.RecalculateBounds();
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath(name));
             }
             finally { Object.DestroyImmediate(root); }
@@ -230,12 +259,19 @@ namespace TsilaRun.Editor
             return avatar;
         }
 
-        static void Place(Transform parent, string asset, Vector3 position, float yaw = 0)
+        static void Place(Transform parent, string asset, Vector3 position, float yaw = 0, Vector3 scale = default)
         {
             var model = MethodVisualBuilder.Model(parent, asset);
             model.name = asset == "RoadSection" ? asset : "Meshy " + asset;
             model.transform.localPosition = position;
             model.transform.localRotation = Quaternion.Euler(0, yaw, 0);
+            if (scale.sqrMagnitude > 0f) model.transform.localScale = scale;
+        }
+
+        static void ClearScenery(Transform root, string preserve = null)
+        {
+            foreach (Transform child in root.Cast<Transform>().ToArray())
+                if (child.name != preserve) Object.DestroyImmediate(child.gameObject);
         }
 
         static void PatchRoad(GameObject root)
@@ -244,22 +280,62 @@ namespace TsilaRun.Editor
             foreach (Transform child in root.transform.Cast<Transform>().ToArray())
                 if (child.GetComponent<RunnerRoadSection>() == null && !section.scenery.Contains(child.gameObject)) Object.DestroyImmediate(child.gameObject);
             Place(root.transform, "RoadSection", Vector3.zero);
+            Place(root.transform, "RoadSectionAlt", new Vector3(0f, -.4f, 0f));
             foreach (int side in new[] { -1, 1 }) Place(root.transform, "Curb", new Vector3(side * 4.1f, -.05f, 0f));
             var island = section.scenery[0].transform;
-            foreach (Transform child in island.Cast<Transform>().ToArray())
-                if (child.name != "Island") Object.DestroyImmediate(child.gameObject);
+            ClearScenery(island, "Island");
             foreach (int side in new[] { -1, 1 })
             {
                 Place(island, "Palm", new Vector3(side * 6f, 0f, 7f), side * 20f);
                 Place(island, "Tree", new Vector3(side * 7f, 0f, -3f));
                 Place(island, "House", new Vector3(side * 10f, 0f, 4f), side < 0 ? 90 : -90);
                 Place(island, "Building", new Vector3(side * 12f, 0f, -7f), side < 0 ? 90 : -90);
+                Place(island, "JungleHouse", new Vector3(side * 14f, 0f, -8f), side < 0 ? 90 : -90, Vector3.one * .7f);
+                Place(island, "TropicalHouse", new Vector3(side * 10f, 0f, -9f), side < 0 ? 90 : -90, Vector3.one * .8f);
+                Place(island, "TropicalTreePack", new Vector3(side * 15f, 0f, 8f), 0f, Vector3.one * .45f);
+                Place(island, "AsiaBuildings", new Vector3(side * 17f, 0f, 0f), 0f, Vector3.one * .35f);
+                Place(island, "StreetLamp", new Vector3(side * 5f, 0f, -10f), side < 0 ? 180 : 0, Vector3.one * .8f);
             }
+            Place(island, "SandFootprints", new Vector3(0f, -.19f, -5f));
+
+            var mountain = section.scenery[1].transform;
+            ClearScenery(mountain);
+            Place(mountain, "BaileyBridge", new Vector3(0f, -.42f, 0f));
+            Place(mountain, "Cliffs", new Vector3(-17f, -1f, 0f));
+            Place(mountain, "Cliffs", new Vector3(17f, -1f, 0f));
+            Place(mountain, "RockTerrain", new Vector3(-17f, -2f, 0f));
+            Place(mountain, "RockTerrain", new Vector3(17f, -2f, 0f));
+            Place(mountain, "OakTree", new Vector3(-20f, 0f, -7f));
+            Place(mountain, "OakTree", new Vector3(20f, 0f, 7f), 35f);
+            Place(mountain, "Rock", new Vector3(-6f, 0f, -10f));
+            Place(mountain, "Rock", new Vector3(6f, 0f, 10f));
+            Place(mountain, "SidewalkCurbKit", new Vector3(-12f, 0f, 0f), 0f, Vector3.one * .35f);
+            Place(mountain, "SidewalkCurbKit", new Vector3(12f, 0f, 0f), 0f, Vector3.one * .35f);
+            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, -10f), 90f);
+            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, -10f), 90f);
+            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, -5f), 90f);
+            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, -5f), 90f);
+            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, 0f), 90f);
+            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, 0f), 90f);
+            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, 5f), 90f);
+            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, 5f), 90f);
+            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, 10f), 90f);
+            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, 10f), 90f);
+
+            var tunnel = section.scenery[2].transform;
+            ClearScenery(tunnel);
+            Place(tunnel, "ModularTunnel", Vector3.zero);
+            Place(tunnel, "DirtyTunnel", new Vector3(-8f, 0f, 0f), 0f, Vector3.one * .35f);
+            Place(tunnel, "DirtyTunnel", new Vector3(8f, 0f, 0f), 0f, Vector3.one * .35f);
+            Place(tunnel, "AsiaBuildings", new Vector3(-14f, 0f, 0f), 0f, Vector3.one * .3f);
+            Place(tunnel, "AsiaBuildings", new Vector3(14f, 0f, 0f), 0f, Vector3.one * .3f);
+            Place(tunnel, "StreetLamp", new Vector3(-5f, 0f, -10f), 90f, Vector3.one * .55f);
+            Place(tunnel, "StreetLamp", new Vector3(5f, 0f, 10f), -90f, Vector3.one * .55f);
         }
 
         static void PatchPrefabs()
         {
-            foreach (string name in new[] { "Tsila", "Officer", "RoadSection", "Tower", "Overhead", "Coin", "CoinMagnet" })
+            foreach (string name in new[] { "Tsila", "Officer", "RoadSection", "Barrier", "Tower", "Overhead", "Coin", "CoinMagnet", "SpeedBoost" })
             {
                 string path = MobilePrototypeBuilder.Root + "/Prefabs/" + name + ".prefab";
                 var root = PrefabUtility.LoadPrefabContents(path);
@@ -327,7 +403,8 @@ namespace TsilaRun.Editor
                 finally { Object.DestroyImmediate(instance); }
             }
             var road = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath("RoadSection"));
-            if (Mathf.Abs(BlenderPackIntegration.VisualBounds(road).size.z - 24f) > .01f) throw new InvalidDataException("Road module length failed");
+            var roadBounds = BlenderPackIntegration.VisualBounds(road);
+            if (Mathf.Abs(roadBounds.size.z - 24f) > .01f) throw new InvalidDataException("Road module length failed");
             Debug.Log("TSILA_MESHY_VALIDATION_OK");
         }
     }

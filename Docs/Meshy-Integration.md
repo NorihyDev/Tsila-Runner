@@ -2,7 +2,7 @@
 
 Les fichiers GLB originaux sont conservés dans `Assets/TsilaRun/Art/AI`. Les exports optimisés et leurs textures se trouvent dans `Assets/TsilaRun/Art/Meshy/Source`, et les matériaux URP, animations et prefabs dans `Assets/TsilaRun/Art/Meshy/Generated`.
 
-## Correspondance des 12 fichiers
+## Correspondance des 30 fichiers
 
 | GLB fourni | Utilisation dans le jeu |
 | --- | --- |
@@ -18,12 +18,35 @@ Les fichiers GLB originaux sont conservés dans `Assets/TsilaRun/Art/AI`. Les ex
 | palmier.glb | Palmiers de la zone île |
 | house.glb | Maisons de la zone île |
 | immeuble.glb | Immeubles de la zone île |
+| street_barrier_-_5mb.glb | Barrière basse franchissable par saut |
+| speed_pickup.glb | Bonus de vitesse |
+| asia_building.glb | Ensemble de bâtiments urbains réutilisé dans les zones |
+| bailey_bridge_dd_type.glb | Pont modulaire dans le passage de montagne |
+| bird_footprints_in_the_sand.glb | Empreintes décoratives transparentes sur le sable |
+| cliffs.glb | Parois rocheuses de montagne |
+| dirty_tunnel.glb | Modules rocheux décoratifs autour du tunnel |
+| jungle_house_3d_model_free.glb | Maison tropicale de remplacement dans l'île |
+| lampadaire_stylise.glb | Lampadaire décoratif réutilisé dans les zones |
+| modular_sidewalk_curb_kit.glb | Kit de bordures et de trottoirs de montagne |
+| modular_tunnel.glb | Tunnel modulaire de la zone souterraine |
+| oak_trees_pack_17var_lods_seasons_gameready.glb | 17 variantes d'arbres regroupées en forêt optimisée |
+| road_section.glb | Module de support sous la route principale |
+| rock.glb | Rochers de montagne |
+| rock_terrain.glb | Relief rocheux des bords de montagne |
+| safety_rail_single_model_from_asset_pack.glb | Barrières de sécurité du pont |
+| stylized_tropical_pack.glb | Pack de trois arbres tropicaux |
+| tropical_house_2.glb | Deuxième maison tropicale |
 
-La barrière basse, le coureur adverse, le bouclier, le bonus de vitesse et les décors de montagne/tunnel conservent les assets existants. Les trois zones restent disponibles.
+Le modèle `barriere.glb` reste la tour haute à contourner; la nouvelle `street_barrier_-_5mb.glb` fournit la barrière basse. Le coureur mobile et le bouclier n'ont pas de GLB dans le dossier : ils conservent leurs visuels existants. Les colliders et règles de collision restent inchangés.
+
+Les 30 GLB ont une entrée dans `Manifest.json`, un export FBX optimisé, une texture mobile et un prefab Unity avec deux niveaux de détail. Les modules de tunnel, montagne, pont et île sont placés dans les zones existantes, sans collider de décor qui pourrait bloquer la course.
 
 ## Préparation
 
-- Réduction des maillages pour éviter d'utiliser les personnages et maisons de plus d'un million de triangles dans le jeu.
+- Réduction des maillages pour éviter d'utiliser les personnages et maisons de plus d'un million de triangles dans le jeu. Les collections disjointes, comme le pont et les arbres, sont réduites par pièce ou variante avant d'être regroupées.
+- Chaque prefab statique utilise deux LOD et des matériaux URP instanciables; la route conserve ses bornes exactes de 8 × 24 × 0,36 m aux deux niveaux pour éviter les raccords visibles.
+- Le pack de chênes garde les 17 variantes LOD0 et écarte uniquement les niveaux LOD et panneaux billboard redondants fournis dans la même source.
+- La texture alpha des empreintes est utilisée avec un matériau URP transparent.
 - Personnages d'environ 20 000 triangles pour le menu et de 8 000 triangles pour le LOD de gameplay. Les valeurs exactes sont dans `Manifest.json`.
 - Soudure des sommets de couture sur les copies optimisées, nouvelles UV et projection des couleurs depuis les modèles originaux. Cela conserve aussi les transformations de texture des GLB quantifiés.
 - Textures de couleur en 2048 pixels pour les personnages, 1024 pour les objets et décors. Matériaux URP opaques ; feuillages visibles des deux côtés.
