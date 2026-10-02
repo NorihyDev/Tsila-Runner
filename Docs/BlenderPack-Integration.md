@@ -19,7 +19,7 @@ The supplied Blender exports are integrated into the existing **Tsila Run** scen
 
 ## Editor verification
 
-Unity compiled the reconciled integration and ran it successfully. All **24/24 selected Editor tests** passed, including Blender assets, Generic rigs, animation clips, LODs, scene references, synthetic touch, lane changes, jump/slide, collision and coins, chasing, bounded pooling, shop, menu and restart, background/resume state, and safe-area UI. The scene-generation test was excluded because it rewrites the generated scene. Results are in `Logs/ReconciledTests-Final.xml`.
+Unity compiled the latest gameplay fixes in an isolated checkout and all **24/24 selected Editor tests** passed, including Blender assets, Generic rigs, animation clips, LODs, scene references, synthetic touch, fast-fall slide, slide cancellation, three-lane obstacle waves, collision and coins, chasing, bounded pooling, shop, menu and restart, background/resume state, and safe-area UI. The scene-generation test was excluded because it rewrites the generated scene. Results are in `Docs/Verification/EditorTests.xml`; the full log is `Logs/GameplayFixValidation.log`.
 
 The Editor rendered portrait captures at **720 × 1280**, **1170 × 2532**, **1080 × 2400**, and **2160 × 3840**. The text-fit check passed at each size. The full capture set is in the local `Screenshots` folder; the following selected captures are committed and were visually reviewed:
 
@@ -32,9 +32,9 @@ These are Editor checks. A physical Android or iOS device was not used, so touch
 
 ## Android and iOS
 
-Android Build Support, SDK, NDK, and OpenJDK are installed with this Editor. The project uses an Android development profile, IL2CPP, and ARM64. A fresh reconciled development build succeeded in Unity batch mode using `BlenderPackAndroidBuild.BuildDevelopment`. Its output is `Builds/TsilaRun-Development.apk` (**82,723,498 bytes**, about 83 MB). The build log is `Logs/ReconciledAndroidBuild.log`; the APK is ignored by Git. `adb devices` showed no connected phone, so installation and on-device behavior were not tested.
+Android Build Support, SDK, NDK, and OpenJDK are installed with this Editor. The project uses an Android development profile, IL2CPP, and ARM64. The latest gameplay-fix development build succeeded in Unity batch mode using `BlenderPackAndroidBuild.BuildDevelopment`. Its output is `Builds/TsilaRun-GameplayFix-Development.apk` (**58,600,017 bytes**, about 59 MB); the previous APK remains available separately. The build log is `Logs/GameplayFixAndroidBuild.log`; the APK is ignored by Git. `adb devices` showed no connected phone, so installation and on-device behavior were not tested.
 
-For a phone test, enable USB debugging, connect the phone, and install the APK with `adb install -r Builds/TsilaRun-Development.apk`, or open **File > Build Profiles**, select Android, and use **Build And Run** with the development profile. Launch Tsila Run on the phone and test swipes, menu flow, pause after backgrounding, and sustained performance. Publishing requires an application identifier and signing configuration controlled by the project owner.
+For a phone test, enable USB debugging, connect the phone, and install the APK with `adb install -r Builds/TsilaRun-GameplayFix-Development.apk`, or open **File > Build Profiles**, select Android, and use **Build And Run** with the development profile. Launch Tsila Run on the phone and test swipes, menu flow, pause after backgrounding, and sustained performance. Publishing requires an application identifier and signing configuration controlled by the project owner.
 
 An iOS build additionally requires iOS Build Support (not installed here), a Mac with Xcode, and Apple signing and provisioning. The Xcode build and on-device test cannot be completed from this Windows machine.
 
