@@ -1,111 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="24" result="Passed" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-01 21:54:32Z" end-time="2026-10-01 21:54:33Z" duration="1.6286278">
-  <test-suite type="TestSuite" id="1000" name="Tsila Runner" fullname="Tsila Runner" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-10-01 21:54:32Z" end-time="2026-10-01 21:54:33Z" duration="1.628628" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="24" result="Passed" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.8085733">
+  <test-suite type="TestSuite" id="1000" name="Tsila Runner" fullname="Tsila Runner" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.808573" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties>
       <property name="platform" value="EditMode" />
     </properties>
-    <test-suite type="Assembly" id="1030" name="TsilaRun.Tests.dll" fullname="C:/Users/Norihy/Tsila Runner/Library/ScriptAssemblies/TsilaRun.Tests.dll" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-10-01 21:54:32Z" end-time="2026-10-01 21:54:33Z" duration="1.359173" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1030" name="TsilaRun.Tests.dll" fullname="C:/Users/Norihy/Tsila Runner Validation/Library/ScriptAssemblies/TsilaRun.Tests.dll" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.583042" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
-        <property name="_PID" value="38756" />
+        <property name="_PID" value="19828" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="EditMode" />
         <property name="EditorOnly" value="True" />
       </properties>
-      <test-suite type="TestSuite" id="1031" name="TsilaRun" fullname="TsilaRun" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-10-01 21:54:32Z" end-time="2026-10-01 21:54:33Z" duration="1.357495" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="1031" name="TsilaRun" fullname="TsilaRun" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.580930" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-suite type="TestSuite" id="1032" name="Tests" fullname="TsilaRun.Tests" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-10-01 21:54:32Z" end-time="2026-10-01 21:54:33Z" duration="1.356156" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="1032" name="Tests" fullname="TsilaRun.Tests" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.579206" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-suite type="TestFixture" id="1001" name="BlenderPackTests" fullname="TsilaRun.Tests.BlenderPackTests" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-01 21:53:29Z" end-time="2026-10-01 21:53:31Z" duration="1.377081" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestFixture" id="1001" name="BlenderPackTests" fullname="TsilaRun.Tests.BlenderPackTests" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-02 05:40:39Z" end-time="2026-10-02 05:40:41Z" duration="1.756681" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-suite type="ParameterizedMethod" id="1005" name="CharactersHaveTexturedSkinsAndSharedSkeletonLods" fullname="TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-01 21:53:29Z" end-time="2026-10-01 21:53:30Z" duration="1.062435" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="ParameterizedMethod" id="1005" name="CharactersHaveTexturedSkinsAndSharedSkeletonLods" fullname="TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-02 05:40:39Z" end-time="2026-10-02 05:40:40Z" duration="1.310895" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1002" name="CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;Tsila&quot;,3)" fullname="TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;Tsila&quot;,3)" methodname="CharactersHaveTexturedSkinsAndSharedSkeletonLods" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="1440710549" result="Passed" start-time="2026-10-01 21:53:29Z" end-time="2026-10-01 21:53:30Z" duration="0.495325" asserts="0">
+              <test-case id="1002" name="CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;Tsila&quot;,3)" fullname="TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;Tsila&quot;,3)" methodname="CharactersHaveTexturedSkinsAndSharedSkeletonLods" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="2009839960" result="Passed" start-time="2026-10-02 05:40:39Z" end-time="2026-10-02 05:40:40Z" duration="0.672107" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1003" name="CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;Officer_Lucef&quot;,3)" fullname="TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;Officer_Lucef&quot;,3)" methodname="CharactersHaveTexturedSkinsAndSharedSkeletonLods" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="267638868" result="Passed" start-time="2026-10-01 21:53:30Z" end-time="2026-10-01 21:53:30Z" duration="0.300491" asserts="0">
+              <test-case id="1003" name="CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;Officer_Lucef&quot;,3)" fullname="TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;Officer_Lucef&quot;,3)" methodname="CharactersHaveTexturedSkinsAndSharedSkeletonLods" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="214189361" result="Passed" start-time="2026-10-02 05:40:40Z" end-time="2026-10-02 05:40:40Z" duration="0.349500" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1004" name="CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;RunningPerson&quot;,4)" fullname="TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;RunningPerson&quot;,4)" methodname="CharactersHaveTexturedSkinsAndSharedSkeletonLods" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="2001383251" result="Passed" start-time="2026-10-01 21:53:30Z" end-time="2026-10-01 21:53:30Z" duration="0.252120" asserts="0">
+              <test-case id="1004" name="CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;RunningPerson&quot;,4)" fullname="TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods(&quot;RunningPerson&quot;,4)" methodname="CharactersHaveTexturedSkinsAndSharedSkeletonLods" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="1781596889" result="Passed" start-time="2026-10-02 05:40:40Z" end-time="2026-10-02 05:40:40Z" duration="0.273995" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-case id="1007" name="OutfitTintChangesBodyWithoutReplacingFaceOrHair" fullname="TsilaRun.Tests.BlenderPackTests.OutfitTintChangesBodyWithoutReplacingFaceOrHair" methodname="OutfitTintChangesBodyWithoutReplacingFaceOrHair" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="576157163" result="Passed" start-time="2026-10-01 21:53:30Z" end-time="2026-10-01 21:53:30Z" duration="0.027044" asserts="0">
+            <test-case id="1007" name="OutfitTintChangesBodyWithoutReplacingFaceOrHair" fullname="TsilaRun.Tests.BlenderPackTests.OutfitTintChangesBodyWithoutReplacingFaceOrHair" methodname="OutfitTintChangesBodyWithoutReplacingFaceOrHair" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="569412435" result="Passed" start-time="2026-10-02 05:40:40Z" end-time="2026-10-02 05:40:40Z" duration="0.085866" asserts="0">
               <properties />
             </test-case>
-            <test-case id="1008" name="RoadAndObstaclesMatchGameplayScale" fullname="TsilaRun.Tests.BlenderPackTests.RoadAndObstaclesMatchGameplayScale" methodname="RoadAndObstaclesMatchGameplayScale" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="628842493" result="Passed" start-time="2026-10-01 21:53:30Z" end-time="2026-10-01 21:53:30Z" duration="0.018469" asserts="0">
+            <test-case id="1008" name="RoadAndObstaclesMatchGameplayScale" fullname="TsilaRun.Tests.BlenderPackTests.RoadAndObstaclesMatchGameplayScale" methodname="RoadAndObstaclesMatchGameplayScale" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="544154937" result="Passed" start-time="2026-10-02 05:40:40Z" end-time="2026-10-02 05:40:40Z" duration="0.022874" asserts="0">
               <properties />
             </test-case>
-            <test-case id="1006" name="SceneReferencesUseNewPlayerChaserAndOpponent" fullname="TsilaRun.Tests.BlenderPackTests.SceneReferencesUseNewPlayerChaserAndOpponent" methodname="SceneReferencesUseNewPlayerChaserAndOpponent" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="358747884" result="Passed" start-time="2026-10-01 21:53:30Z" end-time="2026-10-01 21:53:31Z" duration="0.248617" asserts="0">
+            <test-case id="1006" name="SceneReferencesUseNewPlayerChaserAndOpponent" fullname="TsilaRun.Tests.BlenderPackTests.SceneReferencesUseNewPlayerChaserAndOpponent" methodname="SceneReferencesUseNewPlayerChaserAndOpponent" classname="TsilaRun.Tests.BlenderPackTests" runstate="Runnable" seed="837859828" result="Passed" start-time="2026-10-02 05:40:40Z" end-time="2026-10-02 05:40:41Z" duration="0.304080" asserts="0">
               <properties />
             </test-case>
           </test-suite>
-          <test-suite type="TestFixture" id="1009" name="RunnerTests" fullname="TsilaRun.Tests.RunnerTests" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-10-01 21:54:32Z" end-time="2026-10-01 21:54:33Z" duration="1.326728" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestFixture" id="1009" name="RunnerTests" fullname="TsilaRun.Tests.RunnerTests" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.550369" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-case id="1029" name="PortraitScreensRenderWithoutClippedText" fullname="TsilaRun.Tests.RunnerTests.PortraitScreensRenderWithoutClippedText" methodname="PortraitScreensRenderWithoutClippedText" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="893615151" result="Passed" start-time="2026-10-01 21:53:31Z" end-time="2026-10-01 21:53:38Z" duration="7.113410" asserts="0">
+            <test-case id="1029" name="PortraitScreensRenderWithoutClippedText" fullname="TsilaRun.Tests.RunnerTests.PortraitScreensRenderWithoutClippedText" methodname="PortraitScreensRenderWithoutClippedText" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="585987579" result="Passed" start-time="2026-10-02 05:40:41Z" end-time="2026-10-02 05:41:00Z" duration="18.563330" asserts="0">
               <properties>
                 <property name="Order" value="99" />
               </properties>
               <output><![CDATA[TSILA_UI_OK 720x1280 state=0
+TSILA_UI_OK 720x1280 state=0
+TSILA_UI_OK 720x1280 state=1
 TSILA_UI_OK 720x1280 state=1
 TSILA_UI_OK 720x1280 state=2
+TSILA_UI_OK 720x1280 state=2
+TSILA_UI_OK 720x1280 state=3
 TSILA_UI_OK 720x1280 state=3
 TSILA_UI_OK 720x1280 state=4
+TSILA_UI_OK 720x1280 state=4
+TSILA_UI_OK 720x1280 state=5
 TSILA_UI_OK 720x1280 state=5
 TSILA_UI_OK 720x1280 state=6
+TSILA_UI_OK 720x1280 state=6
+TSILA_UI_OK 720x1280 state=7
 TSILA_UI_OK 720x1280 state=7
 TSILA_UI_OK 1170x2532 state=0
+TSILA_UI_OK 1170x2532 state=0
+TSILA_UI_OK 1170x2532 state=1
 TSILA_UI_OK 1170x2532 state=1
 TSILA_UI_OK 1170x2532 state=2
+TSILA_UI_OK 1170x2532 state=2
+TSILA_UI_OK 1170x2532 state=3
 TSILA_UI_OK 1170x2532 state=3
 TSILA_UI_OK 1170x2532 state=4
+TSILA_UI_OK 1170x2532 state=4
+TSILA_UI_OK 1170x2532 state=5
 TSILA_UI_OK 1170x2532 state=5
 TSILA_UI_OK 1170x2532 state=6
+TSILA_UI_OK 1170x2532 state=6
+TSILA_UI_OK 1170x2532 state=7
 TSILA_UI_OK 1170x2532 state=7
 TSILA_UI_OK 1080x2400 state=0
+TSILA_UI_OK 1080x2400 state=0
+TSILA_UI_OK 1080x2400 state=1
 TSILA_UI_OK 1080x2400 state=1
 TSILA_UI_OK 1080x2400 state=2
+TSILA_UI_OK 1080x2400 state=2
+TSILA_UI_OK 1080x2400 state=3
 TSILA_UI_OK 1080x2400 state=3
 TSILA_UI_OK 1080x2400 state=4
+TSILA_UI_OK 1080x2400 state=4
+TSILA_UI_OK 1080x2400 state=5
 TSILA_UI_OK 1080x2400 state=5
 TSILA_UI_OK 1080x2400 state=6
+TSILA_UI_OK 1080x2400 state=6
+TSILA_UI_OK 1080x2400 state=7
 TSILA_UI_OK 1080x2400 state=7
 TSILA_UI_OK 2160x3840 state=0
+TSILA_UI_OK 2160x3840 state=0
+TSILA_UI_OK 2160x3840 state=1
 TSILA_UI_OK 2160x3840 state=1
 TSILA_UI_OK 2160x3840 state=2
+TSILA_UI_OK 2160x3840 state=2
+TSILA_UI_OK 2160x3840 state=3
 TSILA_UI_OK 2160x3840 state=3
 TSILA_UI_OK 2160x3840 state=4
+TSILA_UI_OK 2160x3840 state=4
+TSILA_UI_OK 2160x3840 state=5
 TSILA_UI_OK 2160x3840 state=5
 TSILA_UI_OK 2160x3840 state=6
+TSILA_UI_OK 2160x3840 state=6
 TSILA_UI_OK 2160x3840 state=7
+TSILA_UI_OK 2160x3840 state=7
+TSILA_SCREENSHOTS_OK
 TSILA_SCREENSHOTS_OK
 ]]></output>
             </test-case>
-            <test-case id="1027" name="AnimatedPersonCollidesAndPauseFreezesLimbs" fullname="TsilaRun.Tests.RunnerTests.AnimatedPersonCollidesAndPauseFreezesLimbs" methodname="AnimatedPersonCollidesAndPauseFreezesLimbs" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="990017740" result="Passed" start-time="2026-10-01 21:53:38Z" end-time="2026-10-01 21:53:56Z" duration="17.816607" asserts="0">
+            <test-case id="1027" name="AnimatedPersonCollidesAndPauseFreezesLimbs" fullname="TsilaRun.Tests.RunnerTests.AnimatedPersonCollidesAndPauseFreezesLimbs" methodname="AnimatedPersonCollidesAndPauseFreezesLimbs" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1418119726" result="Passed" start-time="2026-10-02 05:41:00Z" end-time="2026-10-02 05:41:13Z" duration="13.108527" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
               </properties>
             </test-case>
-            <test-case id="1012" name="DifficultyScalingAddsMoreObstaclesAndCoinArcs" fullname="TsilaRun.Tests.RunnerTests.DifficultyScalingAddsMoreObstaclesAndCoinArcs" methodname="DifficultyScalingAddsMoreObstaclesAndCoinArcs" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1968839007" result="Passed" start-time="2026-10-01 21:53:56Z" end-time="2026-10-01 21:53:56Z" duration="0.003691" asserts="0">
+            <test-case id="1012" name="DifficultyScalingAddsMoreObstaclesAndCoinArcs" fullname="TsilaRun.Tests.RunnerTests.DifficultyScalingAddsMoreObstaclesAndCoinArcs" methodname="DifficultyScalingAddsMoreObstaclesAndCoinArcs" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="481269326" result="Passed" start-time="2026-10-02 05:41:13Z" end-time="2026-10-02 05:41:13Z" duration="0.004189" asserts="0">
               <properties />
             </test-case>
-            <test-case id="1021" name="GameplayLifecycleAndSyntheticTouch" fullname="TsilaRun.Tests.RunnerTests.GameplayLifecycleAndSyntheticTouch" methodname="GameplayLifecycleAndSyntheticTouch" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1312872717" result="Passed" start-time="2026-10-01 21:53:56Z" end-time="2026-10-01 21:54:11Z" duration="15.049256" asserts="0">
+            <test-case id="1021" name="GameplayLifecycleAndSyntheticTouch" fullname="TsilaRun.Tests.RunnerTests.GameplayLifecycleAndSyntheticTouch" methodname="GameplayLifecycleAndSyntheticTouch" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1587321472" result="Passed" start-time="2026-10-02 05:41:13Z" end-time="2026-10-02 05:41:22Z" duration="9.173487" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
               </properties>
             </test-case>
-            <test-case id="1022" name="LongRunKeepsPoolsBoundedAndCoinsClear" fullname="TsilaRun.Tests.RunnerTests.LongRunKeepsPoolsBoundedAndCoinsClear" methodname="LongRunKeepsPoolsBoundedAndCoinsClear" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="131149233" result="Passed" start-time="2026-10-01 21:54:11Z" end-time="2026-10-01 21:54:24Z" duration="12.465785" asserts="0">
+            <test-case id="1022" name="LongRunKeepsPoolsBoundedAndCoinsClear" fullname="TsilaRun.Tests.RunnerTests.LongRunKeepsPoolsBoundedAndCoinsClear" methodname="LongRunKeepsPoolsBoundedAndCoinsClear" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1034633113" result="Passed" start-time="2026-10-02 05:41:22Z" end-time="2026-10-02 05:41:33Z" duration="11.055955" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
               </properties>
             </test-case>
-            <test-case id="1023" name="MenuReturnsResetRunAndKeepWalletWithoutPurchases" fullname="TsilaRun.Tests.RunnerTests.MenuReturnsResetRunAndKeepWalletWithoutPurchases" methodname="MenuReturnsResetRunAndKeepWalletWithoutPurchases" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="98873315" result="Passed" start-time="2026-10-01 21:54:24Z" end-time="2026-10-01 21:54:33Z" duration="9.451147" asserts="0">
+            <test-case id="1023" name="MenuReturnsResetRunAndKeepWalletWithoutPurchases" fullname="TsilaRun.Tests.RunnerTests.MenuReturnsResetRunAndKeepWalletWithoutPurchases" methodname="MenuReturnsResetRunAndKeepWalletWithoutPurchases" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="360365135" result="Passed" start-time="2026-10-02 05:41:33Z" end-time="2026-10-02 05:41:41Z" duration="7.803352" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1026" name="MethodModelsMatchRoadCoinAndSlideConventions" fullname="TsilaRun.Tests.RunnerTests.MethodModelsMatchRoadCoinAndSlideConventions" methodname="MethodModelsMatchRoadCoinAndSlideConventions" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1422898986" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.045058" asserts="0">
+            <test-case id="1026" name="MethodModelsMatchRoadCoinAndSlideConventions" fullname="TsilaRun.Tests.RunnerTests.MethodModelsMatchRoadCoinAndSlideConventions" methodname="MethodModelsMatchRoadCoinAndSlideConventions" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1048175727" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.053223" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
@@ -113,70 +146,70 @@ TSILA_SCREENSHOTS_OK
               <output><![CDATA[TSILA_SLIDE_BOUNDS Center: (0.00, 0.36, -0.91), Extents: (0.24, 0.16, 0.90)
 ]]></output>
             </test-case>
-            <test-case id="1025" name="MissionProgressPersistsAndPaysOnceBeforeRotating" fullname="TsilaRun.Tests.RunnerTests.MissionProgressPersistsAndPaysOnceBeforeRotating" methodname="MissionProgressPersistsAndPaysOnceBeforeRotating" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="702790079" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.001246" asserts="0">
+            <test-case id="1025" name="MissionProgressPersistsAndPaysOnceBeforeRotating" fullname="TsilaRun.Tests.RunnerTests.MissionProgressPersistsAndPaysOnceBeforeRotating" methodname="MissionProgressPersistsAndPaysOnceBeforeRotating" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1586043627" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.001232" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1010" name="PatternBudgetAllowsReactionAndRecoveryAtMaximumSpeed" fullname="TsilaRun.Tests.RunnerTests.PatternBudgetAllowsReactionAndRecoveryAtMaximumSpeed" methodname="PatternBudgetAllowsReactionAndRecoveryAtMaximumSpeed" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="269164494" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.060800" asserts="0">
+            <test-case id="1010" name="PatternBudgetAllowsReactionAndRecoveryAtMaximumSpeed" fullname="TsilaRun.Tests.RunnerTests.PatternBudgetAllowsReactionAndRecoveryAtMaximumSpeed" methodname="PatternBudgetAllowsReactionAndRecoveryAtMaximumSpeed" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1791085943" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.047148" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1013" name="PowerUpsHaveTimedEffectsAndAreNotClassifiedAsObstacles" fullname="TsilaRun.Tests.RunnerTests.PowerUpsHaveTimedEffectsAndAreNotClassifiedAsObstacles" methodname="PowerUpsHaveTimedEffectsAndAreNotClassifiedAsObstacles" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="200995877" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.001156" asserts="0">
+            <test-case id="1013" name="PowerUpsHaveTimedEffectsAndAreNotClassifiedAsObstacles" fullname="TsilaRun.Tests.RunnerTests.PowerUpsHaveTimedEffectsAndAreNotClassifiedAsObstacles" methodname="PowerUpsHaveTimedEffectsAndAreNotClassifiedAsObstacles" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1574451062" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.000679" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-suite type="ParameterizedMethod" id="1019" name="SafeAreaAndSwipeScaleAcrossPortraitScreens" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.020816" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="ParameterizedMethod" id="1019" name="SafeAreaAndSwipeScaleAcrossPortraitScreens" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.010877" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1014" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(720,1280,0,0)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(720,1280,0,0)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="797025610" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.002188" asserts="0">
+              <test-case id="1014" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(720,1280,0,0)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(720,1280,0,0)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1945565433" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.001212" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
                 </properties>
               </test-case>
-              <test-case id="1015" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,1920,0,48)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,1920,0,48)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="2114586308" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.000626" asserts="0">
+              <test-case id="1015" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,1920,0,48)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,1920,0,48)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1264321349" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.000258" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
                 </properties>
               </test-case>
-              <test-case id="1016" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(1170,2532,102,141)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1170,2532,102,141)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1038878922" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.000474" asserts="0">
+              <test-case id="1016" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(1170,2532,102,141)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1170,2532,102,141)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="40680039" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.000186" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
                 </properties>
               </test-case>
-              <test-case id="1017" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,2400,72,90)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,2400,72,90)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="298363248" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.000487" asserts="0">
+              <test-case id="1017" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,2400,72,90)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,2400,72,90)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="890921895" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.000202" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
                 </properties>
               </test-case>
-              <test-case id="1018" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(1536,2048,24,24)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1536,2048,24,24)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1394758142" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.000394" asserts="0">
+              <test-case id="1018" name="SafeAreaAndSwipeScaleAcrossPortraitScreens(1536,2048,24,24)" fullname="TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1536,2048,24,24)" methodname="SafeAreaAndSwipeScaleAcrossPortraitScreens" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1917182434" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.000189" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
                 </properties>
               </test-case>
             </test-suite>
-            <test-case id="1028" name="SceneryCyclesAndMovingPeopleHaveBoundedDrift" fullname="TsilaRun.Tests.RunnerTests.SceneryCyclesAndMovingPeopleHaveBoundedDrift" methodname="SceneryCyclesAndMovingPeopleHaveBoundedDrift" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="2138352857" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.166420" asserts="0">
+            <test-case id="1028" name="SceneryCyclesAndMovingPeopleHaveBoundedDrift" fullname="TsilaRun.Tests.RunnerTests.SceneryCyclesAndMovingPeopleHaveBoundedDrift" methodname="SceneryCyclesAndMovingPeopleHaveBoundedDrift" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="407052367" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.123788" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1011" name="SweptCollisionCatchesTunnelingAndAllowsClearance" fullname="TsilaRun.Tests.RunnerTests.SweptCollisionCatchesTunnelingAndAllowsClearance" methodname="SweptCollisionCatchesTunnelingAndAllowsClearance" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="2108780098" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.002000" asserts="0">
+            <test-case id="1011" name="SweptCollisionCatchesTunnelingAndAllowsClearance" fullname="TsilaRun.Tests.RunnerTests.SweptCollisionCatchesTunnelingAndAllowsClearance" methodname="SweptCollisionCatchesTunnelingAndAllowsClearance" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="1559573834" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.002069" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1024" name="WalletPurchasesPersistAndNeverChargeOwnedSkinsTwice" fullname="TsilaRun.Tests.RunnerTests.WalletPurchasesPersistAndNeverChargeOwnedSkinsTwice" methodname="WalletPurchasesPersistAndNeverChargeOwnedSkinsTwice" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="2142392064" result="Passed" start-time="2026-10-01 21:54:33Z" end-time="2026-10-01 21:54:33Z" duration="0.001939" asserts="0">
+            <test-case id="1024" name="WalletPurchasesPersistAndNeverChargeOwnedSkinsTwice" fullname="TsilaRun.Tests.RunnerTests.WalletPurchasesPersistAndNeverChargeOwnedSkinsTwice" methodname="WalletPurchasesPersistAndNeverChargeOwnedSkinsTwice" classname="TsilaRun.Tests.RunnerTests" runstate="Runnable" seed="24054787" result="Passed" start-time="2026-10-02 05:41:41Z" end-time="2026-10-02 05:41:41Z" duration="0.001691" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />

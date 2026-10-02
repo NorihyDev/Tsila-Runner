@@ -14,8 +14,8 @@ Run through three lanes, collect coins, evade the patrol, and keep moving as the
 
 ## Features
 
-- **Three-lane running:** automatic forward movement, smooth lane changes, jumping, and sliding.
-- **Varied obstacles:** low barriers, overhead beams, tall obstacles, and other runners.
+- **Three-lane running:** automatic forward movement, smooth lane changes, jumping, and sliding. Swipe down while airborne to drop into a slide, or swipe up during a slide to cancel it and jump when clear.
+- **Varied obstacles:** low barriers, overhead beams, tall obstacles, and other runners. Later waves can occupy all three lanes, with a jumpable or slidable route; tall towers must be dodged.
 - **Animated characters:** idle, run, jump, and slide states, plus a skippable police chase introduction.
 - **Changing environments:** island, mountain pass, and underground scenery cycle every 288 metres.
 - **Local progression:** distance score, best distance, and a persistent coin wallet.
@@ -53,6 +53,8 @@ git lfs pull
 3. Open `Assets/TsilaRun/Generated/Scenes/TsilaRun.unity`.
 4. Set the Game view to **720 × 1280** or **1080 × 1920** in portrait orientation.
 5. Enter Unity Play mode, then select **PLAY** in the game.
+
+If Unity was already in Play mode while scripts changed, stop Play mode, wait for recompilation, and start it again to see the latest fixes.
 
 The generated scene is included in the repository. Regeneration is only needed when rebuilding the prototype or applying generator changes.
 
@@ -149,7 +151,7 @@ Materials are reused, collision volumes are simple, and the game avoids heavy po
 
 ## Verification and limitations
 
-The reconciled Blender integration ran successfully in Unity 6000.6.3f1. All 24 selected Editor tests passed, covering Blender assets, simulated touch input, jumping, sliding, collisions, coins, power-ups, pooling, shop and menu flow, restart, and portrait UI. The scene-generation test was excluded because it rewrites generated content.
+The latest changes passed all 24 selected Editor tests in an isolated Unity 6000.6.3f1 checkout, covering Blender assets, simulated touch input, fast-fall and slide cancellation, three-lane obstacle waves, collisions, coins, power-ups, pooling, shop and menu flow, restart, and portrait UI. The scene-generation test was excluded because it rewrites generated content.
 
 Editor screenshots were rendered at **720 × 1280**, **1170 × 2532**, **1080 × 2400**, and **2160 × 3840**. The menu, run, and pursuit captures in `Docs/Verification` were visually reviewed. These are Editor renderings; physical-device gestures, background/resume, thermals, and frame rate remain untested. Android build status is recorded in [Blender pack verification](Docs/BlenderPack-Integration.md).
 
