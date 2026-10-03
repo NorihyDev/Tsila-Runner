@@ -224,6 +224,7 @@ for stem,(name,budget,target) in SPECS.items():
   if not meshes:raise RuntimeError('Oak tree pack contains no LOD0 meshes')
  if not meshes:raise RuntimeError('No mesh objects found in '+stem)
  for o in meshes:
+  matrix=o.matrix_world.copy(); o.parent=None; o.matrix_world=matrix
   select(o); bpy.ops.object.transform_apply(location=True,rotation=True,scale=True)
  source_triangles=sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in meshes)
  if len(meshes)>1:

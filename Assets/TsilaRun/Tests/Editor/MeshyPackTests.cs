@@ -28,7 +28,7 @@ namespace TsilaRun.Tests
         }
 
         [Test]
-        public void EveryGlbHasAnOptimizedTexturedPrefabAndLod()
+        public void EveryPreparedModelHasAnOptimizedTexturedPrefabAndLod()
         {
             string manifestPath = MeshyPackIntegration.Root + "/Manifest.json";
             var manifest = JsonUtility.FromJson<ManifestContainer>(
@@ -39,7 +39,9 @@ namespace TsilaRun.Tests
             string[] sources = Directory.GetFiles("Assets/TsilaRun/Art/AI", "*.glb")
                 .Select(Path.GetFileName).OrderBy(name => name).ToArray();
             string[] mapped = manifest.models.Select(model => model.input).OrderBy(name => name).ToArray();
-            CollectionAssert.AreEqual(sources, mapped);
+            // The manifest defines the prepared pack. Raw GLBs can arrive before conversion.
+            CollectionAssert.IsSubsetOf(mapped, sources);
+            Assert.AreEqual(mapped.Length, mapped.Distinct().Count());
 
             foreach (var entry in manifest.models)
             {
@@ -104,7 +106,7 @@ namespace TsilaRun.Tests
         public void CoinsStayOutsideMovingRunnersFuturePath()
         {
             EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
-            var world = Object.FindAnyObjectByType<RunnerWorld>();
+            var world = Object.FindAnyObjectByType<RunnerWorld>(FindObjectsInactive.Include);
             world.ResetWorld(42);
             var items = world.GetComponentsInChildren<RunnerItem>(true);
             foreach (var item in items) item.Release();
@@ -137,7 +139,7 @@ namespace TsilaRun.Tests
             Assert.AreEqual(1, barrier.GetComponentsInChildren<Collider>(true).Length);
             Assert.IsNotNull(barrier.GetComponentInChildren<MeshFilter>(true));
             var overhead = game.world.itemPrefabs[(int)RunnerItemKind.Overhead];
-            Assert.AreEqual(1f, overhead.hitbox.center.y - overhead.hitbox.size.y * .5f, .001f);
+            Assert.AreEqual(RunnerRules.OverheadClearance, overhead.hitbox.center.y - overhead.hitbox.size.y * .5f, .001f);
             Assert.AreEqual(1, overhead.GetComponentsInChildren<Collider>().Length);
             var road = game.world.roadPrefab;
             Assert.AreEqual(3, road.GetComponent<RunnerRoadSection>().scenery.Length);

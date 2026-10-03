@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="6" result="Passed" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-03 06:10:23Z" end-time="2026-10-03 06:10:28Z" duration="4.780839">
+  <test-suite type="TestSuite" id="1000" name="Tsila Runner" fullname="Tsila Runner" runstate="Runnable" testcasecount="36" result="Passed" start-time="2026-10-03 06:10:23Z" end-time="2026-10-03 06:10:28Z" duration="4.780839" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1045" name="TsilaRun.Tests.dll" fullname="C:/Users/Norihy/Tsila Runner/Library/ScriptAssemblies/TsilaRun.Tests.dll" runstate="Runnable" testcasecount="36" result="Passed" start-time="2026-10-03 06:10:23Z" end-time="2026-10-03 06:10:28Z" duration="4.745124" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="26576" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1046" name="TsilaRun" fullname="TsilaRun" runstate="Runnable" testcasecount="36" result="Passed" start-time="2026-10-03 06:10:23Z" end-time="2026-10-03 06:10:28Z" duration="4.741237" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1047" name="Tests" fullname="TsilaRun.Tests" runstate="Runnable" testcasecount="36" result="Passed" start-time="2026-10-03 06:10:23Z" end-time="2026-10-03 06:10:28Z" duration="4.737826" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1016" name="PresentationTests" fullname="TsilaRun.Tests.PresentationTests" classname="TsilaRun.Tests.PresentationTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-03 06:10:23Z" end-time="2026-10-03 06:10:28Z" duration="4.732808" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1023" name="IntroOfficerStaysAheadOfCameraAndOutsidePlayer" fullname="TsilaRun.Tests.PresentationTests.IntroOfficerStaysAheadOfCameraAndOutsidePlayer" methodname="IntroOfficerStaysAheadOfCameraAndOutsidePlayer" classname="TsilaRun.Tests.PresentationTests" runstate="Runnable" seed="89481528" result="Passed" start-time="2026-10-03 06:10:23Z" end-time="2026-10-03 06:10:25Z" duration="1.942619" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1022" name="IslandHasSparseAlternatingSceneryAndSandGround" fullname="TsilaRun.Tests.PresentationTests.IslandHasSparseAlternatingSceneryAndSandGround" methodname="IslandHasSparseAlternatingSceneryAndSandGround" classname="TsilaRun.Tests.PresentationTests" runstate="Runnable" seed="660108197" result="Passed" start-time="2026-10-03 06:10:25Z" end-time="2026-10-03 06:10:25Z" duration="0.052337" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1020" name="MenuHasSportFontTwoActionsAndMobileScaler" fullname="TsilaRun.Tests.PresentationTests.MenuHasSportFontTwoActionsAndMobileScaler" methodname="MenuHasSportFontTwoActionsAndMobileScaler" classname="TsilaRun.Tests.PresentationTests" runstate="Runnable" seed="483267233" result="Passed" start-time="2026-10-03 06:10:25Z" end-time="2026-10-03 06:10:25Z" duration="0.191604" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1019" name="RollStaysAboveRoadAndBelowOverheadThroughoutBothLods" fullname="TsilaRun.Tests.PresentationTests.RollStaysAboveRoadAndBelowOverheadThroughoutBothLods" classname="TsilaRun.Tests.PresentationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-03 06:10:25Z" end-time="2026-10-03 06:10:28Z" duration="2.419878" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1017" name="RollStaysAboveRoadAndBelowOverheadThroughoutBothLods(&quot;Tsila&quot;)" fullname="TsilaRun.Tests.PresentationTests.RollStaysAboveRoadAndBelowOverheadThroughoutBothLods(&quot;Tsila&quot;)" methodname="RollStaysAboveRoadAndBelowOverheadThroughoutBothLods" classname="TsilaRun.Tests.PresentationTests" runstate="Runnable" seed="494926903" result="Passed" start-time="2026-10-03 06:10:26Z" end-time="2026-10-03 06:10:27Z" duration="1.034231" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1018" name="RollStaysAboveRoadAndBelowOverheadThroughoutBothLods(&quot;Officer&quot;)" fullname="TsilaRun.Tests.PresentationTests.RollStaysAboveRoadAndBelowOverheadThroughoutBothLods(&quot;Officer&quot;)" methodname="RollStaysAboveRoadAndBelowOverheadThroughoutBothLods" classname="TsilaRun.Tests.PresentationTests" runstate="Runnable" seed="133225650" result="Passed" start-time="2026-10-03 06:10:27Z" end-time="2026-10-03 06:10:28Z" duration="1.102943" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1021" name="SceneryStaysOffTheRoadAndUsesOneDeck" fullname="TsilaRun.Tests.PresentationTests.SceneryStaysOffTheRoadAndUsesOneDeck" methodname="SceneryStaysOffTheRoadAndUsesOneDeck" classname="TsilaRun.Tests.PresentationTests" runstate="Runnable" seed="594161437" result="Passed" start-time="2026-10-03 06:10:28Z" end-time="2026-10-03 06:10:28Z" duration="0.072560" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/Norihy/AppData/LocalLow/DefaultCompany/Tsila Runner\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

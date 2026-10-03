@@ -52,7 +52,7 @@ namespace TsilaRun
             if (close != null)
             {
                 var img = close.GetComponent<Image>() ?? close.gameObject.AddComponent<Image>();
-                img.color = new Color32(20, 96, 255, 255);
+                img.color = new Color32(39, 50, 70, 255);
                 close.targetGraphic = img;
                 close.transition = Selectable.Transition.ColorTint;
                 if (close.GetComponent<Outline>() == null)
@@ -66,12 +66,12 @@ namespace TsilaRun
             if (wallet != null)
             {
                 wallet.color = new Color32(255, 206, 82, 255);
-                wallet.fontSize = 24;
+                wallet.fontSize = 36;
                 wallet.fontStyle = FontStyle.Bold;
                 wallet.alignment = TextAnchor.MiddleRight;
                 wallet.resizeTextForBestFit = true;
                 wallet.resizeTextMinSize = 14;
-                wallet.resizeTextMaxSize = 24;
+                wallet.resizeTextMaxSize = 36;
                 wallet.horizontalOverflow = HorizontalWrapMode.Wrap;
                 wallet.verticalOverflow = VerticalWrapMode.Truncate;
             }
@@ -108,7 +108,7 @@ namespace TsilaRun
                 skinLabels[i].alignment = TextAnchor.MiddleCenter;
                 skinLabels[i].resizeTextForBestFit = true;
                 skinLabels[i].resizeTextMinSize = 13;
-                skinLabels[i].resizeTextMaxSize = 22;
+                skinLabels[i].resizeTextMaxSize = 33;
                 skinLabels[i].horizontalOverflow = HorizontalWrapMode.Wrap;
                 skinLabels[i].verticalOverflow = VerticalWrapMode.Truncate;
             }
@@ -165,11 +165,12 @@ namespace TsilaRun
                         : RunnerProgress.SkinNames[i] + "  /  " + price + " COINS";
                 if (skinLabels[i] != null) skinLabels[i].text = label;
                 var img = skinButtons[i].GetComponent<Image>();
-                if (img != null) img.color = selected ? new Color32(20, 96, 255, 255) : owned ? new Color32(15, 140, 120, 255) : new Color32(16, 50, 82, 255);
+                if (img != null) img.color = selected ? new Color32(39, 50, 70, 255) : owned ? new Color32(15, 140, 120, 255) : new Color32(16, 50, 82, 255);
                 skinButtons[i].interactable = !selected;
                 var colors = skinButtons[i].colors;
-                colors.normalColor = img != null ? img.color : colors.normalColor;
-                colors.highlightedColor = new Color(img != null ? img.color.r * 1.08f : 1f, img != null ? img.color.g * 1.08f : 1f, img != null ? img.color.b * 1.08f : 1f, 1f);
+                colors.normalColor = colors.selectedColor = Color.white;
+                colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f, 1f);
+                colors.pressedColor = new Color(.82f, .82f, .82f, 1f);
                 skinButtons[i].colors = colors;
             }
         }

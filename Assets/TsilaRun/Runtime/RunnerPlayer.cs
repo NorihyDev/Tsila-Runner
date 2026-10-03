@@ -13,6 +13,7 @@ namespace TsilaRun
         public int Lane { get; private set; } = 1;
         public bool IsGrounded => transform.position.y <= 0.0001f;
         public bool IsSliding { get; private set; }
+        public float RollProgress => IsSliding ? Mathf.Clamp01(1f - slideRemaining / RunnerRules.SlideSeconds) : 0f;
         public float Height => IsSliding ? RunnerRules.SlideHeight : RunnerRules.StandingHeight;
         public Bounds HitBounds => BoundsAtHeight(Height);
         float verticalVelocity, slideRemaining, laneElapsed, laneDuration, laneStart;
@@ -90,7 +91,7 @@ namespace TsilaRun
             if (position.y <= 0f) { position.y = 0f; verticalVelocity = Mathf.Max(0f, verticalVelocity); }
             position.z = 0f;
             transform.position = position;
-            if (rig != null) rig.ApplyRuntimePose(Mathf.Max(0f, transform.position.magnitude * 0.1f), false, IsSliding, IsGrounded);
+            if (rig != null) rig.ApplyRuntimePose(world != null && world.game != null ? world.game.TravelSpeed : RunnerRules.StartSpeed, false, IsSliding, IsGrounded);
         }
 
         void SetSlide(bool slide)

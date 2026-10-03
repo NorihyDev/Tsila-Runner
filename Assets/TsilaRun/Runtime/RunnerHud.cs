@@ -31,19 +31,18 @@ namespace TsilaRun
             ApplyModernMobileStyle();
         }
 
-        void ApplyMobileLayout()
+        public void ApplyMobileLayout()
         {
-            SetAnchors(hud, new Vector2(0.025f, 0.83f), new Vector2(0.975f, 0.99f));
-            SetAnchors(distanceText, new Vector2(0.04f, 0.46f), new Vector2(0.54f, 0.94f));
-            SetAnchors(bestText, new Vector2(0.04f, 0.08f), new Vector2(0.50f, 0.40f));
-            SetAnchors(coinsText, new Vector2(0.43f, 0.08f), new Vector2(0.68f, 0.40f));
-            SetAnchors(menuButton, new Vector2(0.66f, 0.16f), new Vector2(0.83f, 0.84f));
-            SetAnchors(pauseButton, new Vector2(0.86f, 0.16f), new Vector2(0.97f, 0.84f));
-            SetAnchors(missionText, new Vector2(0.1f, 0.78f), new Vector2(0.9f, 0.825f));
-            SetAnchors(powerUpText, new Vector2(0.1f, 0.73f), new Vector2(0.9f, 0.775f));
-            SetAnchors(zoneText, new Vector2(0.1f, 0.045f), new Vector2(0.9f, 0.08f));
-            SetAnchors(introPanel, new Vector2(0.14f, 0.82f), new Vector2(0.86f, 0.96f));
-            SetAnchors(skipIntroButton, new Vector2(0.72f, 0.12f), new Vector2(0.96f, 0.88f));
+            SetAnchors(hud, new Vector2(0.035f, 0.915f), new Vector2(0.965f, 0.99f));
+            SetAnchors(distanceText, new Vector2(0.04f, 0.1f), new Vector2(0.44f, 0.9f));
+            SetAnchors(coinsText, new Vector2(0.46f, 0.1f), new Vector2(0.78f, 0.9f));
+            if (bestText != null) bestText.gameObject.SetActive(false);
+            if (menuButton != null) menuButton.gameObject.SetActive(false);
+            SetAnchors(pauseButton, new Vector2(0.83f, 0.15f), new Vector2(0.97f, 0.85f));
+            SetAnchors(missionText, new Vector2(0.1f, 0.86f), new Vector2(0.9f, 0.90f));
+            SetAnchors(powerUpText, new Vector2(0.12f, 0.075f), new Vector2(0.88f, 0.11f));
+            SetAnchors(zoneText, new Vector2(0.1f, 0.865f), new Vector2(0.9f, 0.90f));
+            SetAnchors(introPanel, new Vector2(0.16f, 0.82f), new Vector2(0.84f, 0.90f));
             if (introPanel != null)
             {
                 Transform caption = introPanel.transform.Find("Caption");
@@ -130,7 +129,7 @@ namespace TsilaRun
 
         void OnEnable()
         {
-            if (playButton != null) playButton.onClick.AddListener(game.StartRun);
+            if (playButton != null) playButton.onClick.AddListener(Play);
             if (skipIntroButton != null) skipIntroButton.onClick.AddListener(game.CompleteIntro);
             if (pauseButton != null) pauseButton.onClick.AddListener(game.Pause);
             if (resumeButton != null) resumeButton.onClick.AddListener(game.Resume);
@@ -143,9 +142,15 @@ namespace TsilaRun
             game.MissionCompleted += ShowMissionComplete;
         }
 
+        void Play()
+        {
+            var tutorial = GetComponent<RunnerTutorial>();
+            if (tutorial != null) tutorial.Play(); else game.StartRun();
+        }
+
         void Start() { RefreshState(); }
 
-        void ApplyModernMobileStyle()
+        public void ApplyModernMobileStyle()
         {
             Color primary = new Color32(105, 239, 195, 255);
             Color secondary = new Color32(39, 50, 70, 255);
@@ -198,10 +203,10 @@ namespace TsilaRun
             button.targetGraphic = image;
             button.transition = Selectable.Transition.ColorTint;
             var colors = button.colors;
-            colors.normalColor = fill;
-            colors.highlightedColor = Color.Lerp(fill, Color.white, 0.12f);
-            colors.pressedColor = Color.Lerp(fill, Color.black, 0.16f);
-            colors.selectedColor = fill;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f, 1f);
+            colors.pressedColor = new Color(.82f, .82f, .82f, 1f);
+            colors.selectedColor = Color.white;
             colors.disabledColor = new Color(fill.r * 0.6f, fill.g * 0.6f, fill.b * 0.6f, 0.7f);
             colors.colorMultiplier = 1f;
             button.colors = colors;
@@ -235,7 +240,7 @@ namespace TsilaRun
                 text.fontStyle = FontStyle.Bold;
                 text.resizeTextForBestFit = true;
                 text.resizeTextMinSize = 14;
-                text.resizeTextMaxSize = 30;
+                text.resizeTextMaxSize = 45;
             }
 
             RectTransform rect = button.GetComponent<RectTransform>();
@@ -283,14 +288,14 @@ namespace TsilaRun
         {
             if (text == null) return;
             text.color = color;
-            text.fontSize = size;
+            text.fontSize = Mathf.RoundToInt(size * 1.5f);
             text.fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
             text.alignment = TextAnchor.MiddleCenter;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize = 12;
-            text.resizeTextMaxSize = size;
+            text.resizeTextMaxSize = Mathf.RoundToInt(size * 1.5f);
         }
 
         static void AddShadow(Text text, Color shadowColor, float x, float y)
@@ -305,7 +310,7 @@ namespace TsilaRun
         {
             game.StateChanged -= RefreshState;
             game.MissionCompleted -= ShowMissionComplete;
-            if (playButton != null) playButton.onClick.RemoveListener(game.StartRun);
+            if (playButton != null) playButton.onClick.RemoveListener(Play);
             if (skipIntroButton != null) skipIntroButton.onClick.RemoveListener(game.CompleteIntro);
             if (pauseButton != null) pauseButton.onClick.RemoveListener(game.Pause);
             if (resumeButton != null) resumeButton.onClick.RemoveListener(game.Resume);
@@ -334,7 +339,7 @@ namespace TsilaRun
             bool running = game.State == RunnerGame.RunState.Running;
             if (missionText != null)
             {
-                missionText.gameObject.SetActive(running);
+                missionText.gameObject.SetActive(running && Time.time < missionBannerUntil);
                 if (running && game.Progress != null)
                 {
                     missionText.text = Time.time < missionBannerUntil
@@ -342,6 +347,7 @@ namespace TsilaRun
                         : "MISSION  " + game.Progress.ActiveMissionName + "  " + game.Progress.ActiveMissionProgress + "/" + game.Progress.ActiveMissionTarget + "  +" + RunnerProgress.MissionReward;
                 }
             }
+            if (zoneText != null) zoneText.gameObject.SetActive(running && game.Distance < 3d && Time.time >= missionBannerUntil);
             if (powerUpText != null)
             {
                 string status = running ? game.PowerUpStatus : "";
@@ -363,8 +369,8 @@ namespace TsilaRun
             if (pausePanel != null) pausePanel.SetActive(game.State == RunnerGame.RunState.Paused);
             if (gameOverPanel != null) gameOverPanel.SetActive(game.State == RunnerGame.RunState.GameOver);
             if (hud != null) hud.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
-            if (zoneText != null) zoneText.gameObject.SetActive(game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop);
-            if (missionText != null) missionText.gameObject.SetActive(game.State == RunnerGame.RunState.Running);
+            if (zoneText != null) zoneText.gameObject.SetActive(game.State == RunnerGame.RunState.Running && game.Distance < 3d);
+            if (missionText != null) missionText.gameObject.SetActive(false);
             if (powerUpText != null) powerUpText.gameObject.SetActive(game.State == RunnerGame.RunState.Running && game.PowerUpStatus.Length > 0);
             if (introPanel != null) introPanel.SetActive(game.State == RunnerGame.RunState.Intro);
             if (pauseButton != null) pauseButton.gameObject.SetActive(game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro);

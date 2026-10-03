@@ -16,7 +16,8 @@ namespace TsilaRun
         public const float SlideSeconds = 1f;
         public const float ReactionSeconds = 0.7f;
         public const float StandingHeight = 1.8f;
-        public const float SlideHeight = 0.7f;
+        public const float SlideHeight = 1.45f;
+        public const float OverheadClearance = 1.55f;
         public const float PlayerRadius = 0.32f;
         public const float FirstRow = 55f;
         public const float Horizon = 170f;

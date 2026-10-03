@@ -9,8 +9,8 @@ namespace TsilaRun
         public GameObject stage;
         public RectTransform title;
         float menuTime;
-        void OnEnable() { game.StateChanged += Refresh; }
-        void OnDisable() { game.StateChanged -= Refresh; }
+        void OnEnable() { if (game != null) game.StateChanged += Refresh; }
+        void OnDisable() { if (game != null) game.StateChanged -= Refresh; }
         void Start() { Refresh(); }
         void Refresh()
         {
@@ -27,12 +27,13 @@ namespace TsilaRun
                 stage.transform.localScale = menu ? Vector3.one : new Vector3(0.96f, 0.96f, 1f);
             }
             if (game != null && game.world != null) game.world.gameObject.SetActive(!menu);
+            if (game != null && game.chase != null && game.chase.officer != null && menu) game.chase.officer.gameObject.SetActive(false);
             if (game != null && game.player != null && game.player.visual != null)
                 game.player.visual.localRotation = menu ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
             if (title != null)
             {
                 title.localScale = menu ? Vector3.one : new Vector3(0.93f, 0.93f, 1f);
-                title.anchoredPosition = menu ? new Vector2(0f, 15f) : Vector2.zero;
+                title.anchoredPosition = Vector2.zero;
             }
         }
         void Update()
@@ -40,7 +41,7 @@ namespace TsilaRun
             if (game == null || (game.State != RunnerGame.RunState.Ready && game.State != RunnerGame.RunState.Shop)) return;
             menuTime = Mathf.Repeat(menuTime + Time.deltaTime, Mathf.PI * 200f);
             if (game.player != null && game.player.visual != null)
-                game.player.visual.localRotation = Quaternion.Euler(0f, 180f + Mathf.Sin(menuTime * 0.45f) * 28f, 0f);
+                game.player.visual.localRotation = Quaternion.Euler(0f, 180f + Mathf.Sin(menuTime * 0.45f) * 6f, 0f);
             if (game.player != null && game.player.rig != null)
                 game.player.rig.ApplyRuntimePose(RunnerRules.StartSpeed, true, false, true);
             if (title != null) title.localScale = Vector3.one * (1f + Mathf.Sin(menuTime * 1.8f) * 0.012f);

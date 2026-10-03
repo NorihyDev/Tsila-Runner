@@ -7,18 +7,20 @@ Run through three lanes, collect coins, evade the patrol, and keep moving as the
 **Status:** Playable prototype with Meshy models and the existing Blender fallback pack integrated · **Primary platforms:** Android and iOS · **Editor:** Unity 6000.6.3f1
 
 <p align="center">
-  <img src="Docs/Verification/Meshy-Menu.png" alt="Tsila Run main menu with the textured Meshy Tsila character" width="280" />
+  <img src="Docs/Verification/Presentation-Menu.png" alt="Tsila Run menu with Rajdhani typography and neon platform" width="280" />
   &nbsp;
-  <img src="Docs/Verification/Meshy-Run.png" alt="Tsila Run gameplay with Meshy models and tropical scenery" width="280" />
+  <img src="Docs/Verification/Presentation-Run.png" alt="Tsila Run gameplay with sparse tropical scenery and sand ground" width="280" />
 </p>
 
 ## Features
 
 The supplied Meshy GLBs now replace the player, chaser, road, curbs, tall obstacle, overhead obstacle, coins, magnet and island scenery. Missing models retain the existing artwork. See [Meshy integration](Docs/Meshy-Integration.md) for the asset mapping, preparation workflow and limits.
 
+The mobile presentation uses Rajdhani title and button typography, a neon menu stage, a first-run controls tutorial, and a compact running HUD. Scenery alternates between spaced groups over sand ground, disconnected model kits stay out of the playable lanes, and a full-size tucked roll replaces the prone slide. See [presentation changes and validation](Docs/Presentation-Polish.md).
+
 - **Three-lane running:** automatic forward movement, smooth lane changes, jumping, and sliding. Swipe down while airborne to drop into a slide, or swipe up during a slide to cancel it and jump when clear.
 - **Varied obstacles:** low barriers, overhead beams, tall obstacles, and other runners. Later waves can occupy all three lanes, with a jumpable or slidable route; tall towers must be dodged.
-- **Animated characters:** idle, run, jump, and slide states, plus a skippable police chase introduction.
+- **Animated characters:** idle, run, jump, and full-size roll states, plus a skippable police chase introduction.
 - **Changing environments:** island, mountain pass, and underground scenery cycle every 288 metres.
 - **Local progression:** distance score, best distance, and a persistent coin wallet.
 - **Method presentation:** animated character showcase, branded artwork, rounded controls, and a midnight-blue, white, and mint interface.
@@ -84,6 +86,7 @@ All project tools are available under **Tools → Tsila Run**.
 | --- | --- |
 | **Create or Update Mobile Prototype** | Import the Method pack, rebuild the gameplay prefabs and scene, connect references, and register the scene in the appropriate build scene list. |
 | **Refresh Modern UI** | Rebuild the English interface while preserving the existing artwork and material edits. |
+| **Polish Menu and Gameplay** | Reapply the sports typography, menu stage, sparse scenery, normalized models, and character motions. |
 | **Import Asset Pack** | Rebuild the Method art assets from their supplied mesh and animation data. |
 | **Apply Blender Character Pack** | Import the supplied FBXs and textures, generate URP materials and LOD prefabs, then patch the existing gameplay prefabs and scene. |
 | **Reconcile Blender Pack with Latest Gameplay** | Patch the Blender visuals into the latest gameplay scene, restore power-up references, and refresh the mobile UI without regenerating the world. |
@@ -153,13 +156,13 @@ Materials are reused, collision volumes are simple, and the game avoids heavy po
 
 ## Verification and limitations
 
-The latest changes passed all 24 selected Editor tests in an isolated Unity 6000.6.3f1 checkout, covering Blender assets, simulated touch input, fast-fall and slide cancellation, three-lane obstacle waves, collisions, coins, power-ups, pooling, shop and menu flow, restart, and portrait UI. The scene-generation test was excluded because it rewrites generated content.
+The presentation changes passed all **34 selected Editor tests** in Unity 6000.6.3f1, covering prepared art assets, full-size roll poses through the Animator on both characters and LODs, scenery and tunnel clearance, sparse placement, simulated touch input, fast-fall and slide cancellation, obstacle waves, swept collisions, coins, power-ups, pooling, the first-run tutorial, shop and menu flow, and restart. The scene-generation test was excluded because it rewrites generated content; portrait captures run separately. See the [test report](Docs/Verification/Presentation-EditorTests.xml).
 
 Editor screenshots were rendered at **720 × 1280**, **1170 × 2532**, **1080 × 2400**, and **2160 × 3840**. The menu, run, and pursuit captures in `Docs/Verification` were visually reviewed. These are Editor renderings; physical-device gestures, background/resume, thermals, and frame rate remain untested. Android build status is recorded in [Blender pack verification](Docs/BlenderPack-Integration.md).
 
 Run the available checks through **Window → General → Test Runner → EditMode**. Save your work first: gameplay tests open the prototype scene and enter Play mode. Exclude the `SceneGeneration` category when validating this integrated scene.
 
-Current scope excludes real-money purchases, cloud saves, and audio. Missions and coin-purchased outfit colorways are local prototype systems. Mountain and tunnel scenery share a flat gameplay surface; terrain slopes are not simulated.
+Current scope excludes real-money purchases, cloud saves, music, and gameplay sound effects. Buttons have a brief tap sound. Missions and coin-purchased outfit colorways are local prototype systems. Mountain and tunnel scenery share a flat gameplay surface; terrain slopes are not simulated.
 
 See the [verification record](Docs/TsilaRun-Verification.md) for the distinction between completed checks and outstanding device validation.
 
@@ -170,9 +173,12 @@ See the [verification record](Docs/TsilaRun-Verification.md) for the distinction
 - [Asset dimensions and handoff brief](Docs/TsilaRun-Asset-Brief.md)
 - [Verification history](Docs/TsilaRun-Verification.md)
 - [Blender pack integration and verification](Docs/BlenderPack-Integration.md)
+- [Mobile presentation, scenery, and animation verification](Docs/Presentation-Polish.md)
 
 ## Credits
 
 **Copyright by Method.**
+
+Rajdhani is distributed under the SIL Open Font License included in `Assets/TsilaRun/Art/UI/Fonts/OFL.txt`.
 
 Tsila Run uses the Method artwork, logo, and character assets supplied with this project. No open-source license grant is stated in this README; confirm applicable permissions before redistributing the project or its assets.

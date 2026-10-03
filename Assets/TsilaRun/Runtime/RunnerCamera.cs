@@ -11,6 +11,7 @@ namespace TsilaRun
         public float baseFov = 62f;
         public float maxFovBoost = 8f;
         float shake;
+        RunnerGame.RunState previousState;
 
         void LateUpdate()
         {
@@ -24,22 +25,25 @@ namespace TsilaRun
             }
             if (game.State == RunnerGame.RunState.Ready || game.State == RunnerGame.RunState.Shop)
             {
-                Vector3 menuPos = new Vector3(0f, 1.45f, -4.3f);
+                Vector3 menuPos = new Vector3(0f, 1.55f, -4.6f);
                 transform.position = Vector3.Lerp(transform.position, menuPos, 1f - Mathf.Exp(-6f * Time.deltaTime));
-                transform.LookAt(new Vector3(0f, 0.98f, 0f));
+                transform.LookAt(new Vector3(0f, .6f, 0f));
                 shake = Mathf.Lerp(shake, 0f, 0.12f);
+                previousState = game.State;
                 return;
             }
+            bool enteringCourse = previousState == RunnerGame.RunState.Ready || previousState == RunnerGame.RunState.Shop;
+            previousState = game.State;
             float laneSway = player != null ? player.transform.position.x * 0.18f : 0f;
             Vector3 target = offset + Vector3.right * laneSway;
             if (game.State == RunnerGame.RunState.Intro && game.chase != null)
-                target = Vector3.Lerp(new Vector3(7f, 5f, -11f), offset, game.chase.IntroProgress);
+                target = Vector3.Lerp(new Vector3(3.8f, 4.5f, -10.5f), offset, game.chase.IntroProgress);
             shake = Mathf.Lerp(shake, player != null && !player.IsGrounded ? 0.18f : 0.04f, 0.08f);
             Vector3 randomOffset = new Vector3(
                 Mathf.PerlinNoise(Time.time * 16f, 0f) - 0.5f,
                 Mathf.PerlinNoise(0f, Time.time * 18f) - 0.5f,
                 Mathf.PerlinNoise(Time.time * 12f, Time.time * 14f) - 0.5f) * shake * 0.45f;
-            transform.position = Vector3.Lerp(transform.position, target + randomOffset, 1f - Mathf.Exp(-7f * Time.deltaTime));
+            transform.position = enteringCourse ? target : Vector3.Lerp(transform.position, target + randomOffset, 1f - Mathf.Exp(-7f * Time.deltaTime));
             Vector3 look = new Vector3(transform.position.x * 0.4f, 1f, 16f);
             if (game.State == RunnerGame.RunState.Intro && game.chase != null)
                 look = Vector3.Lerp(new Vector3(0f, 1f, -2.5f), look, game.chase.IntroProgress);

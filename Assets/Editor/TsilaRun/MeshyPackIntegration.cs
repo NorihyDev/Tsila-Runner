@@ -72,6 +72,7 @@ namespace TsilaRun.Editor
                 ConfigureModel(name, false);
                 BuildProp(name);
             }
+            CharacterMotionBuilder.Build();
             PatchPrefabs();
             PatchScene();
             AssetDatabase.SaveAssets();
@@ -162,6 +163,14 @@ namespace TsilaRun.Editor
             model.name = name;
             foreach (var renderer in model.GetComponentsInChildren<Renderer>(true))
             {
+                string assetName = name.Replace("_LOD1", "");
+                renderer.sharedMaterials = renderer.sharedMaterials.Select(source =>
+                {
+                    string suffix = Characters.Contains(assetName) ? source.name.Contains("Body") ? "_Body" : "_FaceDetails" : "_Material";
+                    var material = AssetDatabase.LoadAssetAtPath<Material>(Generated + "/Materials/" + assetName + suffix + ".mat");
+                    if (material == null) throw new InvalidDataException("Missing mobile material for " + name);
+                    return material;
+                }).ToArray();
                 renderer.shadowCastingMode = ShadowCastingMode.Off;
                 renderer.receiveShadows = false;
                 renderer.lightProbeUsage = LightProbeUsage.Off;
@@ -221,18 +230,57 @@ namespace TsilaRun.Editor
             finally { Object.DestroyImmediate(model); Object.DestroyImmediate(low); }
         }
 
+        [Serializable] sealed class BoundsEntry { public string name; public float[] boundsMin, boundsMax; }
+        [Serializable] sealed class BoundsManifest { public BoundsEntry[] models; }
+
+        public static void BuildPropsBatch() { foreach (string name in Props) BuildProp(name); AssetDatabase.SaveAssets(); }
+
         static void BuildProp(string name)
         {
             var root = new GameObject(name);
             try
             {
-                var high = InstantiateModel(name); high.transform.SetParent(root.transform, false);
-                var low = InstantiateModel(name + "_LOD1"); low.transform.SetParent(root.transform, false);
+                // Normalize in parent axes; imported meshes may retain rotated FBX roots.
+                var high = new GameObject("High"); high.transform.SetParent(root.transform, false);
+                InstantiateModel(name).transform.SetParent(high.transform, false);
+                var low = new GameObject("Low"); low.transform.SetParent(root.transform, false);
+                InstantiateModel(name + "_LOD1").transform.SetParent(low.transform, false);
+                var manifest = JsonUtility.FromJson<BoundsManifest>("{\"models\":" + File.ReadAllText(Root + "/Manifest.json") + "}");
+                var entry = manifest.models.Single(e => e.name == name);
+                Vector3 expected = new Vector3(entry.boundsMax[0] - entry.boundsMin[0], entry.boundsMax[2] - entry.boundsMin[2], entry.boundsMax[1] - entry.boundsMin[1]);
+                foreach (var visual in new[] { high, low })
+                {
+                    var measured = PlacedBounds(visual);
+                    visual.transform.localScale = Vector3.Scale(visual.transform.localScale, new Vector3(expected.x / measured.size.x, expected.y / measured.size.y, expected.z / measured.size.z));
+                    measured = PlacedBounds(visual);
+                    visual.transform.localPosition -= new Vector3(measured.center.x, measured.min.y - entry.boundsMin[2], measured.center.z);
+                }
                 if (name == "Coin" || name == "CoinMagnet")
                 {
-                    Vector3 offset = Vector3.up * (.9f - BlenderPackIntegration.VisualBounds(high).center.y);
-                    high.transform.localPosition = offset;
-                    low.transform.localPosition = offset;
+                    Vector3 offset = Vector3.up * (.9f - PlacedBounds(high).center.y);
+                    high.transform.localPosition += offset;
+                    low.transform.localPosition += Vector3.up * (.9f - PlacedBounds(low).center.y);
+                }
+                if (name == "Overhead")
+                {
+                    foreach (var visual in new[] { high, low })
+                        foreach (var filter in visual.GetComponentsInChildren<MeshFilter>())
+                        {
+                            var mesh = Object.Instantiate(filter.sharedMesh);
+                            var vertices = mesh.vertices;
+                            for (int i = 0; i < vertices.Length; i++)
+                            {
+                                Vector3 point = root.transform.InverseTransformPoint(filter.transform.TransformPoint(vertices[i]));
+                                point.y = point.y <= 1f ? point.y * RunnerRules.OverheadClearance : point.y + RunnerRules.OverheadClearance - 1f;
+                                vertices[i] = filter.transform.InverseTransformPoint(root.transform.TransformPoint(point));
+                            }
+                            mesh.vertices = vertices; mesh.RecalculateBounds(); mesh.RecalculateNormals();
+                            string meshPath = Generated + "/Overhead" + (visual == high ? " High" : " Low") + ".asset";
+                            var saved = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
+                            if (saved == null) { AssetDatabase.CreateAsset(mesh, meshPath); saved = mesh; }
+                            else { EditorUtility.CopySerialized(mesh, saved); Object.DestroyImmediate(mesh); EditorUtility.SetDirty(saved); }
+                            filter.sharedMesh = saved;
+                        }
                 }
                 var group = root.AddComponent<LODGroup>();
                 group.SetLODs(new[]
@@ -280,57 +328,87 @@ namespace TsilaRun.Editor
             foreach (Transform child in root.transform.Cast<Transform>().ToArray())
                 if (child.GetComponent<RunnerRoadSection>() == null && !section.scenery.Contains(child.gameObject)) Object.DestroyImmediate(child.gameObject);
             Place(root.transform, "RoadSection", Vector3.zero);
-            Place(root.transform, "RoadSectionAlt", new Vector3(0f, -.4f, 0f));
             foreach (int side in new[] { -1, 1 }) Place(root.transform, "Curb", new Vector3(side * 4.1f, -.05f, 0f));
             var island = section.scenery[0].transform;
             ClearScenery(island, "Island");
-            foreach (int side in new[] { -1, 1 })
+            var ground = island.Find("Island");
+            if (ground != null)
             {
-                Place(island, "Palm", new Vector3(side * 6f, 0f, 7f), side * 20f);
-                Place(island, "Tree", new Vector3(side * 7f, 0f, -3f));
-                Place(island, "House", new Vector3(side * 10f, 0f, 4f), side < 0 ? 90 : -90);
-                Place(island, "Building", new Vector3(side * 12f, 0f, -7f), side < 0 ? 90 : -90);
-                Place(island, "JungleHouse", new Vector3(side * 14f, 0f, -8f), side < 0 ? 90 : -90, Vector3.one * .7f);
-                Place(island, "TropicalHouse", new Vector3(side * 10f, 0f, -9f), side < 0 ? 90 : -90, Vector3.one * .8f);
-                Place(island, "TropicalTreePack", new Vector3(side * 15f, 0f, 8f), 0f, Vector3.one * .45f);
-                Place(island, "AsiaBuildings", new Vector3(side * 17f, 0f, 0f), 0f, Vector3.one * .35f);
-                Place(island, "StreetLamp", new Vector3(side * 5f, 0f, -10f), side < 0 ? 180 : 0, Vector3.one * .8f);
+                ground.localPosition = new Vector3(0f, -.16f, 0f);
+                ground.localScale = new Vector3(64f, .25f, 24f);
+                ground.GetComponent<Renderer>().sharedMaterial = MenuPolishBuilder.SandMaterial();
             }
-            Place(island, "SandFootprints", new Vector3(0f, -.19f, -5f));
-
+            Place(island, "Palm", new Vector3(-7.5f, 0f, 7f), -12f);
+            Place(island, "Tree", new Vector3(9.5f, 0f, -5f));
+            Place(island, "TropicalHouse", new Vector3(-13f, 0f, 0f), 90f);
+            Place(island, "Building", new Vector3(21f, 0f, 4f), -90f);
+            foreach (Transform prop in island)
+            {
+                if (prop.name == "Island") continue;
+                var spacing = prop.gameObject.AddComponent<ScenerySpacing>();
+                spacing.period = prop.name.Contains("Building") ? 5 : 3;
+                spacing.slot = prop.name.Contains("Palm") ? 0 : prop.name.Contains("Tree") ? 1 : prop.name.Contains("Building") ? 3 : 2;
+            }
+            ClearRoadEnvelope(island);
             var mountain = section.scenery[1].transform;
             ClearScenery(mountain);
-            Place(mountain, "BaileyBridge", new Vector3(0f, -.42f, 0f));
-            Place(mountain, "Cliffs", new Vector3(-17f, -1f, 0f));
-            Place(mountain, "Cliffs", new Vector3(17f, -1f, 0f));
-            Place(mountain, "RockTerrain", new Vector3(-17f, -2f, 0f));
-            Place(mountain, "RockTerrain", new Vector3(17f, -2f, 0f));
-            Place(mountain, "OakTree", new Vector3(-20f, 0f, -7f));
-            Place(mountain, "OakTree", new Vector3(20f, 0f, 7f), 35f);
-            Place(mountain, "Rock", new Vector3(-6f, 0f, -10f));
-            Place(mountain, "Rock", new Vector3(6f, 0f, 10f));
-            Place(mountain, "SidewalkCurbKit", new Vector3(-12f, 0f, 0f), 0f, Vector3.one * .35f);
-            Place(mountain, "SidewalkCurbKit", new Vector3(12f, 0f, 0f), 0f, Vector3.one * .35f);
-            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, -10f), 90f);
-            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, -10f), 90f);
-            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, -5f), 90f);
-            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, -5f), 90f);
-            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, 0f), 90f);
-            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, 0f), 90f);
-            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, 5f), 90f);
-            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, 5f), 90f);
-            Place(mountain, "SafetyRail", new Vector3(-4.25f, .65f, 10f), 90f);
-            Place(mountain, "SafetyRail", new Vector3(4.25f, .65f, 10f), 90f);
-
+            foreach (int side in new[] { -1, 1 })
+            {
+                Place(mountain, "Cliffs", new Vector3(side * 22f, -2f, 0f));
+                Place(mountain, "RockTerrain", new Vector3(side * 26f, -3f, 0f));
+                Place(mountain, "Rock", new Vector3(side * 8f, 0f, side * 8f), side * 20f, Vector3.one * .65f);
+                Place(mountain, "Tree", new Vector3(side * 13f, 0f, -side * 6f));
+                for (int z = -10; z <= 10; z += 5)
+                    Place(mountain, "SafetyRail", new Vector3(side * 4.4f, .65f, z), 90f);
+            }
+            foreach (Transform prop in mountain)
+                if (prop.name.Contains("Rock") || prop.name.Contains("Tree"))
+                {
+                    var spacing = prop.gameObject.AddComponent<ScenerySpacing>(); spacing.period = 3;
+                    spacing.slot = prop.localPosition.x < 0 ? 0 : 2;
+                }
+            ClearRoadEnvelope(mountain);
             var tunnel = section.scenery[2].transform;
             ClearScenery(tunnel);
-            Place(tunnel, "ModularTunnel", Vector3.zero);
-            Place(tunnel, "DirtyTunnel", new Vector3(-8f, 0f, 0f), 0f, Vector3.one * .35f);
-            Place(tunnel, "DirtyTunnel", new Vector3(8f, 0f, 0f), 0f, Vector3.one * .35f);
-            Place(tunnel, "AsiaBuildings", new Vector3(-14f, 0f, 0f), 0f, Vector3.one * .3f);
-            Place(tunnel, "AsiaBuildings", new Vector3(14f, 0f, 0f), 0f, Vector3.one * .3f);
-            Place(tunnel, "StreetLamp", new Vector3(-5f, 0f, -10f), 90f, Vector3.one * .55f);
-            Place(tunnel, "StreetLamp", new Vector3(5f, 0f, 10f), -90f, Vector3.one * .55f);
+            var wallMaterial = AssetDatabase.LoadAssetAtPath<Material>(MobilePrototypeBuilder.Root + "/Materials/Ink.mat");
+            var lightMaterial = AssetDatabase.LoadAssetAtPath<Material>(MobilePrototypeBuilder.Root + "/Materials/Cream.mat");
+            foreach (int side in new[] { -1, 1 })
+            {
+                MobilePrototypeBuilder.Shape(tunnel, "Tunnel Wall", PrimitiveType.Cube, new Vector3(side * 5f, 4.5f, 0), new Vector3(1, 9, 24), wallMaterial);
+                MobilePrototypeBuilder.Shape(tunnel, "Tunnel Light", PrimitiveType.Cube, new Vector3(side * 4.45f, 2.8f, 0), new Vector3(.06f, .12f, 6), lightMaterial);
+            }
+            MobilePrototypeBuilder.Shape(tunnel, "Tunnel Ceiling", PrimitiveType.Cube, new Vector3(0, 9f, 0), new Vector3(11, .4f, 24), wallMaterial);
+            // Collections of disconnected kit parts stay available in Art, away from the playable road.
+        }
+
+        public static Bounds PlacedBounds(GameObject visual)
+        {
+            bool first = true; Bounds result = default;
+            Transform parent = visual.transform.parent;
+            foreach (var filter in visual.GetComponentsInChildren<MeshFilter>(true))
+                foreach (var vertex in filter.sharedMesh.vertices)
+                {
+                    Vector3 point = filter.transform.TransformPoint(vertex);
+                    if (parent != null) point = parent.InverseTransformPoint(point);
+                    if (first) { result = new Bounds(point, Vector3.zero); first = false; } else result.Encapsulate(point);
+                }
+            return result;
+        }
+
+        static void ClearRoadEnvelope(Transform scenery)
+        {
+            foreach (Transform prop in scenery)
+            {
+                if (prop.name == "Island") continue;
+                var bounds = PlacedBounds(prop.gameObject);
+                float shift = prop.localPosition.x < 0f ? Mathf.Min(0, -4.3f - bounds.max.x) : Mathf.Max(0, 4.3f - bounds.min.x);
+                prop.localPosition += Vector3.right * shift;
+            }
+        }
+
+        public static void RefreshLayoutBatch()
+        {
+            PatchPrefabs(); PatchScene(); AssetDatabase.SaveAssets();
         }
 
         static void PatchPrefabs()
@@ -344,7 +422,15 @@ namespace TsilaRun.Editor
                     if (name == "Tsila") ReplacePlayer(root.GetComponent<RunnerPlayer>());
                     else if (name == "Officer") { ClearChildren(root.transform); MethodVisualBuilder.Character(root.transform, name).alwaysRun = true; }
                     else if (name == "RoadSection") PatchRoad(root);
-                    else { ClearChildren(root.transform); MethodVisualBuilder.Model(root.transform, name); }
+                    else
+                    {
+                        ClearChildren(root.transform); MethodVisualBuilder.Model(root.transform, name);
+                        if (name == "Overhead")
+                        {
+                            var box = root.GetComponent<RunnerItem>().hitbox;
+                            box.center = new Vector3(0f, RunnerRules.OverheadClearance + box.size.y * .5f, 0f);
+                        }
+                    }
                     PrefabUtility.SaveAsPrefabAsset(root, path);
                 }
                 finally { PrefabUtility.UnloadPrefabContents(root); }

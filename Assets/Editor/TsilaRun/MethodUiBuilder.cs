@@ -1,4 +1,5 @@
 using UnityEditor;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
@@ -18,30 +19,43 @@ namespace TsilaRun.Editor
 
         public static InputSystemUIInputModule Build(RunnerGame game, Font typeface, RunnerPresentation presentation)
         {
-            font = typeface;
+            font = AssetDatabase.LoadAssetAtPath<Font>("Assets/TsilaRun/Art/UI/Fonts/Rajdhani-Bold.ttf") ?? typeface;
             rounded = UiShapeBuilder.Rounded();
             var canvas = new GameObject("Method Mobile UI", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvas.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = canvas.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(720, 1280);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+            scaler.referenceResolution = new Vector2(1080, 1920);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            scaler.matchWidthOrHeight = .5f;
             var safe = Rect(canvas.transform, "Safe Area", 0, 0, 1, 1);
             safe.gameObject.AddComponent<SafeAreaPanel>();
             var view = canvas.AddComponent<RunnerHud>(); view.game = game;
             var shop = canvas.AddComponent<RunnerShop>(); shop.game = game;
 
             var start = Rect(safe, "Main Menu", 0, 0, 1, 1); view.startPanel = start.gameObject;
-            var title = Text(start, "TSILA RUN", "TSILA\nRUN", 76, .075f, .78f, .76f, .96f);
-            title.fontStyle = FontStyle.Bold; title.alignment = TextAnchor.MiddleLeft; title.color = Pale;
-            title.lineSpacing = .88f;
+            var title = SportText(start, "TSILA RUN", "TSILA RUN", 142, .05f, .81f, .95f, .945f);
+            title.enableVertexGradient = true;
+            title.colorGradient = new VertexGradient(Color.white, Color.white, Neon, Neon);
+            title.fontSharedMaterial = MenuPolishBuilder.TitleMaterial();
+            title.fontSharedMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, .06f);
+            title.fontSharedMaterial.SetColor(ShaderUtilities.ID_OutlineColor, new Color32(5, 20, 27, 255));
+            title.gameObject.AddComponent<UiEntrance>().offset = 45;
             presentation.title = title.rectTransform;
-            Text(start, "Tagline", "ONE ISLAND. ENDLESS POSSIBILITIES.", 18, .08f, .735f, .92f, .78f).color = Muted;
-            var outfit = Panel(start, "Outfit Badge", .18f, .30f, .82f, .34f);
-            Text(outfit, "Outfit", "ORIGINAL COLLECTION / METHOD", 16, .02f, .04f, .98f, .96f).color = Pale;
-            view.playButton = Button(start, "Play", "PLAY", .1f, .205f, .9f, .28f, Neon);
-            shop.openFromStart = Button(start, "Shop", "SHOP", .1f, .12f, .9f, .187f, Violet);
-            Text(start, "Controls", "LEFT / RIGHT: MOVE\nUP: JUMP    DOWN: SLIDE", 18, .06f, .045f, .94f, .105f);
+            var subtitle = SportText(start, "Tagline", "RUN THE ISLAND", 25, .08f, .765f, .92f, .805f);
+            subtitle.characterSpacing = 7f; subtitle.color = Muted;
+            view.playButton = Button(start, "Play", "PLAY", .15f, .19f, .85f, .275f, Neon);
+            Object.DestroyImmediate(view.playButton.GetComponentInChildren<Text>().gameObject);
+            SportText(view.playButton.transform, "Label", "PLAY", 54, .12f, .02f, .93f, .98f).color = Dark;
+            var triangle = Rect(view.playButton.transform, "Play icon", .11f, .33f, .18f, .67f).gameObject.AddComponent<PlayIconGraphic>();
+            triangle.color = Dark; triangle.raycastTarget = false;
+            view.playButton.gameObject.AddComponent<UiGradient>().bottom = new Color32(41, 188, 112, 255);
+            var playEntry = view.playButton.gameObject.AddComponent<UiEntrance>(); playEntry.delay = .16f; playEntry.offset = -25;
+            shop.openFromStart = Button(start, "Shop", "SHOP", .15f, .09f, .85f, .162f, Dark);
+            Object.DestroyImmediate(shop.openFromStart.GetComponentInChildren<Text>().gameObject);
+            SportText(shop.openFromStart.transform, "Label", "SHOP", 40, .04f, .05f, .96f, .95f).color = Neon;
+            var shopOutline = shop.openFromStart.gameObject.AddComponent<Outline>(); shopOutline.effectColor = Neon; shopOutline.effectDistance = new Vector2(1.5f, -1.5f);
+            var shopEntry = shop.openFromStart.gameObject.AddComponent<UiEntrance>(); shopEntry.delay = .28f; shopEntry.offset = -25;
 
             var hud = Panel(safe, "HUD", .025f, .83f, .975f, .99f); view.hud = hud.gameObject;
             view.distanceText = Text(hud, "Distance", "0 m", 43, .04f, .46f, .67f, .94f);
@@ -92,20 +106,21 @@ namespace TsilaRun.Editor
             shop.skinLabels = skinLabels;
             shop.close = Button(market, "Back", "BACK", .1f, .065f, .9f, .145f, Violet);
 
-            var methodLogo = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/TsilaRunArt/Textures/MethodLogo.png");
-            if (methodLogo != null)
-            {
-                var logoFrame = Rect(safe, "Method Logo Frame", .81f, .91f, .96f, .995f);
-                var logo = Rect(logoFrame, "Method Logo", 0f, 0f, 1f, 1f).gameObject.AddComponent<RawImage>();
-                logo.texture = methodLogo;
-                logo.raycastTarget = false;
-            }
-            else Text(safe, "Method Brand", "METHOD", 19, .79f, .905f, .97f, .995f).color = Neon;
-            Text(safe, "Copyright", "Copyright by Method", 13, .08f, .009f, .92f, .039f).color = Muted;
+            Text(start, "Copyright", "METHOD", 12, .08f, .009f, .92f, .039f).color = Muted;
+            var tutorial = canvas.AddComponent<RunnerTutorial>(); tutorial.game = game;
+            var tutorialCover = Panel(safe, "First Run Tutorial", 0, 0, 1, 1);
+            tutorialCover.GetComponent<Image>().color = new Color32(5, 10, 23, 248);
+            tutorialCover.GetComponent<Image>().raycastTarget = true;
+            SportText(tutorialCover, "Title", "READY TO RUN?", 65, .06f, .72f, .94f, .85f).color = Neon;
+            Text(tutorialCover, "Gestures", "SWIPE LEFT / RIGHT\nChange lanes\n\nSWIPE UP\nJump\n\nSWIPE DOWN\nRoll under obstacles", 32, .08f, .28f, .92f, .70f);
+            Text(tutorialCover, "Keyboard", "KEYBOARD: ARROW KEYS / WASD", 18, .08f, .20f, .92f, .25f).color = Muted;
+            tutorial.continueButton = Button(tutorialCover, "Continue", "LET'S GO", .15f, .09f, .85f, .17f, Neon);
+            tutorial.panel = tutorialCover.gameObject; tutorial.panel.SetActive(false);
             foreach (var panel in new[] { start, pause, over, intro, market }) panel.gameObject.AddComponent<UiPanelMotion>();
             pause.gameObject.SetActive(false); over.gameObject.SetActive(false); intro.gameObject.SetActive(false);
             market.gameObject.SetActive(false); hud.gameObject.SetActive(false);
             view.zoneText.gameObject.SetActive(false);
+            view.ApplyMobileLayout(); view.ApplyModernMobileStyle();
             return new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule)).GetComponent<InputSystemUIInputModule>();
         }
         static RectTransform Rect(Transform parent, string name, float x0, float y0, float x1, float y1)
@@ -123,13 +138,22 @@ namespace TsilaRun.Editor
         static Text Text(Transform parent, string name, string value, int size, float x0, float y0, float x1, float y1)
         {
             var text = Rect(parent, name, x0, y0, x1, y1).gameObject.AddComponent<Text>();
-            text.font = font; text.text = value; text.fontSize = size; text.color = Pale;
+            text.font = font; text.text = value; text.fontSize = Mathf.RoundToInt(size * 1.5f); text.color = Pale;
             text.alignment = TextAnchor.MiddleCenter; text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize = 12;
-            text.resizeTextMaxSize = size;
+            text.resizeTextMaxSize = Mathf.RoundToInt(size * 1.5f);
+            return text;
+        }
+        static TextMeshProUGUI SportText(Transform parent, string name, string value, int size, float x0, float y0, float x1, float y1)
+        {
+            var text = Rect(parent, name, x0, y0, x1, y1).gameObject.AddComponent<TextMeshProUGUI>();
+            text.font = MenuPolishBuilder.FontAsset(); text.text = value; text.fontSize = size; text.color = Pale;
+            text.alignment = TextAlignmentOptions.Center; text.raycastTarget = false;
+            text.enableAutoSizing = true; text.fontSizeMin = size * .65f; text.fontSizeMax = size;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
             return text;
         }
         static Button Button(Transform parent, string name, string value, float x0, float y0, float x1, float y1, Color color, int size = 32)

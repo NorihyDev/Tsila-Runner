@@ -31,13 +31,14 @@ namespace TsilaRun
             {
                 int next = !running ? Idle : player != null && player.IsSliding ? Slide :
                     player != null && !player.IsGrounded ? Jump : Run;
-                animator.speed = next == Run && game != null ? Mathf.Lerp(0.9f, 1.3f,
+                animator.speed = next == Slide ? 0f : next == Run && game != null ? Mathf.Lerp(0.9f, 1.3f,
                     Mathf.InverseLerp(RunnerRules.StartSpeed, RunnerRules.MaxSpeed + RunnerRules.SpeedBoostBonus, game.TravelSpeed)) : 1f;
                 if (next != currentAnimation)
                 {
-                    animator.CrossFadeInFixedTime(next, currentAnimation == 0 ? 0f : 0.08f, 0);
+                    animator.CrossFadeInFixedTime(next, currentAnimation == 0 || next == Slide ? 0f : 0.08f, 0);
                     currentAnimation = next;
                 }
+                if (next == Slide && player != null) animator.Play(Slide, 0, player.RollProgress * .98f);
                 return;
             }
             if (!running) { Pose(0f, 0f); return; }

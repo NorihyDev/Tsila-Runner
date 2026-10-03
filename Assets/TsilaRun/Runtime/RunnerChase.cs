@@ -12,15 +12,16 @@ namespace TsilaRun
         public void ResetChase()
         {
             IntroProgress = 0f;
-            officer.transform.position = new Vector3(-1.2f, 0f, -7f);
+            officer.transform.position = new Vector3(-1.2f, 0f, -4.8f);
             officer.transform.rotation = Quaternion.identity;
             officer.animate = true;
+            if (officer.animator != null) { officer.animator.Rebind(); if (officer.gameObject.activeInHierarchy) officer.animator.Update(0f); }
         }
 
         public bool TickIntro(float dt)
         {
             IntroProgress = Mathf.Min(1f, IntroProgress + dt / IntroSeconds);
-            officer.transform.position = Vector3.Lerp(new Vector3(-1.2f, 0f, -7f), new Vector3(0f, 0f, -3.2f), IntroProgress);
+            officer.transform.position = Vector3.Lerp(new Vector3(-1.2f, 0f, -4.8f), new Vector3(0f, 0f, -3.2f), IntroProgress);
             return IntroProgress >= 1f;
         }
 
@@ -33,7 +34,7 @@ namespace TsilaRun
             if (!visible) return;
             if (game.State == RunnerGame.RunState.Running)
                 officer.transform.position = new Vector3(game.player.transform.position.x * 0.6f, 0f,
-                    Mathf.Lerp(-3.2f, -9f, Mathf.Clamp01((float)game.Distance / 60f)));
+                    Mathf.Lerp(-3.2f, -5.2f, Mathf.Clamp01((float)game.Distance / 60f)));
             if (game.State == RunnerGame.RunState.GameOver)
             {
                 Vector3 target = new Vector3(game.player.transform.position.x + 0.8f, 0f, -0.8f);

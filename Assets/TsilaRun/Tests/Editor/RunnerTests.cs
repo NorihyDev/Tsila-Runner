@@ -37,6 +37,8 @@ namespace TsilaRun.Tests
         [SetUp]
         public void UseDeterministicSceneReload()
         {
+            SessionState.SetInt("TsilaRun.Tests.Tutorial", PlayerPrefs.GetInt(RunnerTutorial.PreferenceKey, -1));
+            PlayerPrefs.DeleteKey(RunnerTutorial.PreferenceKey);
             SessionState.SetBool("TsilaRun.Tests.FastPlay", EditorSettings.enterPlayModeOptionsEnabled);
             EditorSettings.enterPlayModeOptionsEnabled = false;
         }
@@ -44,6 +46,8 @@ namespace TsilaRun.Tests
         [TearDown]
         public void RestoreTestEnvironment()
         {
+            int previousTutorial = SessionState.GetInt("TsilaRun.Tests.Tutorial", -1);
+            if (previousTutorial < 0) PlayerPrefs.DeleteKey(RunnerTutorial.PreferenceKey); else PlayerPrefs.SetInt(RunnerTutorial.PreferenceKey, previousTutorial);
             PlayerPrefs.DeleteKey(TestSave);
             EditorSettings.enterPlayModeOptionsEnabled = SessionState.GetBool("TsilaRun.Tests.FastPlay", true);
             if (syntheticTouchscreen != null && syntheticTouchscreen.added) InputSystem.RemoveDevice(syntheticTouchscreen);
@@ -80,8 +84,8 @@ namespace TsilaRun.Tests
             Assert.IsTrue(RunnerRules.SweptOverlap(standing, standing, obstacle, 16f));
             var jumped = standing; jumped.center += Vector3.up * 1.3f;
             Assert.IsFalse(RunnerRules.SweptOverlap(jumped, jumped, obstacle, 16f));
-            var sliding = new Bounds(new Vector3(0f, 0.35f, 0f), new Vector3(0.64f, 0.7f, 0.64f));
-            var overhead = new Bounds(new Vector3(0f, 1.9f, 8f), new Vector3(1.9f, 1.8f, 0.9f));
+            var sliding = new Bounds(new Vector3(0f, RunnerRules.SlideHeight * .5f, 0f), new Vector3(0.64f, RunnerRules.SlideHeight, 0.64f));
+            var overhead = new Bounds(new Vector3(0f, RunnerRules.OverheadClearance + .9f, 8f), new Vector3(1.9f, 1.8f, 0.9f));
             Assert.IsFalse(RunnerRules.SweptOverlap(sliding, sliding, overhead, 16f));
             Assert.IsTrue(RunnerRules.SweptOverlap(standing, standing, overhead, 16f));
         }
@@ -171,6 +175,11 @@ namespace TsilaRun.Tests
             game.SendMessage("OnApplicationPause", false);
             Assert.AreEqual(RunnerGame.RunState.Ready, game.State);
             hud.playButton.onClick.Invoke();
+            if (hud.GetComponent<RunnerTutorial>().panel.activeSelf)
+            {
+                Assert.AreEqual(RunnerGame.RunState.Ready, game.State);
+                hud.GetComponent<RunnerTutorial>().continueButton.onClick.Invoke();
+            }
             Assert.AreEqual(RunnerGame.RunState.Intro, game.State);
             game.SendMessage("FixedUpdate");
             float introProgress = game.chase.IntroProgress;
@@ -535,10 +544,11 @@ namespace TsilaRun.Tests
                 var skin = character.GetComponentInChildren<SkinnedMeshRenderer>();
                 Bounds low = BlenderPackIntegration.SkinnedBounds(character, skin);
                 Assert.GreaterOrEqual(low.min.y, -.02f, "Slide must stay above the road.");
-                Assert.LessOrEqual(low.max.y, .72f, "Slide mesh must fit beneath the beam.");
+                Assert.LessOrEqual(low.max.y, RunnerRules.SlideHeight + .02f, "Slide mesh must fit beneath the beam.");
                 slide.SampleAnimation(character, 1f);
                 Bounds held = BlenderPackIntegration.SkinnedBounds(character, skin);
-                Assert.AreEqual(low.center.y, held.center.y, .001f, "Hold the pose until gameplay allows standing.");
+                Assert.GreaterOrEqual(held.min.y, -.02f);
+                Assert.LessOrEqual(held.max.y, RunnerRules.SlideHeight + .02f, "Keep the final tucked pose until gameplay allows standing.");
                 Debug.Log("TSILA_SLIDE_BOUNDS " + held);
             }
             finally { Object.DestroyImmediate(character); }
@@ -578,7 +588,7 @@ namespace TsilaRun.Tests
             avatar.animator.Update(1.2f);
             var slideBounds = BlenderPackIntegration.SkinnedBounds(avatar.gameObject, avatar.GetComponentInChildren<SkinnedMeshRenderer>());
             Assert.GreaterOrEqual(slideBounds.min.y, -.02f);
-            Assert.LessOrEqual(slideBounds.max.y, .72f, "Runtime Animator must preserve the low pose too.");
+            Assert.LessOrEqual(slideBounds.max.y, RunnerRules.SlideHeight + .02f, "Runtime Animator must preserve the low pose too.");
             game.player.ResetPlayer();
             var items = game.world.GetComponentsInChildren<RunnerItem>(true);
             foreach (var item in items) item.Release();
@@ -597,7 +607,7 @@ namespace TsilaRun.Tests
         public void SceneryCyclesAndMovingPeopleHaveBoundedDrift()
         {
             EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
-            var world = Object.FindAnyObjectByType<RunnerWorld>();
+            var world = Object.FindAnyObjectByType<RunnerWorld>(FindObjectsInactive.Include);
             world.ResetWorld(42);
             var section = world.GetComponentInChildren<RunnerRoadSection>();
             for (int i = 0; i < 12; i++)

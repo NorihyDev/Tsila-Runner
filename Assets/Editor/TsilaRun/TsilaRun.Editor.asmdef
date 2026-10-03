@@ -1,6 +1,16 @@
 {
   "name": "TsilaRun.Editor",
   "rootNamespace": "TsilaRun.Editor",
-  "references": ["TsilaRun.Runtime", "Method.TsilaRun.Art.Editor", "Unity.InputSystem", "Unity.ugui", "Unity.RenderPipelines.Universal.Runtime"],
-  "includePlatforms": ["Editor"]
+  "references": [
+    "TsilaRun.Runtime",
+    "Method.TsilaRun.Art.Editor",
+    "Unity.InputSystem",
+    "Unity.ugui",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.TextMeshPro",
+    "Unity.RenderPipelines.Core.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
 }
