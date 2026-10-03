@@ -1,11 +1,13 @@
-import bpy, json, pathlib, math
+import bpy, json, pathlib, math, sys
 from mathutils import Vector
 
 root = pathlib.Path(__file__).resolve().parents[1]
 out = root / 'Logs/MeshyInspection'
 out.mkdir(parents=True, exist_ok=True)
 report = {}
+selected = sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
 for path in sorted((root / 'Assets/TsilaRun/Art/AI').glob('*.glb')):
+    if selected and path.stem not in selected: continue
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(path))
     meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH']

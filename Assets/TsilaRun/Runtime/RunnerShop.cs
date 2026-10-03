@@ -166,7 +166,7 @@ namespace TsilaRun
                 if (skinLabels[i] != null) skinLabels[i].text = label;
                 var img = skinButtons[i].GetComponent<Image>();
                 if (img != null) img.color = selected ? new Color32(39, 50, 70, 255) : owned ? new Color32(15, 140, 120, 255) : new Color32(16, 50, 82, 255);
-                skinButtons[i].interactable = !selected;
+                skinButtons[i].interactable = !selected && (owned || game.Progress.Wallet >= price);
                 var colors = skinButtons[i].colors;
                 colors.normalColor = colors.selectedColor = Color.white;
                 colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f, 1f);

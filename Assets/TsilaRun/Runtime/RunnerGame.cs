@@ -12,6 +12,9 @@ namespace TsilaRun
         public RunnerChase chase;
         public RunnerVfx vfx;
         public Material[] skinMaterials;
+        // Tsila, Lucef, Mianja. The first four shop entries reuse Tsila's model.
+        public GameObject[] characterPrefabs;
+        GameObject appliedCharacterPrefab;
         static readonly Color[] SkinTints =
         {
             Color.white,
@@ -89,8 +92,20 @@ namespace TsilaRun
             Bounds previous = player.HitBounds;
             player.Simulate(dt);
             float travel = TravelSpeed * dt;
+            double previousDistance = Distance;
             Distance += travel;
             world.Simulate(travel, previous, player.HitBounds);
+            if (State == RunState.Running)
+            {
+                // Count each whole metre in its own biome, including boundary crossings.
+                for (long metre = (long)Math.Floor(previousDistance) + 1; metre <= (long)Math.Floor(Distance); metre++)
+                {
+                    var kind = Progress.ActiveMission;
+                    int zone = RunnerRoadSection.ZoneAt(metre - .5d);
+                    if (kind == RunnerMissionKind.TravelMetres || kind == RunnerMissionKind.MountainMetres && zone == 1 || kind == RunnerMissionKind.TunnelMetres && zone == 2)
+                        AdvanceMission(kind);
+                }
+            }
         }
 
         public void CollectCoin()
@@ -114,6 +129,7 @@ namespace TsilaRun
                 case RunnerItemKind.SpeedBoost: BoostRemaining = duration; break;
             }
             if (vfx != null) vfx.SpawnPowerUpBurst(player.transform.position + Vector3.up * 0.9f, kind);
+            AdvanceMission(RunnerMissionKind.CollectPowerUps);
         }
 
         public bool TryAbsorbObstacle()
@@ -156,9 +172,26 @@ namespace TsilaRun
         public void ApplySkin()
         {
             if (Progress == null || player == null) return;
+            int model = RunnerProgress.SkinModelIndex(Progress.Selected);
+            if (characterPrefabs != null && model < characterPrefabs.Length && characterPrefabs[model] != null &&
+                appliedCharacterPrefab != characterPrefabs[model])
+            {
+                var previous = player.GetComponentInChildren<RunnerAvatar>(true);
+                if (previous != null)
+                {
+                    previous.gameObject.SetActive(false);
+                    if (Application.isPlaying) Destroy(previous.gameObject); else DestroyImmediate(previous.gameObject);
+                }
+                var visual = Instantiate(characterPrefabs[model], player.visual, false);
+                var replacement = visual.GetComponent<RunnerAvatar>();
+                replacement.game = this; replacement.player = player; replacement.alwaysRun = false;
+                player.rig = visual.GetComponent<RunnerCharacterRig>();
+                player.animatedSlide = true;
+                appliedCharacterPrefab = characterPrefabs[model];
+            }
             var avatar = player.GetComponentInChildren<RunnerAvatar>();
             if (avatar == null) return;
-            int selected = Mathf.Clamp(Progress.Selected, 0, SkinTints.Length - 1);
+            int selected = Progress.Selected < SkinTints.Length ? Progress.Selected : 0;
             if (skinMaterials != null && selected < skinMaterials.Length && skinMaterials[selected] != null)
                 avatar.SetSuit(skinMaterials[selected]);
             else avatar.SetSuitTint(SkinTints[selected]);
@@ -214,6 +247,11 @@ namespace TsilaRun
             Best = Score;
             PlayerPrefs.SetInt(BestKey, Best);
             PlayerPrefs.Save();
+        }
+
+        public void RegisterPlayerAction(RunnerMissionKind kind)
+        {
+            if (State == RunState.Running && (kind == RunnerMissionKind.Jump || kind == RunnerMissionKind.Roll)) AdvanceMission(kind);
         }
 
         void AdvanceMission(RunnerMissionKind kind)

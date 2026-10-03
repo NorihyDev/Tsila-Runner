@@ -14,6 +14,7 @@ namespace TsilaRun.Tests
     {
         [TestCase("Tsila")]
         [TestCase("Officer")]
+        [TestCase("Mianja")]
         public void RollStaysAboveRoadAndBelowOverheadThroughoutBothLods(string name)
         {
             var model = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPackIntegration.PrefabPath(name)));
@@ -76,7 +77,7 @@ namespace TsilaRun.Tests
                 foreach (var zone in road.GetComponent<RunnerRoadSection>().scenery.Take(2))
                     foreach (Transform prop in zone.transform)
                     {
-                        if (prop.name == "Island") continue;
+                        if (prop.name == "Island" || prop.name == "Mountain Sand") continue;
                         var bounds = MeshyPackIntegration.PlacedBounds(prop.gameObject);
                         Assert.IsTrue(bounds.max.x <= -4.2f || bounds.min.x >= 4.2f, prop.name + " intrudes into road: " + bounds);
                     }

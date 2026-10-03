@@ -20,7 +20,7 @@ The mobile presentation uses Rajdhani title and button typography, a neon menu s
 
 - **Three-lane running:** automatic forward movement, smooth lane changes, jumping, and sliding. Swipe down while airborne to drop into a slide, or swipe up during a slide to cancel it and jump when clear.
 - **Varied obstacles:** low barriers, overhead beams, tall obstacles, and other runners. Later waves can occupy all three lanes, with a jumpable or slidable route; tall towers must be dodged.
-- **Animated characters:** idle, run, jump, and full-size roll states, plus a skippable police chase introduction.
+- **Animated characters:** Tsila, unlockable Lucef (1,000 coins) and Mianja (5,000 coins), with idle, run, jump and full-size roll states. Horror Girl handles the chase introduction; Horror Skunx replaces the running obstacle.
 - **Changing environments:** island, mountain pass, and underground scenery cycle every 288 metres.
 - **Local progression:** distance score, best distance, and a persistent coin wallet.
 - **Method presentation:** animated character showcase, branded artwork, rounded controls, and a midnight-blue, white, and mint interface.
@@ -164,7 +164,7 @@ Editor screenshots were rendered at **720 × 1280**, **1170 × 2532**, **1080 ×
 
 Run the available checks through **Window → General → Test Runner → EditMode**. Save your work first: gameplay tests open the prototype scene and enter Play mode. Exclude the `SceneGeneration` category when validating this integrated scene.
 
-Current scope excludes real-money purchases, cloud saves, and gameplay sound effects. Method music loops in the background, and buttons have a brief tap sound. Missions and coin-purchased outfit colorways are local prototype systems. Mountain and tunnel scenery share a flat gameplay surface; terrain slopes are not simulated.
+Current scope excludes real-money purchases, cloud saves, and gameplay sound effects. Method music loops in the background, and buttons have a brief tap sound. Eight local missions rotate through coins, obstacle avoidance, distance, jumps, rolls, power-ups, rocky-biome distance and tunnel distance. The shop switches playable characters as well as Tsila outfit colors; existing balances and purchases are preserved. Rocky scenery sits on continuous sand alongside the road. Biomes share a flat gameplay surface; terrain slopes are not simulated. See [character and mission integration](Docs/Horror-Characters.md).
 
 See the [verification record](Docs/TsilaRun-Verification.md) for the distinction between completed checks and outstanding device validation.
 

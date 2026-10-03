@@ -16,7 +16,7 @@ namespace TsilaRun.Editor
         public const string Root = "Assets/TsilaRun/Art/Meshy";
         public const string Source = Root + "/Source";
         public const string Generated = Root + "/Generated";
-        static readonly string[] Characters = { "Tsila", "Officer" };
+        static readonly string[] Characters = { "Tsila", "Officer", "HorrorGirl", "HorrorSkunx" };
         static readonly string[] Props =
         {
             "RoadSection", "Curb", "Tower", "Overhead", "Coin", "CoinMagnet", "Tree", "Palm", "House", "Building",
@@ -66,6 +66,7 @@ namespace TsilaRun.Editor
                 ConfigureModel(name, true);
                 ConfigureModel(name + "_LOD1", true);
                 BuildCharacter(name);
+                if (name.StartsWith("Horror")) HorrorContentBuilder.GroundNpcAnimation(name);
             }
             foreach (string name in Props)
             {
@@ -80,7 +81,7 @@ namespace TsilaRun.Editor
             Debug.Log("TSILA_MESHY_INTEGRATION_OK backup=" + backup);
         }
 
-        static void ConfigureModel(string name, bool character)
+        public static void ConfigureModel(string name, bool character)
         {
             string path = Source + "/" + name + ".fbx";
             var importer = (ModelImporter)AssetImporter.GetAtPath(path);
@@ -105,7 +106,7 @@ namespace TsilaRun.Editor
                 var clips = importer.defaultClipAnimations;
                 foreach (var clip in clips)
                 {
-                    string state = new[] { "Idle", "Run", "Jump", "Slide" }.FirstOrDefault(s => clip.name.EndsWith(s, StringComparison.OrdinalIgnoreCase));
+                    string state = name.StartsWith("Horror") ? "Run" : new[] { "Idle", "Run", "Jump", "Slide" }.FirstOrDefault(s => clip.name.EndsWith(s, StringComparison.OrdinalIgnoreCase));
                     if (state == null) throw new InvalidDataException("Unexpected Meshy clip: " + clip.name);
                     clip.name = state;
                     clip.loopTime = state == "Idle" || state == "Run";
@@ -179,7 +180,7 @@ namespace TsilaRun.Editor
             return model;
         }
 
-        static void BuildCharacter(string name)
+        public static void BuildCharacter(string name)
         {
             var model = InstantiateModel(name);
             var low = InstantiateModel(name + "_LOD1");
@@ -194,9 +195,9 @@ namespace TsilaRun.Editor
                 var machine = controller.layers[0].stateMachine;
                 foreach (var state in machine.states) machine.RemoveState(state.state);
                 var imported = AssetDatabase.LoadAllAssetsAtPath(Source + "/" + name + ".fbx").OfType<AnimationClip>().Where(c => !c.name.StartsWith("__")).ToArray();
-                foreach (string state in new[] { "Idle", "Run", "Jump", "Slide" })
+                foreach (string state in name.StartsWith("Horror") ? new[] { "Idle", "Run" } : new[] { "Idle", "Run", "Jump", "Slide" })
                 {
-                    var clip = Object.Instantiate(imported.Single(c => c.name == state));
+                    var clip = Object.Instantiate(imported.Single(c => c.name == (name.StartsWith("Horror") ? "Run" : state)));
                     clip.name = name + "_" + state;
                     string clipPath = Generated + "/" + clip.name + ".anim";
                     var saved = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
@@ -314,6 +315,8 @@ namespace TsilaRun.Editor
             model.transform.localPosition = position;
             model.transform.localRotation = Quaternion.Euler(0, yaw, 0);
             if (scale.sqrMagnitude > 0f) model.transform.localScale = scale;
+            if (asset != "RoadSection" && asset != "Curb")
+                model.transform.localPosition += Vector3.up * (-.015f - PlacedBounds(model).min.y);
         }
 
         static void ClearScenery(Transform root, string preserve = null)
@@ -328,13 +331,18 @@ namespace TsilaRun.Editor
             foreach (Transform child in root.transform.Cast<Transform>().ToArray())
                 if (child.GetComponent<RunnerRoadSection>() == null && !section.scenery.Contains(child.gameObject)) Object.DestroyImmediate(child.gameObject);
             Place(root.transform, "RoadSection", Vector3.zero);
+            // The supplied mesh ends include curbs; a backing surface closes
+            // small asphalt gaps between modules without covering the road art.
+            MobilePrototypeBuilder.Shape(root.transform, "Road Foundation", PrimitiveType.Cube,
+                new Vector3(0f, -.025f, 0f), new Vector3(8f, .04f, RunnerRules.RoadLength),
+                AssetDatabase.LoadAssetAtPath<Material>(MobilePrototypeBuilder.Root + "/Materials/Road.mat"));
             foreach (int side in new[] { -1, 1 }) Place(root.transform, "Curb", new Vector3(side * 4.1f, -.05f, 0f));
             var island = section.scenery[0].transform;
             ClearScenery(island, "Island");
             var ground = island.Find("Island");
             if (ground != null)
             {
-                ground.localPosition = new Vector3(0f, -.16f, 0f);
+                ground.localPosition = new Vector3(0f, -.135f, 0f);
                 ground.localScale = new Vector3(64f, .25f, 24f);
                 ground.GetComponent<Renderer>().sharedMaterial = MenuPolishBuilder.SandMaterial();
             }
@@ -352,14 +360,14 @@ namespace TsilaRun.Editor
             ClearRoadEnvelope(island);
             var mountain = section.scenery[1].transform;
             ClearScenery(mountain);
+            MobilePrototypeBuilder.Shape(mountain, "Mountain Sand", PrimitiveType.Cube,
+                new Vector3(0f, -.135f, 0f), new Vector3(96f, .25f, RunnerRules.RoadLength), MenuPolishBuilder.SandMaterial());
             foreach (int side in new[] { -1, 1 })
             {
                 Place(mountain, "Cliffs", new Vector3(side * 22f, -2f, 0f));
                 Place(mountain, "RockTerrain", new Vector3(side * 26f, -3f, 0f));
                 Place(mountain, "Rock", new Vector3(side * 8f, 0f, side * 8f), side * 20f, Vector3.one * .65f);
                 Place(mountain, "Tree", new Vector3(side * 13f, 0f, -side * 6f));
-                for (int z = -10; z <= 10; z += 5)
-                    Place(mountain, "SafetyRail", new Vector3(side * 4.4f, .65f, z), 90f);
             }
             foreach (Transform prop in mountain)
                 if (prop.name.Contains("Rock") || prop.name.Contains("Tree"))
@@ -399,7 +407,7 @@ namespace TsilaRun.Editor
         {
             foreach (Transform prop in scenery)
             {
-                if (prop.name == "Island") continue;
+                if (prop.name == "Island" || prop.name == "Mountain Sand") continue;
                 var bounds = PlacedBounds(prop.gameObject);
                 float shift = prop.localPosition.x < 0f ? Mathf.Min(0, -4.3f - bounds.max.x) : Mathf.Max(0, 4.3f - bounds.min.x);
                 prop.localPosition += Vector3.right * shift;
@@ -441,9 +449,13 @@ namespace TsilaRun.Editor
         {
             var scene = EditorSceneManager.OpenScene(MobilePrototypeBuilder.ScenePath);
             var game = Object.FindAnyObjectByType<RunnerGame>();
+            if (PrefabUtility.IsPartOfPrefabInstance(game.player))
+                PrefabUtility.UnpackPrefabInstance(PrefabUtility.GetOutermostPrefabInstanceRoot(game.player), PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
             // Replace explicitly because the saved scene contains serialized avatar overrides.
             var avatar = ReplacePlayer(game.player); avatar.game = game;
             var officerRoot = scene.GetRootGameObjects().Single(o => o.name == "Officer");
+            if (PrefabUtility.IsPartOfPrefabInstance(officerRoot))
+                PrefabUtility.UnpackPrefabInstance(PrefabUtility.GetOutermostPrefabInstanceRoot(officerRoot), PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
             ClearChildren(officerRoot.transform);
             var officer = MethodVisualBuilder.Character(officerRoot.transform, "Officer");
             officer.game = game; officer.alwaysRun = true; game.chase.officer = officer;
@@ -461,8 +473,9 @@ namespace TsilaRun.Editor
                     tile.transform.localPosition = new Vector3(0f, 0f, (i - 1) * RunnerRules.RoadLength);
                 }
             }
-            PrefabUtility.RecordPrefabInstancePropertyModifications(game.player);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(game.world);
+            if (PrefabUtility.IsPartOfPrefabInstance(game.player)) PrefabUtility.RecordPrefabInstancePropertyModifications(game.player);
+            if (PrefabUtility.IsPartOfPrefabInstance(game.world)) PrefabUtility.RecordPrefabInstancePropertyModifications(game.world);
+            HorrorContentBuilder.ApplyToScene(game);
             EditorSceneManager.MarkSceneDirty(scene); EditorSceneManager.SaveScene(scene);
         }
 
@@ -474,13 +487,14 @@ namespace TsilaRun.Editor
                 try
                 {
                     var animator = instance.GetComponent<Animator>();
-                    if (!animator.avatar.isValid || animator.runtimeAnimatorController.animationClips.Length != 4) throw new InvalidDataException("Invalid Meshy animator: " + name);
+                    if (!animator.avatar.isValid || animator.runtimeAnimatorController.animationClips.Length != (name.StartsWith("Horror") ? 2 : 4)) throw new InvalidDataException("Invalid Meshy animator: " + name);
                     foreach (var skin in instance.GetComponentsInChildren<SkinnedMeshRenderer>())
                     {
                         if (skin.bones.Any(b => b == null) || skin.sharedMaterials.Any(m => m == null || m.GetTexture("_BaseMap") == null)) throw new InvalidDataException("Missing Meshy bones/textures: " + name);
                         foreach (var weight in skin.sharedMesh.boneWeights)
                             if (Mathf.Abs(weight.weight0 + weight.weight1 + weight.weight2 + weight.weight3 - 1f) > .003f) throw new InvalidDataException("Invalid Meshy weights");
                     }
+                    if (name.StartsWith("Horror")) continue;
                     animator.runtimeAnimatorController.animationClips.Single(c => c.name.EndsWith("_Slide")).SampleAnimation(instance, .5f);
                     var bounds = BlenderPackIntegration.SkinnedBounds(instance, instance.GetComponentInChildren<SkinnedMeshRenderer>());
                     Debug.Log("MESHY_SLIDE_BOUNDS " + name + " " + bounds);

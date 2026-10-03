@@ -3,13 +3,16 @@ using UnityEngine;
 
 namespace TsilaRun
 {
-    public enum RunnerMissionKind { CollectCoins, DodgeObstacles }
+    public enum RunnerMissionKind { CollectCoins, DodgeObstacles, TravelMetres, Jump, Roll, CollectPowerUps, MountainMetres, TunnelMetres }
 
     // One local save stores balance, ownership, and selection together. No real-money purchases.
     public sealed class RunnerProgress
     {
-        public static readonly string[] SkinNames = { "Island Teal", "Sunset Coral", "Golden Trail", "Midnight" };
-        public static readonly int[] Prices = { 0, 40, 100, 150 };
+        public static readonly string[] SkinNames = { "Tsila", "Sunset Coral", "Golden Trail", "Midnight", "Lucef", "Mianja" };
+        public static readonly int[] Prices = { 0, 40, 100, 150, 1000, 5000 };
+        static readonly string[] MissionNames = { "COLLECT COINS", "DODGE OBSTACLES", "RUN 500 METRES", "MAKE 12 JUMPS", "DO 8 ROLLS", "COLLECT 3 POWER UPS", "RUN IN THE ROCKY BIOME", "RUN THROUGH THE TUNNEL" };
+        static readonly int[] MissionTargets = { 30, 10, 500, 12, 8, 3, 200, 150 };
+        public static int SkinModelIndex(int skin) => skin < 4 ? 0 : skin - 3;
         public const int MissionReward = 40;
         [Serializable] sealed class SaveData
         {
@@ -25,8 +28,8 @@ namespace TsilaRun
         public int Selected => data.selected;
         public RunnerMissionKind ActiveMission => (RunnerMissionKind)data.missionIndex;
         public int ActiveMissionProgress => data.missionProgress;
-        public int ActiveMissionTarget => ActiveMission == RunnerMissionKind.CollectCoins ? 30 : 10;
-        public string ActiveMissionName => ActiveMission == RunnerMissionKind.CollectCoins ? "COLLECT COINS" : "DODGE OBSTACLES";
+        public int ActiveMissionTarget => MissionTargets[data.missionIndex];
+        public string ActiveMissionName => MissionNames[data.missionIndex];
 
         public RunnerProgress(string saveKey = "TsilaRun.Progress.v1")
         {
@@ -35,9 +38,10 @@ namespace TsilaRun
             catch (ArgumentException) { data = null; }
             if (data == null) data = new SaveData();
             data.coins = Mathf.Max(0, data.coins);
-            data.owned = (data.owned & 15) | 1;
+            // Keep the original four indices so existing purchases and balances survive.
+            data.owned = (data.owned & ((1 << Prices.Length) - 1)) | 1;
             if (!Owns(data.selected)) data.selected = 0;
-            data.missionIndex = Mathf.Clamp(data.missionIndex, 0, 1);
+            data.missionIndex = Mathf.Clamp(data.missionIndex, 0, MissionTargets.Length - 1);
             data.missionProgress = Mathf.Clamp(data.missionProgress, 0, ActiveMissionTarget - 1);
         }
 
@@ -45,14 +49,14 @@ namespace TsilaRun
 
         public void EarnCoin() { if (data.coins < int.MaxValue) data.coins++; }
 
-        public int AdvanceMission(RunnerMissionKind kind)
+        public int AdvanceMission(RunnerMissionKind kind, int amount = 1)
         {
-            if (kind != ActiveMission) return 0;
-            data.missionProgress++;
+            if (kind != ActiveMission || amount <= 0) return 0;
+            data.missionProgress = (int)Math.Min(ActiveMissionTarget, (long)data.missionProgress + amount);
             if (data.missionProgress < ActiveMissionTarget) return 0;
 
             data.coins = (int)Math.Min(int.MaxValue, (long)data.coins + MissionReward);
-            data.missionIndex = 1 - data.missionIndex;
+            data.missionIndex = (data.missionIndex + 1) % MissionTargets.Length;
             data.missionProgress = 0;
             Save();
             return MissionReward;

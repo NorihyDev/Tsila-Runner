@@ -56,6 +56,8 @@ namespace TsilaRun.Editor
             SportText(shop.openFromStart.transform, "Label", "SHOP", 40, .04f, .05f, .96f, .95f).color = Neon;
             var shopOutline = shop.openFromStart.gameObject.AddComponent<Outline>(); shopOutline.effectColor = Neon; shopOutline.effectDistance = new Vector2(1.5f, -1.5f);
             var shopEntry = shop.openFromStart.gameObject.AddComponent<UiEntrance>(); shopEntry.delay = .28f; shopEntry.offset = -25;
+            view.menuMissionText = Text(start, "Current Mission", "COLLECT COINS  0/30  +40", 18, .1f, .278f, .9f, .31f);
+            view.menuMissionText.color = Muted;
 
             var hud = Panel(safe, "HUD", .025f, .83f, .975f, .99f); view.hud = hud.gameObject;
             view.distanceText = Text(hud, "Distance", "0 m", 43, .04f, .46f, .67f, .94f);
@@ -73,6 +75,7 @@ namespace TsilaRun.Editor
 
             var pause = Panel(safe, "Pause", .07f, .22f, .93f, .79f); view.pausePanel = pause.gameObject;
             Text(pause, "Title", "PAUSE", 64, .08f, .76f, .92f, .94f).color = Neon;
+            view.pauseMissionText = Text(pause, "Current Mission", "COLLECT COINS  0/30\nREWARD  +40 COINS", 23, .08f, .60f, .92f, .76f);
             view.resumeButton = Button(pause, "Resume", "RESUME", .09f, .44f, .91f, .59f, Neon);
             view.pausedRestartButton = Button(pause, "Restart", "RESTART", .09f, .26f, .91f, .41f, Violet);
             view.pausedMenuButton = Button(pause, "Menu", "MAIN MENU", .09f, .08f, .91f, .23f, Violet, 29);
@@ -92,13 +95,13 @@ namespace TsilaRun.Editor
             var market = Rect(safe, "Shop", 0, 0, 1, 1); shop.panel = market.gameObject;
             Text(market, "Title", "SHOP", 52, .06f, .825f, .77f, .945f).color = Neon;
             shop.wallet = Text(market, "Wallet", "COINS  0", 25, .1f, .77f, .9f, .825f);
-            Text(market, "Catalog Title", "OUTFITS", 24, .1f, .70f, .9f, .76f).color = Muted;
+            Text(market, "Catalog Title", "CHARACTERS / OUTFITS", 24, .1f, .70f, .9f, .76f).color = Muted;
             var skinButtons = new Button[RunnerProgress.SkinNames.Length];
             var skinLabels = new Text[RunnerProgress.SkinNames.Length];
             for (int i = 0; i < RunnerProgress.SkinNames.Length; i++)
             {
                 string label = i == 0 ? RunnerProgress.SkinNames[i].ToUpper() + "  /  FREE" : RunnerProgress.SkinNames[i].ToUpper() + "  /  " + RunnerProgress.Prices[i] + " COINS";
-                var button = Button(market, "Skin " + i, label, .1f, .61f - i * 0.14f, .9f, .68f - i * 0.14f, i == 0 ? Neon : Violet, 22);
+                var button = Button(market, "Skin " + i, label, .1f, .62f - i * 0.085f, .9f, .69f - i * 0.085f, i == 0 ? Neon : Violet, 22);
                 skinButtons[i] = button;
                 skinLabels[i] = button.GetComponentInChildren<Text>();
             }

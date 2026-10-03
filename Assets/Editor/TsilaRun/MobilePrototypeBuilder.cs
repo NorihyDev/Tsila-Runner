@@ -94,13 +94,14 @@ namespace TsilaRun.Editor
             var avatar = player.GetComponentInChildren<RunnerAvatar>();
             avatar.game = game; avatar.player = player;
             var officerRoot = new GameObject("Officer");
-            var officerRig = MethodVisualBuilder.Character(officerRoot.transform, "Officer");
+            var officerRig = MethodVisualBuilder.Character(officerRoot.transform, HorrorContentBuilder.SceneCharacter("Officer"));
             officerRig.alwaysRun = true;
             GameObject officerPrefab = SavePrefab(officerRoot, "Officer");
             var officer = ((GameObject)PrefabUtility.InstantiatePrefab(officerPrefab)).GetComponentInChildren<RunnerAvatar>();
             var chase = game.gameObject.AddComponent<RunnerChase>();
             chase.game = game; chase.officer = officer; game.chase = chase;
             officer.gameObject.SetActive(false);
+            HorrorContentBuilder.ApplyToScene(game);
             var input = game.gameObject.AddComponent<RunnerInput>();
             input.game = game; input.player = player;
 
@@ -286,7 +287,7 @@ namespace TsilaRun.Editor
                 default:
                     center = new Vector3(0f, 0.9f, 0f); size = new Vector3(0.65f, 0.65f, 0.3f); break;
             }
-            if (kind == RunnerItemKind.RunningPerson) MethodVisualBuilder.Character(root.transform, "RunningPerson").alwaysRun = true;
+            if (kind == RunnerItemKind.RunningPerson) MethodVisualBuilder.Character(root.transform, HorrorContentBuilder.SceneCharacter("RunningPerson")).alwaysRun = true;
             else if (RunnerRules.IsPowerUp(kind)) PowerUpVisual(root.transform, kind);
             else MethodVisualBuilder.Model(root.transform, kind.ToString());
             item.hitbox.center = center; item.hitbox.size = size;

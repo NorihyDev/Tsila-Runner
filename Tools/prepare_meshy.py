@@ -213,86 +213,90 @@ def add_rig(obj,name):
  bpy.context.scene.frame_set(1)
  return rig
 
-selected=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
-for stem,(name,budget,target) in SPECS.items():
- if selected and stem not in selected:continue
- bpy.ops.wm.read_factory_settings(use_empty=True)
- bpy.ops.import_scene.gltf(filepath=str(ROOT/'Assets/TsilaRun/Art/AI'/ (stem+'.glb')))
- meshes=[o for o in bpy.context.scene.objects if o.type=='MESH']
- if stem=='oak_trees_pack_17var_lods_seasons_gameready':
-  meshes=[o for o in meshes if '_LOD0_' in o.name]
-  if not meshes:raise RuntimeError('Oak tree pack contains no LOD0 meshes')
- if not meshes:raise RuntimeError('No mesh objects found in '+stem)
- for o in meshes:
-  matrix=o.matrix_world.copy(); o.parent=None; o.matrix_world=matrix
-  select(o); bpy.ops.object.transform_apply(location=True,rotation=True,scale=True)
- source_triangles=sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in meshes)
- if len(meshes)>1:
-  part_counts=[sum(len(p.vertices)-2 for p in o.data.polygons) for o in meshes]
-  total_triangles=sum(part_counts)
-  for o,part_count in zip(meshes,part_counts):
-   simplify(o,max(50,int(budget*part_count/total_triangles)))
- obj=meshes[0]; obj.name=name+'_Mesh'
- if len(meshes)>1:
-  bpy.ops.object.select_all(action='DESELECT')
-  for o in meshes:o.select_set(True)
-  bpy.context.view_layer.objects.active=obj; bpy.ops.object.join()
- original=mobile_bake(obj,name,budget)
- if stem in ('road','border'):
-  # Both supplied models run along X; the game's repeated direction is Blender Y.
-  for v in obj.data.vertices:v.co=Vector((-v.co.y,v.co.x,v.co.z))
- lo,hi=bounds(obj); size=hi-lo
- if name in ('Tsila','Officer'): target=tuple(size*(1.8/size.z))
- if name=='Tree':target=tuple(size*(3.95/size.z))
- if name=='Palm':target=tuple(size*(5.2/size.z))
- if name=='Building':target=tuple(size*(6.8/size.z))
- center=(lo+hi)*.5
- for v in obj.data.vertices:
-  v.co=Vector(((v.co.x-center.x)*target[0]/size.x,(v.co.y-center.y)*target[1]/size.y,(v.co.z-lo.z)*target[2]/size.z))
- if name=='RoadSection':
-  # Find the deck from central upward triangles, excluding raised curbs.
-  obj.data.update(); levels=Counter()
-  for p in obj.data.polygons:
-   if p.normal.z>.85 and abs(p.center.x)<3.2: levels[round(p.center.z,2)]+=p.area
-  deck=levels.most_common(1)[0][0]
+def main():
+ REPORT=[]
+ selected=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
+ for stem,(name,budget,target) in SPECS.items():
+  if selected and stem not in selected:continue
+  bpy.ops.wm.read_factory_settings(use_empty=True)
+  bpy.ops.import_scene.gltf(filepath=str(ROOT/'Assets/TsilaRun/Art/AI'/ (stem+'.glb')))
+  meshes=[o for o in bpy.context.scene.objects if o.type=='MESH']
+  if stem=='oak_trees_pack_17var_lods_seasons_gameready':
+   meshes=[o for o in meshes if '_LOD0_' in o.name]
+   if not meshes:raise RuntimeError('Oak tree pack contains no LOD0 meshes')
+  if not meshes:raise RuntimeError('No mesh objects found in '+stem)
+  for o in meshes:
+   matrix=o.matrix_world.copy(); o.parent=None; o.matrix_world=matrix
+   select(o); bpy.ops.object.transform_apply(location=True,rotation=True,scale=True)
+  source_triangles=sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in meshes)
+  if len(meshes)>1:
+   part_counts=[sum(len(p.vertices)-2 for p in o.data.polygons) for o in meshes]
+   total_triangles=sum(part_counts)
+   for o,part_count in zip(meshes,part_counts):
+    simplify(o,max(50,int(budget*part_count/total_triangles)))
+  obj=meshes[0]; obj.name=name+'_Mesh'
+  if len(meshes)>1:
+   bpy.ops.object.select_all(action='DESELECT')
+   for o in meshes:o.select_set(True)
+   bpy.context.view_layer.objects.active=obj; bpy.ops.object.join()
+  original=mobile_bake(obj,name,budget)
+  if stem in ('road','border'):
+   # Both supplied models run along X; the game's repeated direction is Blender Y.
+   for v in obj.data.vertices:v.co=Vector((-v.co.y,v.co.x,v.co.z))
+  lo,hi=bounds(obj); size=hi-lo
+  if name in ('Tsila','Officer'): target=tuple(size*(1.8/size.z))
+  if name=='Tree':target=tuple(size*(3.95/size.z))
+  if name=='Palm':target=tuple(size*(5.2/size.z))
+  if name=='Building':target=tuple(size*(6.8/size.z))
+  center=(lo+hi)*.5
   for v in obj.data.vertices:
-   v.co.z-=deck
- if name=='Coin':
-  for v in obj.data.vertices:v.co.z-=.3
- if name=='Overhead':
+   v.co=Vector(((v.co.x-center.x)*target[0]/size.x,(v.co.y-center.y)*target[1]/size.y,(v.co.z-lo.z)*target[2]/size.z))
+  if name=='RoadSection':
+   # Find the deck from central upward triangles, excluding raised curbs.
+   obj.data.update(); levels=Counter()
+   for p in obj.data.polygons:
+    if p.normal.z>.85 and abs(p.center.x)<3.2: levels[round(p.center.z,2)]+=p.area
+   deck=levels.most_common(1)[0][0]
+   for v in obj.data.vertices:
+    v.co.z-=deck
+  if name=='Coin':
+   for v in obj.data.vertices:v.co.z-=.3
+  if name=='Overhead':
+   obj.data.update()
+   hit,point,normal,index=obj.ray_cast(Vector((0,0,-1)),Vector((0,0,1)))
+   if not hit:raise RuntimeError('Overhead center beam was not found')
+   opening=point.z
+   if opening<.1:raise RuntimeError('Overhead model has no clear opening')
+   for v in obj.data.vertices:
+    v.co.z=v.co.z/opening if v.co.z<=opening else 1+(v.co.z-opening)*1.8/(2.8-opening)
   obj.data.update()
-  hit,point,normal,index=obj.ray_cast(Vector((0,0,-1)),Vector((0,0,1)))
-  if not hit:raise RuntimeError('Overhead center beam was not found')
-  opening=point.z
-  if opening<.1:raise RuntimeError('Overhead model has no clear opening')
-  for v in obj.data.vertices:
-   v.co.z=v.co.z/opening if v.co.z<=opening else 1+(v.co.z-opening)*1.8/(2.8-opening)
- obj.data.update()
- tex=textures(obj,name)
- rig=add_rig(obj,name) if name in ('Tsila','Officer') else None
- select(obj)
- if rig:rig.select_set(True)
- bpy.context.scene.render.fps=24
- bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'.fbx')),use_selection=True,object_types={'MESH','ARMATURE'},axis_forward='-Z',axis_up='Y',apply_scale_options='FBX_SCALE_ALL',add_leaf_bones=False,bake_anim=bool(rig),bake_anim_use_all_actions=bool(rig),bake_anim_use_nla_strips=False,bake_anim_simplify_factor=0.0,path_mode='RELATIVE')
- lo,hi=bounds(obj)
- entry={'name':name,'input':stem+'.glb','sourceTriangles':source_triangles,'triangles':sum(len(p.vertices)-2 for p in obj.data.polygons),'boundsMin':list(lo),'boundsMax':list(hi),'textures':{k:str(pathlib.Path(v).relative_to(ROOT)).replace('\\','/') for k,v in tex.items()},'rigged':bool(rig)}
- if rig:
-  # LOD uses the same skeleton and weights, exported without duplicated animation.
-  simplify(obj,8000); select(obj); rig.select_set(True)
-  bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'_LOD1.fbx')),use_selection=True,object_types={'MESH','ARMATURE'},axis_forward='-Z',axis_up='Y',apply_scale_options='FBX_SCALE_ALL',add_leaf_bones=False,bake_anim=False,path_mode='RELATIVE')
-  entry['lodTriangles']=sum(len(p.vertices)-2 for p in obj.data.polygons)
- else:
-  # Keep distant scenery and pickups cheap while reusing the baked mobile material.
-  high_lo,high_hi=bounds(obj)
-  lod_budget=max(200,budget//4)
-  simplify(obj,lod_budget); select(obj)
-  match_bounds(obj,high_lo,high_hi)
-  bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'_LOD1.fbx')),use_selection=True,object_types={'MESH'},axis_forward='-Z',axis_up='Y',apply_scale_options='FBX_SCALE_ALL',add_leaf_bones=False,bake_anim=False,path_mode='RELATIVE')
-  entry['lodTriangles']=sum(len(p.vertices)-2 for p in obj.data.polygons)
- REPORT.append(entry); print('PREPARED',entry,flush=True)
-manifest=OUT.parent/'Manifest.json'
-if selected and manifest.exists():
- previous=json.loads(manifest.read_text()); updated={x['name']:x for x in REPORT}
- REPORT=[updated.get(x['name'],x) for x in previous]
-manifest.write_text(json.dumps(REPORT,indent=2))
-print('MESHY_PREPARE_OK',flush=True)
+  tex=textures(obj,name)
+  rig=add_rig(obj,name) if name in ('Tsila','Officer') else None
+  select(obj)
+  if rig:rig.select_set(True)
+  bpy.context.scene.render.fps=24
+  bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'.fbx')),use_selection=True,object_types={'MESH','ARMATURE'},axis_forward='-Z',axis_up='Y',apply_scale_options='FBX_SCALE_ALL',add_leaf_bones=False,bake_anim=bool(rig),bake_anim_use_all_actions=bool(rig),bake_anim_use_nla_strips=False,bake_anim_simplify_factor=0.0,path_mode='RELATIVE')
+  lo,hi=bounds(obj)
+  entry={'name':name,'input':stem+'.glb','sourceTriangles':source_triangles,'triangles':sum(len(p.vertices)-2 for p in obj.data.polygons),'boundsMin':list(lo),'boundsMax':list(hi),'textures':{k:str(pathlib.Path(v).relative_to(ROOT)).replace('\\','/') for k,v in tex.items()},'rigged':bool(rig)}
+  if rig:
+   # LOD uses the same skeleton and weights, exported without duplicated animation.
+   simplify(obj,8000); select(obj); rig.select_set(True)
+   bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'_LOD1.fbx')),use_selection=True,object_types={'MESH','ARMATURE'},axis_forward='-Z',axis_up='Y',apply_scale_options='FBX_SCALE_ALL',add_leaf_bones=False,bake_anim=False,path_mode='RELATIVE')
+   entry['lodTriangles']=sum(len(p.vertices)-2 for p in obj.data.polygons)
+  else:
+   # Keep distant scenery and pickups cheap while reusing the baked mobile material.
+   high_lo,high_hi=bounds(obj)
+   lod_budget=max(200,budget//4)
+   simplify(obj,lod_budget); select(obj)
+   match_bounds(obj,high_lo,high_hi)
+   bpy.ops.export_scene.fbx(filepath=str(OUT/(name+'_LOD1.fbx')),use_selection=True,object_types={'MESH'},axis_forward='-Z',axis_up='Y',apply_scale_options='FBX_SCALE_ALL',add_leaf_bones=False,bake_anim=False,path_mode='RELATIVE')
+   entry['lodTriangles']=sum(len(p.vertices)-2 for p in obj.data.polygons)
+  REPORT.append(entry); print('PREPARED',entry,flush=True)
+ manifest=OUT.parent/'Manifest.json'
+ if manifest.exists():
+  previous=json.loads(manifest.read_text()); updated={x['name']:x for x in REPORT}
+  REPORT=[updated.pop(x['name'],x) for x in previous]+list(updated.values())
+ manifest.write_text(json.dumps(REPORT,indent=2))
+ print('MESHY_PREPARE_OK',flush=True)
+
+if __name__ == '__main__': main()

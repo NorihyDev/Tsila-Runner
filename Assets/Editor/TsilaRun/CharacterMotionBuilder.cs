@@ -22,12 +22,20 @@ namespace TsilaRun.Editor
         public static void Build()
         {
             foreach (string name in new[] { "Tsila", "Officer" })
+                BuildFor(name, MeshyPackIntegration.Source + "/" + name + ".fbx");
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPackIntegration.PrefabPath("Mianja")) != null)
+                BuildFor("Mianja", BlenderPackIntegration.Source + "/RunningPerson.fbx");
+            AssetDatabase.SaveAssets();
+        }
+
+        public static void BuildFor(string name, string sourcePath)
+        {
             {
                 var model = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPackIntegration.PrefabPath(name)));
                 try
                 {
                     var bones = model.GetComponentsInChildren<Transform>().Where(t => t.name == "root" || t.name == "pelvis" || t.name == "spine" || t.name == "chest" || t.name == "neck" || t.name == "head" || t.name.Contains(".")).ToDictionary(t => t.name);
-                    var imported = AssetDatabase.LoadAllAssetsAtPath(MeshyPackIntegration.Source + "/" + name + ".fbx").OfType<AnimationClip>().Where(c => !c.name.StartsWith("__")).ToArray();
+                    var imported = AssetDatabase.LoadAllAssetsAtPath(sourcePath).OfType<AnimationClip>().Where(c => !c.name.StartsWith("__")).ToArray();
                     var skin = model.GetComponentsInChildren<SkinnedMeshRenderer>().First();
                     foreach (string state in new[] { "Run", "Slide", "Jump" })
                     {

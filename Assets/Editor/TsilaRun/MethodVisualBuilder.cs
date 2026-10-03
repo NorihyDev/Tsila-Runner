@@ -38,7 +38,7 @@ namespace TsilaRun.Editor
             var avatar = model.AddComponent<RunnerAvatar>();
             var rig = model.AddComponent<RunnerCharacterRig>();
             rig.root = model.transform;
-            rig.defaultScale = Vector3.one;
+            rig.defaultScale = model.transform.localScale;
             avatar.animator = model.GetComponent<Animator>();
             avatar.animator.applyRootMotion = false;
             avatar.animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
@@ -54,6 +54,8 @@ namespace TsilaRun.Editor
                     case "lower_leg.L": case "LeftLowerLeg": avatar.leftKnee = bone; break;
                     case "lower_leg.R": case "RightLowerLeg": avatar.rightKnee = bone; break;
                 }
+                if (bone.name.Contains("LeftArm") || bone.name == "LeftArm_9") avatar.leftArm = bone;
+                if (bone.name.Contains("RightArm") || bone.name == "RightArm_33") avatar.rightArm = bone;
             }
             return avatar;
         }

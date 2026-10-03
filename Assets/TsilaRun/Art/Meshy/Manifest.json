@@ -658,5 +658,51 @@
     },
     "rigged": false,
     "lodTriangles": 1433
+  },
+  {
+    "name": "HorrorGirl",
+    "input": "horror_girl.glb",
+    "sourceTriangles": 27489,
+    "triangles": 12800,
+    "lodTriangles": 4800,
+    "rigged": true,
+    "originalRig": true,
+    "boundsMin": [
+      -0.2619566023349762,
+      -0.32232972979545593,
+      -0.00045494557707570493
+    ],
+    "boundsMax": [
+      0.2619565725326538,
+      0.3223094344139099,
+      1.799838662147522
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/HorrorGirl_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/HorrorGirl_Normal.png"
+    }
+  },
+  {
+    "name": "HorrorSkunx",
+    "input": "horror_skunx.glb",
+    "sourceTriangles": 24172,
+    "triangles": 12086,
+    "lodTriangles": 4800,
+    "rigged": true,
+    "originalRig": true,
+    "boundsMin": [
+      -0.35652026534080505,
+      -0.17865781486034393,
+      -0.000374055263819173
+    ],
+    "boundsMax": [
+      0.3564720153808594,
+      0.1785449981689453,
+      1.7999433279037476
+    ],
+    "textures": {
+      "BaseColor": "Assets/TsilaRun/Art/Meshy/Source/Textures/HorrorSkunx_BaseColor.png",
+      "Normal": "Assets/TsilaRun/Art/Meshy/Source/Textures/HorrorSkunx_Normal.png"
+    }
   }
 ]

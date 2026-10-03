@@ -56,8 +56,9 @@ namespace TsilaRun
                 SetSlide(false);
             }
             jumpWhenClear = false;
-            if (!IsGrounded) return;
+            if (!IsGrounded || verticalVelocity > 0f) return;
             verticalVelocity = RunnerRules.JumpVelocity;
+            if (world != null && world.game != null) world.game.RegisterPlayerAction(RunnerMissionKind.Jump);
         }
 
         public void Slide()
@@ -66,6 +67,7 @@ namespace TsilaRun
             jumpWhenClear = false;
             slideRemaining = RunnerRules.SlideSeconds;
             SetSlide(true);
+            if (world != null && world.game != null) world.game.RegisterPlayerAction(RunnerMissionKind.Roll);
             if (!IsGrounded) verticalVelocity = Mathf.Min(verticalVelocity, -RunnerRules.FastFallSpeed);
         }
 

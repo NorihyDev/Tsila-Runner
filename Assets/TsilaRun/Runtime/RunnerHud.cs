@@ -10,7 +10,7 @@ namespace TsilaRun
         public GameObject startPanel, pausePanel, gameOverPanel, hud;
         public Button playButton, pauseButton, resumeButton, pausedRestartButton, restartButton;
         public Text distanceText, coinsText, bestText, resultText, gameOverTitleText;
-        public Text missionText, powerUpText;
+        public Text missionText, powerUpText, menuMissionText, pauseMissionText;
         public GameObject introPanel;
         public Button skipIntroButton;
         public Button menuButton, pausedMenuButton, resultsMenuButton;
@@ -337,6 +337,12 @@ namespace TsilaRun
             int zone = RunnerRoadSection.ZoneAt(game.Distance);
             if (zoneText != null && zone != shownZone) { shownZone = zone; zoneText.text = RunnerRoadSection.ZoneNames[zone]; }
             bool running = game.State == RunnerGame.RunState.Running;
+            if (game.Progress != null)
+            {
+                string mission = game.Progress.ActiveMissionName + "  " + game.Progress.ActiveMissionProgress + "/" + game.Progress.ActiveMissionTarget;
+                if (menuMissionText != null) menuMissionText.text = mission + "  +" + RunnerProgress.MissionReward;
+                if (pauseMissionText != null) pauseMissionText.text = mission + "\nREWARD  +" + RunnerProgress.MissionReward + " COINS";
+            }
             if (missionText != null)
             {
                 missionText.gameObject.SetActive(running && Time.time < missionBannerUntil);
