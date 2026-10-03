@@ -83,6 +83,7 @@ namespace TsilaRun.Editor
             RunnerPlayer playerPrefab = PlayerPrefab();
 
             var game = new GameObject("Tsila Run").AddComponent<RunnerGame>();
+            MethodMusicBuilder.ApplyTo(game);
             var world = new GameObject("Recycled World").AddComponent<RunnerWorld>();
             var player = ((GameObject)PrefabUtility.InstantiatePrefab(playerPrefab.gameObject)).GetComponent<RunnerPlayer>();
             player.name = "Tsila";

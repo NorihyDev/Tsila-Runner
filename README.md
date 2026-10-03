@@ -29,6 +29,8 @@ The mobile presentation uses Rajdhani title and button typography, a neon menu s
 
 The shop has four locally saved outfit colorways: Island Teal (equipped by default), Sunset Coral, Golden Trail, and Midnight. Collected coins can unlock the latter three. Coin magnet, shield, and speed boost pickups also appear during runs; there are no real-money purchases.
 
+Method's song at `Assets/TsilaRun/Audio/Music/method-song.mp3` starts when the game scene opens and loops through the menu, runs, pause, shop, and results. One 2D AudioSource on the game object plays it at 35% volume; restarting a run does not restart the song. The clip uses streaming Vorbis import to limit memory use. Reapply it with **Tools > Tsila Run > Apply Method Music**.
+
 ## Requirements
 
 | Component | Project version |
@@ -162,7 +164,7 @@ Editor screenshots were rendered at **720 × 1280**, **1170 × 2532**, **1080 ×
 
 Run the available checks through **Window → General → Test Runner → EditMode**. Save your work first: gameplay tests open the prototype scene and enter Play mode. Exclude the `SceneGeneration` category when validating this integrated scene.
 
-Current scope excludes real-money purchases, cloud saves, music, and gameplay sound effects. Buttons have a brief tap sound. Missions and coin-purchased outfit colorways are local prototype systems. Mountain and tunnel scenery share a flat gameplay surface; terrain slopes are not simulated.
+Current scope excludes real-money purchases, cloud saves, and gameplay sound effects. Method music loops in the background, and buttons have a brief tap sound. Missions and coin-purchased outfit colorways are local prototype systems. Mountain and tunnel scenery share a flat gameplay surface; terrain slopes are not simulated.
 
 See the [verification record](Docs/TsilaRun-Verification.md) for the distinction between completed checks and outstanding device validation.
 
