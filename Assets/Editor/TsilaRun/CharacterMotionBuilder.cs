@@ -28,20 +28,32 @@ namespace TsilaRun.Editor
             AssetDatabase.SaveAssets();
         }
 
+        [MenuItem("Tools/Tsila Run/Rebuild Natural Run Cycles")]
+        public static void BuildRunCycles()
+        {
+            foreach (string name in new[] { "Tsila", "Officer", "Mianja" })
+                BuildFor(name, name == "Mianja" ? BlenderPackIntegration.Source + "/RunningPerson.fbx" : MeshyPackIntegration.Source + "/" + name + ".fbx", new[] { "Run" });
+            Debug.Log("TSILA_NATURAL_RUN_OK");
+        }
+
         public static void BuildFor(string name, string sourcePath)
+        { BuildFor(name, sourcePath, new[] { "Run", "Slide", "Jump" }); }
+
+        static void BuildFor(string name, string sourcePath, string[] states)
         {
             {
                 var model = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPackIntegration.PrefabPath(name)));
                 try
                 {
-                    var bones = model.GetComponentsInChildren<Transform>().Where(t => t.name == "root" || t.name == "pelvis" || t.name == "spine" || t.name == "chest" || t.name == "neck" || t.name == "head" || t.name.Contains(".")).ToDictionary(t => t.name);
+                    var bones = model.GetComponentsInChildren<Transform>().Where(t => t.name == "root" || t.name == "pelvis" || t.name == "hips" || t.name == "spine" || t.name == "chest" || t.name == "neck" || t.name == "head" || t.name.Contains(".")).ToDictionary(t => t.name);
                     var imported = AssetDatabase.LoadAllAssetsAtPath(sourcePath).OfType<AnimationClip>().Where(c => !c.name.StartsWith("__")).ToArray();
                     var skin = model.GetComponentsInChildren<SkinnedMeshRenderer>().First();
-                    foreach (string state in new[] { "Run", "Slide", "Jump" })
+                    foreach (string state in states)
                     {
                         var clip = new AnimationClip { name = name + "_" + state, frameRate = 60 };
                         var tracks = bones.Values.ToDictionary(t => t, _ => new Track());
-                        var source = imported.Single(c => c.name == (state == "Slide" ? "Idle" : state));
+                        // Rebuild the run from the neutral pose: the source run bends knees backwards.
+                        var source = imported.Single(c => c.name == (state == "Slide" || state == "Run" ? "Idle" : state));
                         var root = bones["root"];
                         const int frames = 60;
                         float duration = state == "Slide" ? RunnerRules.SlideSeconds : state == "Run" ? .68f : RunnerRules.JumpSeconds;
@@ -49,8 +61,7 @@ namespace TsilaRun.Editor
                         for (int f = 0; f <= frames; f++)
                         {
                             float progress = f / (float)frames;
-                            source.SampleAnimation(model, state == "Slide" ? 0 : progress * source.length);
-                            float phase = progress * Mathf.PI * 2f;
+                            source.SampleAnimation(model, state == "Jump" ? progress * source.length : 0);
                             if (state == "Slide")
                             {
                                 // A compact tuck rotates around its own centre, then holds low if clearance is blocked.
@@ -65,11 +76,7 @@ namespace TsilaRun.Editor
                             }
                             else if (state == "Run")
                             {
-                                Rotate(bones["chest"], 7);
-                                var chest = bones["chest"];
-                                chest.localRotation = Quaternion.AngleAxis(Mathf.Sin(phase) * 5f, Vector3.up) * chest.localRotation;
-                                Rotate(bones["foot.L"], Mathf.Sin(phase) * 12);
-                                Rotate(bones["foot.R"], -Mathf.Sin(phase) * 12);
+                                PoseRun(bones, progress);
                             }
                             else
                             {
@@ -106,6 +113,57 @@ namespace TsilaRun.Editor
                 finally { Object.DestroyImmediate(model); }
             }
             AssetDatabase.SaveAssets();
+        }
+
+        // One leg: landing, loaded support, push-off, heel recovery, knee drive, landing.
+        // Positive knee flexion folds the heel behind the thigh, never through the kneecap.
+        static readonly AnimationCurve RunThigh = Cycle(
+            new Vector2(0, -24), new Vector2(.16f, 0), new Vector2(.34f, 30),
+            new Vector2(.44f, 38), new Vector2(.56f, 12), new Vector2(.70f, -45),
+            new Vector2(.82f, -63), new Vector2(1, -24));
+        static readonly AnimationCurve RunKnee = Cycle(
+            new Vector2(0, 24), new Vector2(.16f, 35), new Vector2(.34f, 20),
+            new Vector2(.44f, 55), new Vector2(.56f, 115), new Vector2(.70f, 105),
+            new Vector2(.82f, 75), new Vector2(1, 24));
+        static readonly AnimationCurve RunAnkle = Cycle(
+            new Vector2(0, -6), new Vector2(.16f, -35), new Vector2(.34f, -24),
+            new Vector2(.44f, -8), new Vector2(.56f, 12), new Vector2(.70f, -12),
+            new Vector2(.82f, -6), new Vector2(1, -6));
+
+        static AnimationCurve Cycle(params Vector2[] poses)
+        {
+            var curve = new AnimationCurve(poses.Select(p => new Keyframe(p.x, p.y)).ToArray());
+            for (int key = 0; key < curve.length; key++)
+            {
+                AnimationUtility.SetKeyLeftTangentMode(curve, key, AnimationUtility.TangentMode.ClampedAuto);
+                AnimationUtility.SetKeyRightTangentMode(curve, key, AnimationUtility.TangentMode.ClampedAuto);
+            }
+            // The last key is the first pose of the next stride; match its velocity at the seam.
+            float tangent = (poses[1].y - poses[poses.Length - 2].y) / (poses[1].x + 1f - poses[poses.Length - 2].x);
+            var first = curve[0]; first.inTangent = first.outTangent = tangent; curve.MoveKey(0, first);
+            var last = curve[curve.length - 1]; last.inTangent = last.outTangent = tangent; curve.MoveKey(curve.length - 1, last);
+            return curve;
+        }
+
+        static void PoseRun(Dictionary<string, Transform> bones, float progress)
+        {
+            float phase = progress * Mathf.PI * 2f;
+            Rotate(bones.TryGetValue("pelvis", out var pelvis) ? pelvis : bones["hips"], 6);
+            Rotate(bones["spine"], 4);
+            Rotate(bones["neck"], -7);
+            var chest = bones["chest"];
+            Vector3 up = chest.parent.InverseTransformDirection(Vector3.up);
+            chest.localRotation = Quaternion.AngleAxis(Mathf.Sin(phase) * 4f, up) * chest.localRotation;
+            foreach (string side in new[] { "L", "R" })
+            {
+                float legPhase = Mathf.Repeat(progress + (side == "L" ? 0 : .5f), 1f);
+                float otherPhase = Mathf.Repeat(legPhase + .5f, 1f);
+                Rotate(bones["upper_leg." + side], RunThigh.Evaluate(legPhase) - 6);
+                Rotate(bones["lower_leg." + side], RunKnee.Evaluate(legPhase));
+                Rotate(bones["foot." + side], RunAnkle.Evaluate(legPhase));
+                Rotate(bones["upper_arm." + side], RunThigh.Evaluate(otherPhase) * .65f + 5);
+                Rotate(bones["lower_arm." + side], -85f + Mathf.Sin(legPhase * Mathf.PI * 2f) * 8f);
+            }
         }
         static void Rotate(Transform bone, float angle)
         {

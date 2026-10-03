@@ -1,0 +1,49 @@
+﻿Unity 6000.6.3f1 — existing gameplay and presentation checks
+44 regression tests passed with the new generated run clips.
+These are the existing test cases from Logs/NaturalRun-Tests.xml.
+The final run fixture is reported separately in NaturalRun-RigTests.xml.
+
+PASS  TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods("Tsila",3)
+PASS  TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods("Officer_Lucef",3)
+PASS  TsilaRun.Tests.BlenderPackTests.CharactersHaveTexturedSkinsAndSharedSkeletonLods("RunningPerson",4)
+PASS  TsilaRun.Tests.BlenderPackTests.OutfitTintChangesBodyWithoutReplacingFaceOrHair
+PASS  TsilaRun.Tests.BlenderPackTests.RoadAndObstaclesMatchGameplayScale
+PASS  TsilaRun.Tests.BlenderPackTests.SceneReferencesUseNewPlayerChaserAndOpponent
+PASS  TsilaRun.Tests.HorrorContentTests.DistanceMissionsUseThePlayersBiomeAndDoNotCountWhilePaused
+PASS  TsilaRun.Tests.HorrorContentTests.EightMissionsRotatePayOnceAndPersistTheirProgress
+PASS  TsilaRun.Tests.HorrorContentTests.EquippingCharactersChangesTheModelAndKeepsPlayerCollisionAndRig
+PASS  TsilaRun.Tests.HorrorContentTests.HorrorMotionIsGroundedInPlaceAcrossBothLods("HorrorGirl")
+PASS  TsilaRun.Tests.HorrorContentTests.HorrorMotionIsGroundedInPlaceAcrossBothLods("HorrorSkunx")
+PASS  TsilaRun.Tests.HorrorContentTests.MissionActionsCountRealJumpsRollsAndBonusesOnlyDuringRunning
+PASS  TsilaRun.Tests.HorrorContentTests.NewSkinsCostExactAmountsAndPreserveOldPurchases
+PASS  TsilaRun.Tests.HorrorContentTests.RockyBiomeHasContinuousSandAndGroundedDecorations
+PASS  TsilaRun.Tests.HorrorContentTests.SceneUsesHorrorForPatrolAndObstacleWhileTsilaRemainsStarter
+PASS  TsilaRun.Tests.MeshyPackTests.CoinsStayOutsideMovingRunnersFuturePath
+PASS  TsilaRun.Tests.MeshyPackTests.EveryPreparedModelHasAnOptimizedTexturedPrefabAndLod
+PASS  TsilaRun.Tests.MeshyPackTests.ReplacementsKeepCollisionAndRequiredSceneReferences
+PASS  TsilaRun.Tests.MeshyPackTests.TexturedCharactersAnimateAndFitSlidingClearance("Tsila")
+PASS  TsilaRun.Tests.MeshyPackTests.TexturedCharactersAnimateAndFitSlidingClearance("Officer")
+PASS  TsilaRun.Tests.PresentationTests.IntroOfficerStaysAheadOfCameraAndOutsidePlayer
+PASS  TsilaRun.Tests.PresentationTests.IslandHasSparseAlternatingSceneryAndSandGround
+PASS  TsilaRun.Tests.PresentationTests.MenuHasSportFontTwoActionsAndMobileScaler
+PASS  TsilaRun.Tests.PresentationTests.RollStaysAboveRoadAndBelowOverheadThroughoutBothLods("Tsila")
+PASS  TsilaRun.Tests.PresentationTests.RollStaysAboveRoadAndBelowOverheadThroughoutBothLods("Officer")
+PASS  TsilaRun.Tests.PresentationTests.RollStaysAboveRoadAndBelowOverheadThroughoutBothLods("Mianja")
+PASS  TsilaRun.Tests.PresentationTests.SceneryStaysOffTheRoadAndUsesOneDeck
+PASS  TsilaRun.Tests.RunnerTests.AnimatedPersonCollidesAndPauseFreezesLimbs
+PASS  TsilaRun.Tests.RunnerTests.DifficultyScalingAddsMoreObstaclesAndCoinArcs
+PASS  TsilaRun.Tests.RunnerTests.GameplayLifecycleAndSyntheticTouch
+PASS  TsilaRun.Tests.RunnerTests.LongRunKeepsPoolsBoundedAndCoinsClear
+PASS  TsilaRun.Tests.RunnerTests.MenuReturnsResetRunAndKeepWalletWithoutPurchases
+PASS  TsilaRun.Tests.RunnerTests.MethodModelsMatchRoadCoinAndSlideConventions
+PASS  TsilaRun.Tests.RunnerTests.MissionProgressPersistsAndPaysOnceBeforeRotating
+PASS  TsilaRun.Tests.RunnerTests.PatternBudgetAllowsReactionAndRecoveryAtMaximumSpeed
+PASS  TsilaRun.Tests.RunnerTests.PowerUpsHaveTimedEffectsAndAreNotClassifiedAsObstacles
+PASS  TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(720,1280,0,0)
+PASS  TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,1920,0,48)
+PASS  TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1170,2532,102,141)
+PASS  TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1080,2400,72,90)
+PASS  TsilaRun.Tests.RunnerTests.SafeAreaAndSwipeScaleAcrossPortraitScreens(1536,2048,24,24)
+PASS  TsilaRun.Tests.RunnerTests.SceneryCyclesAndMovingPeopleHaveBoundedDrift
+PASS  TsilaRun.Tests.RunnerTests.SweptCollisionCatchesTunnelingAndAllowsClearance
+PASS  TsilaRun.Tests.RunnerTests.WalletPurchasesPersistAndNeverChargeOwnedSkinsTwice

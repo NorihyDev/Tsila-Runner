@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="6" result="Passed" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-03 12:02:49Z" end-time="2026-10-03 12:02:55Z" duration="5.5561239">
+  <test-suite type="TestSuite" id="1000" name="Tsila Runner" fullname="Tsila Runner" runstate="Runnable" testcasecount="52" result="Passed" start-time="2026-10-03 12:02:49Z" end-time="2026-10-03 12:02:55Z" duration="5.556124" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1066" name="TsilaRun.Tests.dll" fullname="C:/Users/Norihy/Tsila Runner/Library/ScriptAssemblies/TsilaRun.Tests.dll" runstate="Runnable" testcasecount="52" result="Passed" start-time="2026-10-03 12:02:49Z" end-time="2026-10-03 12:02:55Z" duration="5.536025" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="43152" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1067" name="TsilaRun" fullname="TsilaRun" runstate="Runnable" testcasecount="52" result="Passed" start-time="2026-10-03 12:02:49Z" end-time="2026-10-03 12:02:55Z" duration="5.533473" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1068" name="Tests" fullname="TsilaRun.Tests" runstate="Runnable" testcasecount="52" result="Passed" start-time="2026-10-03 12:02:49Z" end-time="2026-10-03 12:02:55Z" duration="5.531384" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1036" name="RunCycleTests" fullname="TsilaRun.Tests.RunCycleTests" classname="TsilaRun.Tests.RunCycleTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-03 12:02:49Z" end-time="2026-10-03 12:02:55Z" duration="5.527437" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="ParameterizedMethod" id="1040" name="KneesBendBackWithHeelRecoveryAndOppositeArms" fullname="TsilaRun.Tests.RunCycleTests.KneesBendBackWithHeelRecoveryAndOppositeArms" classname="TsilaRun.Tests.RunCycleTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-03 12:02:49Z" end-time="2026-10-03 12:02:50Z" duration="0.552421" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1037" name="KneesBendBackWithHeelRecoveryAndOppositeArms(&quot;Tsila&quot;)" fullname="TsilaRun.Tests.RunCycleTests.KneesBendBackWithHeelRecoveryAndOppositeArms(&quot;Tsila&quot;)" methodname="KneesBendBackWithHeelRecoveryAndOppositeArms" classname="TsilaRun.Tests.RunCycleTests" runstate="Runnable" seed="1182060380" result="Passed" start-time="2026-10-03 12:02:49Z" end-time="2026-10-03 12:02:50Z" duration="0.215443" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Tsila: knee flexion 20.1–115.0 degrees; forward thigh 63.0; heel clearance 0.267 m.
+]]></output>
+              </test-case>
+              <test-case id="1038" name="KneesBendBackWithHeelRecoveryAndOppositeArms(&quot;Officer&quot;)" fullname="TsilaRun.Tests.RunCycleTests.KneesBendBackWithHeelRecoveryAndOppositeArms(&quot;Officer&quot;)" methodname="KneesBendBackWithHeelRecoveryAndOppositeArms" classname="TsilaRun.Tests.RunCycleTests" runstate="Runnable" seed="1698668436" result="Passed" start-time="2026-10-03 12:02:50Z" end-time="2026-10-03 12:02:50Z" duration="0.149086" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Officer: knee flexion 20.1–115.0 degrees; forward thigh 63.0; heel clearance 0.267 m.
+]]></output>
+              </test-case>
+              <test-case id="1039" name="KneesBendBackWithHeelRecoveryAndOppositeArms(&quot;Mianja&quot;)" fullname="TsilaRun.Tests.RunCycleTests.KneesBendBackWithHeelRecoveryAndOppositeArms(&quot;Mianja&quot;)" methodname="KneesBendBackWithHeelRecoveryAndOppositeArms" classname="TsilaRun.Tests.RunCycleTests" runstate="Runnable" seed="1863848913" result="Passed" start-time="2026-10-03 12:02:50Z" end-time="2026-10-03 12:02:50Z" duration="0.155636" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Mianja: knee flexion 21.5–116.4 degrees; forward thigh 63.7; heel clearance 0.321 m.
+]]></output>
+              </test-case>
+            </test-suite>
+            <test-suite type="ParameterizedMethod" id="1044" name="RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap" fullname="TsilaRun.Tests.RunCycleTests.RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap" classname="TsilaRun.Tests.RunCycleTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-03 12:02:50Z" end-time="2026-10-03 12:02:55Z" duration="4.963997" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1041" name="RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap(&quot;Tsila&quot;)" fullname="TsilaRun.Tests.RunCycleTests.RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap(&quot;Tsila&quot;)" methodname="RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap" classname="TsilaRun.Tests.RunCycleTests" runstate="Runnable" seed="1813080857" result="Passed" start-time="2026-10-03 12:02:50Z" end-time="2026-10-03 12:02:52Z" duration="1.757619" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1042" name="RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap(&quot;Officer&quot;)" fullname="TsilaRun.Tests.RunCycleTests.RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap(&quot;Officer&quot;)" methodname="RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap" classname="TsilaRun.Tests.RunCycleTests" runstate="Runnable" seed="849460815" result="Passed" start-time="2026-10-03 12:02:52Z" end-time="2026-10-03 12:02:53Z" duration="1.668006" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1043" name="RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap(&quot;Mianja&quot;)" fullname="TsilaRun.Tests.RunCycleTests.RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap(&quot;Mianja&quot;)" methodname="RunKeepsBothLodsAboveRoadAndLoopsWithoutPoseSnap" classname="TsilaRun.Tests.RunCycleTests" runstate="Runnable" seed="1865438340" result="Passed" start-time="2026-10-03 12:02:53Z" end-time="2026-10-03 12:02:55Z" duration="1.534252" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Saving results to: C:/Users/Norihy/AppData/LocalLow/DefaultCompany/Tsila Runner\TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
