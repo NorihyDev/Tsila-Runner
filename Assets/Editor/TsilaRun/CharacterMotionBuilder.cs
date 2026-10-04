@@ -53,7 +53,7 @@ namespace TsilaRun.Editor
                         var clip = new AnimationClip { name = name + "_" + state, frameRate = 60 };
                         var tracks = bones.Values.ToDictionary(t => t, _ => new Track());
                         // Rebuild the run from the neutral pose: the source run bends knees backwards.
-                        var source = imported.Single(c => c.name == (state == "Slide" || state == "Run" ? "Idle" : state));
+                        var source = imported.Single(c => c.name == (state == "Slide" || state == "Run" || state == "Jump" ? "Idle" : state));
                         var root = bones["root"];
                         const int frames = 60;
                         float duration = state == "Slide" ? RunnerRules.SlideSeconds : state == "Run" ? .68f : RunnerRules.JumpSeconds;
@@ -78,11 +78,7 @@ namespace TsilaRun.Editor
                             {
                                 PoseRun(bones, progress);
                             }
-                            else
-                            {
-                                Rotate(bones["upper_leg.L"], -25f * Mathf.Sin(progress * Mathf.PI));
-                                Rotate(bones["upper_leg.R"], -25f * Mathf.Sin(progress * Mathf.PI));
-                            }
+                            else PoseJump(bones, progress);
                             var bounds = BlenderPackIntegration.SkinnedBounds(model, skin);
                             Vector3 offset = new Vector3(state == "Slide" ? -bounds.center.x : 0, .006f - bounds.min.y, state == "Slide" ? -bounds.center.z : 0);
                             root.position += model.transform.TransformVector(offset);
@@ -165,6 +161,28 @@ namespace TsilaRun.Editor
                 Rotate(bones["lower_arm." + side], -85f + Mathf.Sin(legPhase * Mathf.PI * 2f) * 8f);
             }
         }
+
+        static void PoseJump(Dictionary<string, Transform> bones, float progress)
+        {
+            float arc = Mathf.Sin(progress * Mathf.PI);
+            float landing = Mathf.SmoothStep(0f, 1f, Mathf.Abs(progress - .5f) * 2f);
+            Rotate(bones.TryGetValue("pelvis", out var pelvis) ? pelvis : bones["hips"], Mathf.Lerp(8f, -4f, arc));
+            Rotate(bones["spine"], Mathf.Lerp(5f, 14f, arc));
+            Rotate(bones["chest"], Mathf.Lerp(2f, 10f, arc));
+            Rotate(bones["neck"], Mathf.Lerp(-4f, -12f, arc));
+
+            foreach (string side in new[] { "L", "R" })
+            {
+                float tuck = side == "L" ? Mathf.Lerp(18f, 48f, arc) : Mathf.Lerp(-10f, 22f, arc);
+                float knee = Mathf.Lerp(28f, side == "L" ? 82f : 58f, arc) + landing * 10f;
+                Rotate(bones["upper_leg." + side], tuck);
+                Rotate(bones["lower_leg." + side], knee);
+                Rotate(bones["foot." + side], Mathf.Lerp(-18f, 8f, arc));
+                Rotate(bones["upper_arm." + side], side == "L" ? Mathf.Lerp(-20f, -55f, arc) : Mathf.Lerp(25f, 55f, arc));
+                Rotate(bones["lower_arm." + side], -80f);
+            }
+        }
+
         static void Rotate(Transform bone, float angle)
         {
             Vector3 axis = bone.parent != null ? bone.parent.InverseTransformDirection(Vector3.right) : Vector3.right;

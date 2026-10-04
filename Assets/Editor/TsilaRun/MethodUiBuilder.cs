@@ -75,10 +75,14 @@ namespace TsilaRun.Editor
 
             var pause = Panel(safe, "Pause", .07f, .22f, .93f, .79f); view.pausePanel = pause.gameObject;
             Text(pause, "Title", "PAUSE", 64, .08f, .76f, .92f, .94f).color = Neon;
-            view.pauseMissionText = Text(pause, "Current Mission", "COLLECT COINS  0/30\nREWARD  +40 COINS", 23, .08f, .60f, .92f, .76f);
-            view.resumeButton = Button(pause, "Resume", "RESUME", .09f, .44f, .91f, .59f, Neon);
-            view.pausedRestartButton = Button(pause, "Restart", "RESTART", .09f, .26f, .91f, .41f, Violet);
-            view.pausedMenuButton = Button(pause, "Menu", "MAIN MENU", .09f, .08f, .91f, .23f, Violet, 29);
+            view.pauseMissionText = Text(pause, "Current Mission", "COLLECT COINS  0/30\nREWARD  +40 COINS", 23, .08f, .64f, .92f, .76f);
+            view.settingsText = Text(pause, "Settings", "MUSIC 35%   FPS 60", 17, .08f, .56f, .92f, .63f);
+            view.volumeDownButton = Button(pause, "Volume Down", "VOL -", .09f, .45f, .36f, .54f, Violet, 20);
+            view.volumeUpButton = Button(pause, "Volume Up", "VOL +", .37f, .45f, .64f, .54f, Violet, 20);
+            view.fpsButton = Button(pause, "FPS", "120 FPS", .65f, .45f, .91f, .54f, Violet, 20);
+            view.resumeButton = Button(pause, "Resume", "RESUME", .09f, .32f, .91f, .43f, Neon);
+            view.pausedRestartButton = Button(pause, "Restart", "RESTART", .09f, .20f, .91f, .31f, Violet);
+            view.pausedMenuButton = Button(pause, "Menu", "MAIN MENU", .09f, .08f, .91f, .19f, Violet, 29);
 
             var over = Panel(safe, "Results", .07f, .17f, .93f, .82f); view.gameOverPanel = over.gameObject;
             view.gameOverTitleText = Text(over, "Title", RunnerHud.GameOverTitle, 53, .05f, .80f, .95f, .96f);

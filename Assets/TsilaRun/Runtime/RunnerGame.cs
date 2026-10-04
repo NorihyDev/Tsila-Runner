@@ -11,6 +11,7 @@ namespace TsilaRun
         public RunnerWorld world;
         public RunnerChase chase;
         public RunnerVfx vfx;
+        public RunnerSettings settings;
         public Material[] skinMaterials;
         // Tsila, Lucef, Mianja. The first four shop entries reuse Tsila's model.
         public GameObject[] characterPrefabs;
@@ -42,8 +43,11 @@ namespace TsilaRun
         void Awake()
         {
             Time.timeScale = 1f;
-            Application.targetFrameRate = 60; // A target, not a measured performance claim.
+            QualitySettings.vSyncCount = 0;
             Screen.orientation = ScreenOrientation.Portrait;
+            if (settings == null) settings = GetComponent<RunnerSettings>() ?? gameObject.AddComponent<RunnerSettings>();
+            settings.game = this;
+            settings.Apply();
             Best = PlayerPrefs.GetInt(BestKey, 0);
             Progress = new RunnerProgress();
             if (vfx == null) vfx = GetComponent<RunnerVfx>() ?? gameObject.AddComponent<RunnerVfx>();

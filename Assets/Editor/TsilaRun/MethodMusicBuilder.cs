@@ -29,6 +29,10 @@ namespace TsilaRun.Editor
             music.spatialBlend = 0f;
             music.dopplerLevel = 0f;
             music.bypassReverbZones = true;
+            var settings = game.GetComponent<RunnerSettings>() ?? game.gameObject.AddComponent<RunnerSettings>();
+            settings.game = game;
+            settings.music = music;
+            EditorUtility.SetDirty(settings);
             EditorUtility.SetDirty(music);
         }
 

@@ -237,6 +237,7 @@ namespace TsilaRun
         {
             RunnerItem coinPrefab = items[(int)RunnerItemKind.Coin, 0];
             Bounds coinBounds = new Bounds(new Vector3(x, y, z) + coinPrefab.hitbox.center, coinPrefab.hitbox.size);
+            coinBounds.Expand(new Vector3(RunnerRules.CoinObstacleClearance, RunnerRules.CoinObstacleClearance * 0.5f, RunnerRules.CoinObstacleClearance));
             for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
             {
                 if (!RunnerRules.IsObstacle((RunnerItemKind)kind)) continue;
@@ -245,6 +246,7 @@ namespace TsilaRun
                     RunnerItem obstacle = items[kind, i];
                     if (!obstacle.InUse) continue;
                     Bounds exclusion = obstacle.HitBounds;
+                    exclusion.Expand(new Vector3(RunnerRules.CoinObstacleClearance, RunnerRules.CoinObstacleClearance, RunnerRules.CoinObstacleClearance * 2f));
                     // Coins move with the road; a running person can advance relative to them.
                     // Reserve its whole forward drift corridor, not just today's position.
                     if (obstacle.kind == RunnerItemKind.RunningPerson)

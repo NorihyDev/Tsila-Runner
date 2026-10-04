@@ -9,8 +9,10 @@ namespace TsilaRun
         public RunnerGame game;
         public GameObject startPanel, pausePanel, gameOverPanel, hud;
         public Button playButton, pauseButton, resumeButton, pausedRestartButton, restartButton;
+        public Button volumeDownButton, volumeUpButton, fpsButton;
         public Text distanceText, coinsText, bestText, resultText, gameOverTitleText;
         public Text missionText, powerUpText, menuMissionText, pauseMissionText;
+        public Text settingsText;
         public GameObject introPanel;
         public Button skipIntroButton;
         public Button menuButton, pausedMenuButton, resultsMenuButton;
@@ -135,6 +137,9 @@ namespace TsilaRun
             if (resumeButton != null) resumeButton.onClick.AddListener(game.Resume);
             if (pausedRestartButton != null) pausedRestartButton.onClick.AddListener(game.StartRun);
             if (restartButton != null) restartButton.onClick.AddListener(game.StartRun);
+            if (volumeDownButton != null) volumeDownButton.onClick.AddListener(VolumeDown);
+            if (volumeUpButton != null) volumeUpButton.onClick.AddListener(VolumeUp);
+            if (fpsButton != null) fpsButton.onClick.AddListener(ToggleFps);
             if (menuButton != null) menuButton.onClick.AddListener(game.ReturnToMenu);
             if (pausedMenuButton != null) pausedMenuButton.onClick.AddListener(game.ReturnToMenu);
             if (resultsMenuButton != null) resultsMenuButton.onClick.AddListener(game.ReturnToMenu);
@@ -160,6 +165,9 @@ namespace TsilaRun
             StyleButton(pauseButton, secondary, pale);
             StyleButton(resumeButton, primary, ink);
             StyleButton(pausedRestartButton, secondary, pale);
+            StyleButton(volumeDownButton, secondary, pale);
+            StyleButton(volumeUpButton, secondary, pale);
+            StyleButton(fpsButton, secondary, pale);
             StyleButton(restartButton, primary, ink);
             StyleButton(menuButton, secondary, pale);
             StyleButton(pausedMenuButton, secondary, pale);
@@ -183,6 +191,7 @@ namespace TsilaRun
             if (zoneText != null) StyleText(zoneText, new Color32(255, 213, 92, 255), 20, true);
             StyleText(missionText, new Color32(236, 255, 246, 255), 17, true);
             StyleText(powerUpText, new Color32(255, 216, 115, 255), 17, true);
+            StyleText(settingsText, new Color32(168, 207, 255, 255), 17, true);
 
             if (distanceText != null) AddShadow(distanceText, new Color32(12, 22, 45, 140), 2, 2);
             if (coinsText != null) AddShadow(coinsText, new Color32(45, 22, 0, 160), 2, 2);
@@ -191,6 +200,7 @@ namespace TsilaRun
             if (resultText != null) AddShadow(resultText, new Color32(0, 0, 0, 100), 2, -2);
             if (missionText != null) AddShadow(missionText, new Color32(0, 0, 0, 180), 2, 2);
             if (powerUpText != null) AddShadow(powerUpText, new Color32(0, 0, 0, 180), 2, 2);
+            if (settingsText != null) AddShadow(settingsText, new Color32(0, 0, 0, 160), 2, 2);
         }
 
         static void StyleButton(Button button, Color fill, Color textColor)
@@ -316,6 +326,9 @@ namespace TsilaRun
             if (resumeButton != null) resumeButton.onClick.RemoveListener(game.Resume);
             if (pausedRestartButton != null) pausedRestartButton.onClick.RemoveListener(game.StartRun);
             if (restartButton != null) restartButton.onClick.RemoveListener(game.StartRun);
+            if (volumeDownButton != null) volumeDownButton.onClick.RemoveListener(VolumeDown);
+            if (volumeUpButton != null) volumeUpButton.onClick.RemoveListener(VolumeUp);
+            if (fpsButton != null) fpsButton.onClick.RemoveListener(ToggleFps);
             if (menuButton != null) menuButton.onClick.RemoveListener(game.ReturnToMenu);
             if (pausedMenuButton != null) pausedMenuButton.onClick.RemoveListener(game.ReturnToMenu);
             if (resultsMenuButton != null) resultsMenuButton.onClick.RemoveListener(game.ReturnToMenu);
@@ -334,6 +347,7 @@ namespace TsilaRun
             if (shownDistance != game.Score) { shownDistance = game.Score; distanceText.text = shownDistance + " m"; }
             if (shownCoins != game.Coins) { shownCoins = game.Coins; coinsText.text = "COINS  " + shownCoins; }
             if (shownBest != game.Best) { shownBest = game.Best; bestText.text = "BEST  " + shownBest + " m"; }
+            RefreshSettingsText();
             int zone = RunnerRoadSection.ZoneAt(game.Distance);
             if (zoneText != null && zone != shownZone) { shownZone = zone; zoneText.text = RunnerRoadSection.ZoneNames[zone]; }
             bool running = game.State == RunnerGame.RunState.Running;
@@ -367,6 +381,33 @@ namespace TsilaRun
             missionBanner = "MISSION COMPLETE  +" + reward;
             missionBannerUntil = Time.time + 2.5f;
             RefreshNumbers();
+        }
+
+        void VolumeDown()
+        {
+            if (game.settings == null) return;
+            game.settings.VolumeDown();
+            RefreshSettingsText();
+        }
+
+        void VolumeUp()
+        {
+            if (game.settings == null) return;
+            game.settings.VolumeUp();
+            RefreshSettingsText();
+        }
+
+        void ToggleFps()
+        {
+            if (game.settings == null) return;
+            game.settings.ToggleFps();
+            RefreshSettingsText();
+        }
+
+        void RefreshSettingsText()
+        {
+            if (settingsText == null || game == null || game.settings == null) return;
+            settingsText.text = "MUSIC " + Mathf.RoundToInt(game.settings.MusicVolume * 100f) + "%   FPS " + game.settings.TargetFps;
         }
 
         void RefreshState()
