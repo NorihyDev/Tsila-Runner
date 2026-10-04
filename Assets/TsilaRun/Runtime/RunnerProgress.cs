@@ -8,8 +8,8 @@ namespace TsilaRun
     // One local save stores balance, ownership, and selection together. No real-money purchases.
     public sealed class RunnerProgress
     {
-        public static readonly string[] SkinNames = { "Tsila", "Sunset Coral", "Golden Trail", "Midnight", "Lucef", "Mianja" };
-        public static readonly int[] Prices = { 0, 40, 100, 150, 1000, 5000 };
+        public static readonly string[] SkinNames = { "Tsila", "Sunset Coral", "Golden Trail", "Midnight", "Lucef", "Mianja", "Punky" };
+        public static readonly int[] Prices = { 0, 40, 100, 150, 1000, 5000, 500 };
         static readonly string[] MissionNames = { "COLLECT COINS", "DODGE OBSTACLES", "RUN 500 METRES", "MAKE 12 JUMPS", "DO 8 ROLLS", "COLLECT 3 POWER UPS", "RUN IN THE ROCKY BIOME", "RUN THROUGH THE TUNNEL" };
         static readonly int[] MissionTargets = { 30, 10, 500, 12, 8, 3, 200, 150 };
         public static int SkinModelIndex(int skin) => skin < 4 ? 0 : skin - 3;

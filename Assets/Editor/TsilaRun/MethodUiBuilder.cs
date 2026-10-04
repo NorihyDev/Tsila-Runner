@@ -105,7 +105,9 @@ namespace TsilaRun.Editor
             for (int i = 0; i < RunnerProgress.SkinNames.Length; i++)
             {
                 string label = i == 0 ? RunnerProgress.SkinNames[i].ToUpper() + "  /  FREE" : RunnerProgress.SkinNames[i].ToUpper() + "  /  " + RunnerProgress.Prices[i] + " COINS";
-                var button = Button(market, "Skin " + i, label, .1f, .62f - i * 0.085f, .9f, .69f - i * 0.085f, i == 0 ? Neon : Violet, 22);
+                float rowStep = .48f / Mathf.Max(6, RunnerProgress.SkinNames.Length);
+                float rowHeight = Mathf.Min(.07f, rowStep - .01f);
+                var button = Button(market, "Skin " + i, label, .1f, .69f - i * rowStep - rowHeight, .9f, .69f - i * rowStep, i == 0 ? Neon : Violet, 22);
                 skinButtons[i] = button;
                 skinLabels[i] = button.GetComponentInChildren<Text>();
             }

@@ -33,6 +33,7 @@ namespace TsilaRun
         public const float MagnetRadius = 16f;
         public const float MagnetPullSpeed = 34f;
         public const float CoinObstacleClearance = 0.35f;
+        public const float RowStagger = 3f;
         public static float JumpSeconds => 2f * JumpVelocity / Gravity;
 
         public static bool IsObstacle(RunnerItemKind kind)
@@ -58,8 +59,8 @@ namespace TsilaRun
         }
 
         // Keep a denser challenge curve than the original prototype, while preserving a little recovery room.
-        public static float RowSpacing => MaxSpeed *
-            (ReactionSeconds + 2f * LaneSeconds + Mathf.Max(JumpSeconds, SlideSeconds) + 0.1f) + PersonDriftBudget;
+        public static float RowSpacing => (MaxSpeed + SpeedBoostBonus) *
+            (ReactionSeconds + 2f * LaneSeconds + Mathf.Max(JumpSeconds, SlideSeconds) + 0.1f) + PersonDriftBudget + RowStagger;
 
         public static int NextSafeLane(int previous, System.Random random)
         {
@@ -106,25 +107,36 @@ namespace TsilaRun
 
         public static bool SweptOverlap(Bounds from, Bounds to, Bounds itemFrom, Bounds itemTo)
         {
-            Vector3 relativeStart = from.center - itemFrom.center;
-            Vector3 relativeEnd = to.center - itemTo.center;
-            Vector3 extent = Vector3.Max(from.extents, to.extents) + Vector3.Max(itemFrom.extents, itemTo.extents);
-            Vector3 delta = relativeEnd - relativeStart;
+            return TrySweptOverlap(from, to, itemFrom, itemTo, out _);
+        }
+
+        // Each face moves linearly, including genuine bounds-size changes. Taking the
+        // largest extent of both endpoints creates contacts outside either silhouette.
+        public static bool TrySweptOverlap(Bounds from, Bounds to, Bounds itemFrom, Bounds itemTo, out float contactTime)
+        {
+            contactTime = 0f;
+            Vector3 fromMin = from.min, fromMax = from.max, toMin = to.min, toMax = to.max;
+            Vector3 itemFromMin = itemFrom.min, itemFromMax = itemFrom.max;
+            Vector3 itemToMin = itemTo.min, itemToMax = itemTo.max;
             float enter = 0f, leave = 1f;
             for (int axis = 0; axis < 3; axis++)
             {
-                if (Mathf.Abs(delta[axis]) < 0.00001f)
-                {
-                    if (Mathf.Abs(relativeStart[axis]) > extent[axis]) return false;
-                    continue;
-                }
-                float a = (-extent[axis] - relativeStart[axis]) / delta[axis];
-                float b = (extent[axis] - relativeStart[axis]) / delta[axis];
-                enter = Mathf.Max(enter, Mathf.Min(a, b));
-                leave = Mathf.Min(leave, Mathf.Max(a, b));
-                if (enter > leave) return false;
+                if (!ClipOverlap(fromMax[axis] - itemFromMin[axis], toMax[axis] - itemToMin[axis], ref enter, ref leave) ||
+                    !ClipOverlap(itemFromMax[axis] - fromMin[axis], itemToMax[axis] - toMin[axis], ref enter, ref leave))
+                    return false;
             }
+            contactTime = enter;
             return true;
+        }
+
+        static bool ClipOverlap(float start, float end, ref float enter, ref float leave)
+        {
+            if (start >= 0f && end >= 0f) return true;
+            if (start < 0f && end < 0f) return false;
+            float crossing = start / (start - end);
+            if (start < 0f) enter = Mathf.Max(enter, crossing);
+            else leave = Mathf.Min(leave, crossing);
+            return enter <= leave;
         }
     }
 }

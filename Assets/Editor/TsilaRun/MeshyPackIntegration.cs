@@ -167,7 +167,7 @@ namespace TsilaRun.Editor
                 string assetName = name.Replace("_LOD1", "");
                 renderer.sharedMaterials = renderer.sharedMaterials.Select(source =>
                 {
-                    string suffix = Characters.Contains(assetName) ? source.name.Contains("Body") ? "_Body" : "_FaceDetails" : "_Material";
+                    string suffix = renderer is SkinnedMeshRenderer ? source.name.Contains("Body") ? "_Body" : "_FaceDetails" : "_Material";
                     var material = AssetDatabase.LoadAssetAtPath<Material>(Generated + "/Materials/" + assetName + suffix + ".mat");
                     if (material == null) throw new InvalidDataException("Missing mobile material for " + name);
                     return material;

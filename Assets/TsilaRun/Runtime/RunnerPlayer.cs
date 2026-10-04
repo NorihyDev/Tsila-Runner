@@ -16,8 +16,13 @@ namespace TsilaRun
         public float RollProgress => IsSliding ? Mathf.Clamp01(1f - slideRemaining / RunnerRules.SlideSeconds) : 0f;
         public float Height => IsSliding ? RunnerRules.SlideHeight : RunnerRules.StandingHeight;
         public Bounds HitBounds => BoundsAtHeight(Height);
+        // Instant posture changes precede this tick's movement, so collision sweeps
+        // must start with the new silhouette rather than stretching the old one.
+        public Bounds MovementStartBounds { get; private set; }
         float verticalVelocity, slideRemaining, laneElapsed, laneDuration, laneStart;
         bool jumpWhenClear;
+        Transform scaledVisual;
+        Vector3 visualScale = Vector3.one;
 
         Bounds BoundsAtHeight(float height) => new Bounds(
             transform.position + Vector3.up * (height * 0.5f),
@@ -30,6 +35,9 @@ namespace TsilaRun
             verticalVelocity = slideRemaining = laneElapsed = laneDuration = laneStart = 0f;
             transform.position = Vector3.zero;
             SetSlide(false);
+            MovementStartBounds = HitBounds;
+            var avatar = GetComponentInChildren<RunnerAvatar>();
+            if (avatar != null) avatar.ResetPose();
             if (rig != null) rig.ApplyRuntimePose(RunnerRules.StartSpeed, false, IsSliding, IsGrounded);
         }
 
@@ -73,6 +81,7 @@ namespace TsilaRun
 
         public void Simulate(float dt)
         {
+            if (dt < 0f || float.IsNaN(dt) || float.IsInfinity(dt)) return;
             if (IsSliding)
             {
                 if (IsGrounded) slideRemaining -= dt;
@@ -83,6 +92,7 @@ namespace TsilaRun
                     (world == null || !world.IntersectsObstacle(BoundsAtHeight(RunnerRules.StandingHeight))))
                     SetSlide(false);
             }
+            MovementStartBounds = HitBounds;
             Vector3 position = transform.position;
             laneElapsed += dt;
             float t = laneDuration <= 0f ? 1f : Mathf.Clamp01(laneElapsed / laneDuration);
@@ -99,9 +109,18 @@ namespace TsilaRun
         void SetSlide(bool slide)
         {
             IsSliding = slide;
-            body.height = Height;
-            body.center = Vector3.up * (Height * 0.5f);
-            if (visual != null) visual.localScale = animatedSlide ? Vector3.one : new Vector3(1f, Height / RunnerRules.StandingHeight, 1f);
+            if (body == null) body = GetComponent<CapsuleCollider>();
+            if (body != null)
+            {
+                body.height = Height;
+                body.center = Vector3.up * (Height * 0.5f);
+            }
+            if (visual != null)
+            {
+                if (scaledVisual != visual) { scaledVisual = visual; visualScale = visual.localScale; }
+                visual.localScale = animatedSlide ? visualScale :
+                    Vector3.Scale(visualScale, new Vector3(1f, Height / RunnerRules.StandingHeight, 1f));
+            }
             if (rig != null) rig.ApplyRuntimePose(RunnerRules.StartSpeed, false, IsSliding, IsGrounded);
         }
     }

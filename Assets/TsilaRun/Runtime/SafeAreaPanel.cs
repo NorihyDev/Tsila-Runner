@@ -28,8 +28,15 @@ namespace TsilaRun
 
         public static void NormalizedAnchors(Rect area, int width, int height, out Vector2 min, out Vector2 max)
         {
-            min = new Vector2(area.xMin / width, area.yMin / height);
-            max = new Vector2(area.xMax / width, area.yMax / height);
+            min = Vector2.zero;
+            max = Vector2.one;
+            if (width <= 0 || height <= 0 || area.width <= 0f || area.height <= 0f) return;
+            Vector2 clampedMin = new Vector2(Mathf.Clamp01(area.xMin / width), Mathf.Clamp01(area.yMin / height));
+            Vector2 clampedMax = new Vector2(Mathf.Clamp01(area.xMax / width), Mathf.Clamp01(area.yMax / height));
+            // Resolution changes can briefly report the previous screen's safe area.
+            if (clampedMax.x <= clampedMin.x || clampedMax.y <= clampedMin.y) return;
+            min = clampedMin;
+            max = clampedMax;
         }
     }
 }

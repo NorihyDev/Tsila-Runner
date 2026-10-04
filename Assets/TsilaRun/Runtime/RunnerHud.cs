@@ -26,10 +26,10 @@ namespace TsilaRun
         void Awake()
         {
             EnsureBrandMark();
-            ApplyMobileLayout();
             UpdateLegacyIntroCopy();
             if (missionText == null) missionText = CreateStatusText("Mission Status", new Vector2(0.1f, 0.78f), new Vector2(0.9f, 0.825f));
             if (powerUpText == null) powerUpText = CreateStatusText("Power Up Status", new Vector2(0.1f, 0.73f), new Vector2(0.9f, 0.775f));
+            ApplyMobileLayout();
             ApplyModernMobileStyle();
         }
 
@@ -131,6 +131,7 @@ namespace TsilaRun
 
         void OnEnable()
         {
+            if (game == null) return;
             if (playButton != null) playButton.onClick.AddListener(Play);
             if (skipIntroButton != null) skipIntroButton.onClick.AddListener(game.CompleteIntro);
             if (pauseButton != null) pauseButton.onClick.AddListener(game.Pause);
@@ -149,6 +150,7 @@ namespace TsilaRun
 
         void Play()
         {
+            if (game == null) return;
             var tutorial = GetComponent<RunnerTutorial>();
             if (tutorial != null) tutorial.Play(); else game.StartRun();
         }
@@ -318,6 +320,7 @@ namespace TsilaRun
 
         void OnDisable()
         {
+            if (game == null) return;
             game.StateChanged -= RefreshState;
             game.MissionCompleted -= ShowMissionComplete;
             if (playButton != null) playButton.onClick.RemoveListener(Play);
@@ -344,9 +347,10 @@ namespace TsilaRun
 
         void RefreshNumbers()
         {
-            if (shownDistance != game.Score) { shownDistance = game.Score; distanceText.text = shownDistance + " m"; }
-            if (shownCoins != game.Coins) { shownCoins = game.Coins; coinsText.text = "COINS  " + shownCoins; }
-            if (shownBest != game.Best) { shownBest = game.Best; bestText.text = "BEST  " + shownBest + " m"; }
+            if (game == null) return;
+            if (distanceText != null && shownDistance != game.Score) { shownDistance = game.Score; distanceText.text = shownDistance + " m"; }
+            if (coinsText != null && shownCoins != game.Coins) { shownCoins = game.Coins; coinsText.text = "COINS  " + shownCoins; }
+            if (bestText != null && shownBest != game.Best) { shownBest = game.Best; bestText.text = "BEST  " + shownBest + " m"; }
             RefreshSettingsText();
             int zone = RunnerRoadSection.ZoneAt(game.Distance);
             if (zoneText != null && zone != shownZone) { shownZone = zone; zoneText.text = RunnerRoadSection.ZoneNames[zone]; }
@@ -406,12 +410,25 @@ namespace TsilaRun
 
         void RefreshSettingsText()
         {
-            if (settingsText == null || game == null || game.settings == null) return;
-            settingsText.text = "MUSIC " + Mathf.RoundToInt(game.settings.MusicVolume * 100f) + "%   FPS " + game.settings.TargetFps;
+            if (game == null || game.settings == null) return;
+            if (settingsText != null) settingsText.text = "MUSIC " + Mathf.RoundToInt(game.settings.MusicVolume * 100f) + "%   FPS " + game.settings.TargetFps;
+            if (fpsButton != null)
+            {
+                var label = fpsButton.GetComponentInChildren<Text>();
+                if (label != null) label.text = (game.settings.TargetFps >= 120 ? 60 : 120) + " FPS";
+            }
         }
 
         void RefreshState()
         {
+            if (game == null) return;
+            if (game.State == RunnerGame.RunState.Ready || game.State == RunnerGame.RunState.Shop ||
+                game.State == RunnerGame.RunState.GameOver || game.State == RunnerGame.RunState.Intro ||
+                game.State == RunnerGame.RunState.Running && game.Distance == 0d)
+            {
+                missionBannerUntil = 0f;
+                missionBanner = "";
+            }
             if (startPanel != null) startPanel.SetActive(game.State == RunnerGame.RunState.Ready);
             if (pausePanel != null) pausePanel.SetActive(game.State == RunnerGame.RunState.Paused);
             if (gameOverPanel != null) gameOverPanel.SetActive(game.State == RunnerGame.RunState.GameOver);

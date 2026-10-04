@@ -157,7 +157,9 @@ namespace TsilaRun.Editor
         public static void ApplyToScene(RunnerGame game)
         {
             if (!Available) return;
-            game.characterPrefabs = new[] { "Tsila", "Lucef", "Mianja" }.Select(name => AssetDatabase.LoadAssetAtPath<GameObject>(SkinFolder + "/" + name + ".prefab")).ToArray();
+            string[] skins = AssetDatabase.LoadAssetAtPath<GameObject>(SkinFolder + "/Punky.prefab") != null
+                ? new[] { "Tsila", "Lucef", "Mianja", "Punky" } : new[] { "Tsila", "Lucef", "Mianja" };
+            game.characterPrefabs = skins.Select(name => AssetDatabase.LoadAssetAtPath<GameObject>(SkinFolder + "/" + name + ".prefab")).ToArray();
             if (game.characterPrefabs.Any(p => p == null)) throw new InvalidOperationException("Missing playable skin prefab");
             var officer = game.chase.officer;
             var officerRoot = officer.transform.parent.gameObject;

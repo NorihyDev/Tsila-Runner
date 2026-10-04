@@ -9,8 +9,10 @@ namespace TsilaRun
         public int slot;
         public void SetSection(long section)
         {
-            int index = (int)((section % period + period) % period);
-            gameObject.SetActive(index == slot);
+            int repeat = Mathf.Max(1, period);
+            int index = (int)((section % repeat + repeat) % repeat);
+            int validSlot = (slot % repeat + repeat) % repeat;
+            gameObject.SetActive(index == validSlot);
         }
     }
 }

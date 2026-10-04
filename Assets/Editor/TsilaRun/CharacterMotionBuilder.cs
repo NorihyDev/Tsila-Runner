@@ -25,6 +25,8 @@ namespace TsilaRun.Editor
                 BuildFor(name, MeshyPackIntegration.Source + "/" + name + ".fbx");
             if (AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPackIntegration.PrefabPath("Mianja")) != null)
                 BuildFor("Mianja", BlenderPackIntegration.Source + "/RunningPerson.fbx");
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPackIntegration.PrefabPath("Punky")) != null)
+                BuildFor("Punky", MeshyPackIntegration.Source + "/Punky.fbx");
             AssetDatabase.SaveAssets();
         }
 

@@ -15,10 +15,12 @@ namespace TsilaRun
         public void SetLocation(double distance)
         {
             Zone = ZoneAt(distance);
-            for (int i = 0; i < scenery.Length; i++) scenery[i].SetActive(i == Zone);
+            if (scenery != null)
+                for (int i = 0; i < scenery.Length; i++)
+                    if (scenery[i] != null) scenery[i].SetActive(i == Zone);
             if (spacedProps == null) spacedProps = GetComponentsInChildren<ScenerySpacing>(true);
             long section = (long)System.Math.Floor(distance / RunnerRules.RoadLength);
-            foreach (var prop in spacedProps) prop.SetSection(section);
+            foreach (var prop in spacedProps) if (prop != null) prop.SetSection(section);
         }
     }
 }

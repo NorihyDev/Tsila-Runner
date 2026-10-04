@@ -14,6 +14,7 @@ namespace TsilaRun
         public void ResetChase()
         {
             IntroProgress = 0f;
+            if (officer == null) return;
             officer.transform.position = new Vector3(-1.2f, 0f, -4.8f);
             FacePlayer();
             officer.animate = true;
@@ -23,6 +24,7 @@ namespace TsilaRun
         public bool TickIntro(float dt)
         {
             IntroProgress = Mathf.Min(1f, IntroProgress + dt / IntroSeconds);
+            if (officer == null) return true;
             officer.transform.position = Vector3.Lerp(new Vector3(-1.2f, 0f, -4.8f), new Vector3(0f, 0f, -3.2f), IntroProgress);
             FacePlayer();
             return IntroProgress >= 1f;
@@ -30,7 +32,7 @@ namespace TsilaRun
 
         void Update()
         {
-            if (game.State == RunnerGame.RunState.Paused) return;
+            if (game == null || officer == null || game.player == null || game.State == RunnerGame.RunState.Paused) return;
             bool visible = game.State == RunnerGame.RunState.Intro || game.State == RunnerGame.RunState.GameOver ||
                 game.State == RunnerGame.RunState.Running && game.Distance < 60d;
             officer.gameObject.SetActive(visible);

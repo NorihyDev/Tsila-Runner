@@ -18,13 +18,32 @@ namespace TsilaRun
         public int CurrentAnimation => currentAnimation;
         float phase;
 
-        void OnEnable() { phase = 0f; currentAnimation = 0; if (animator == null) Pose(0f, 0f); }
+        void OnEnable() { ResetPose(); }
+
+        public void ResetPose()
+        {
+            phase = 0f;
+            currentAnimation = 0;
+            if (animator == null) { Pose(0f, 0f); return; }
+            animator.speed = 1f;
+            if (animator.runtimeAnimatorController == null || !animator.isActiveAndEnabled) return;
+            animator.Play(Idle, 0, 0f);
+            animator.Update(0f);
+        }
 
         void Update() { Animate(Time.deltaTime); }
 
         public void Animate(float dt)
         {
             if (Time.timeScale == 0f) return;
+            // Freeze impact/world poses; the chaser still runs to the player before
+            // stopping. ResetPlayer restores Idle for the next run or the menu.
+            if (game != null && game.State == RunnerGame.RunState.GameOver &&
+                (game.chase == null || game.chase.officer != this))
+            {
+                if (animator != null) animator.speed = 0f;
+                return;
+            }
             bool running = animate && (alwaysRun || game != null &&
                 (game.State == RunnerGame.RunState.Running || game.State == RunnerGame.RunState.Intro));
             if (animator != null)
@@ -51,20 +70,19 @@ namespace TsilaRun
 
         void Pose(float left, float right)
         {
-            if (leftArm == null) return; // Allows the Editor builder to wire a fresh rig.
-            leftArm.localRotation = Quaternion.Euler(left, 0f, -8f);
-            rightArm.localRotation = Quaternion.Euler(right, 0f, 8f);
-            leftLeg.localRotation = Quaternion.Euler(right, 0f, 0f);
-            rightLeg.localRotation = Quaternion.Euler(left, 0f, 0f);
-            leftKnee.localRotation = Quaternion.Euler(Mathf.Max(0f, -right) * 1.2f, 0f, 0f);
-            rightKnee.localRotation = Quaternion.Euler(Mathf.Max(0f, -left) * 1.2f, 0f, 0f);
+            if (leftArm != null) leftArm.localRotation = Quaternion.Euler(left, 0f, -8f);
+            if (rightArm != null) rightArm.localRotation = Quaternion.Euler(right, 0f, 8f);
+            if (leftLeg != null) leftLeg.localRotation = Quaternion.Euler(right, 0f, 0f);
+            if (rightLeg != null) rightLeg.localRotation = Quaternion.Euler(left, 0f, 0f);
+            if (leftKnee != null) leftKnee.localRotation = Quaternion.Euler(Mathf.Max(0f, -right) * 1.2f, 0f, 0f);
+            if (rightKnee != null) rightKnee.localRotation = Quaternion.Euler(Mathf.Max(0f, -left) * 1.2f, 0f, 0f);
         }
 
         public void SetSuit(Material material)
         {
             if (material == null || suitRenderers == null) return;
             if (animator != null) { SetSuitTint(material.color); return; }
-            foreach (var part in suitRenderers) part.sharedMaterial = material;
+            foreach (var part in suitRenderers) if (part != null) part.sharedMaterial = material;
         }
 
         public void SetSuitTint(Color tint)

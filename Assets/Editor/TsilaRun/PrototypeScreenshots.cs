@@ -27,6 +27,7 @@ namespace TsilaRun.Editor
             var camera = Object.FindAnyObjectByType<Camera>();
             var hud = Object.FindAnyObjectByType<RunnerHud>();
             var shop = hud.GetComponent<RunnerShop>();
+            shop.ApplyModernShopStyle();
             var preview = Object.FindAnyObjectByType<EditorPreview>();
             if (preview != null) preview.gameObject.SetActive(false);
             hud.game.world.ResetWorld(42);
@@ -89,7 +90,7 @@ namespace TsilaRun.Editor
                     if (hud.powerUpText != null) hud.powerUpText.gameObject.SetActive(false);
                     hud.zoneText.gameObject.SetActive(state == 6 || state == 7);
                     hud.zoneText.text = RunnerRoadSection.ZoneNames[state == 6 ? 1 : state == 7 ? 2 : 0];
-                    foreach (var section in hud.game.world.GetComponentsInChildren<RunnerRoadSection>())
+                    foreach (var section in hud.game.world.GetComponentsInChildren<RunnerRoadSection>(true))
                         section.SetLocation((state == 6 ? 288d : state == 7 ? 576d : 48d) + section.transform.position.z);
                     hud.game.chase.officer.gameObject.SetActive(state == 4);
                     if (state == 4) { hud.game.chase.ResetChase(); hud.game.chase.TickIntro(1.2f); }

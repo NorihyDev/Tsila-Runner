@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace TsilaRun
@@ -11,6 +12,7 @@ namespace TsilaRun
         public Button[] skinButtons;
         public Text[] skinLabels;
         public Text wallet;
+        UnityAction[] skinActions;
 
         void Awake()
         {
@@ -20,20 +22,46 @@ namespace TsilaRun
 
         void OnEnable()
         {
-            if (openFromStart != null) openFromStart.onClick.AddListener(game.OpenShop);
-            if (openFromResults != null) openFromResults.onClick.AddListener(game.OpenShop);
-            if (close != null) close.onClick.AddListener(game.CloseShop);
-            if (game != null) game.StateChanged += Refresh;
+            EnsureSkinButtons();
+            for (int i = 0; i < skinActions.Length; i++)
+                if (skinButtons[i] != null && skinActions[i] != null) skinButtons[i].onClick.AddListener(skinActions[i]);
+            if (game != null)
+            {
+                if (openFromStart != null) openFromStart.onClick.AddListener(game.OpenShop);
+                if (openFromResults != null) openFromResults.onClick.AddListener(game.OpenShop);
+                if (close != null) close.onClick.AddListener(game.CloseShop);
+                game.StateChanged += Refresh;
+            }
         }
 
         void Start() { Refresh(); }
 
-        void ApplyModernShopStyle()
+        public void ApplyLayout()
         {
+            if (skinButtons == null) return;
+            float rowStep = .48f / Mathf.Max(6, skinButtons.Length);
+            float rowHeight = Mathf.Min(.07f, rowStep - .01f);
+            for (int i = 0; i < skinButtons.Length; i++)
+            {
+                if (skinButtons[i] == null) continue;
+                var rect = skinButtons[i].GetComponent<RectTransform>();
+                float top = .69f - i * rowStep;
+                rect.anchorMin = new Vector2(.1f, top - rowHeight);
+                rect.anchorMax = new Vector2(.9f, top);
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+            }
+        }
+
+        public void ApplyModernShopStyle()
+        {
+            ApplyLayout();
+            if (skinButtons == null) skinButtons = new Button[0];
+            if (skinLabels == null) skinLabels = new Text[0];
             if (panel != null)
             {
                 var bg = panel.GetComponent<Image>() ?? panel.AddComponent<Image>();
-                bg.color = new Color32(10, 15, 25, 235);
+                bg.color = new Color32(10, 15, 25, 255);
+                bg.raycastTarget = true;
                 bg.type = Image.Type.Sliced;
                 if (panel.GetComponent<Outline>() == null)
                 {
@@ -116,27 +144,33 @@ namespace TsilaRun
 
         void EnsureSkinButtons()
         {
-            if (panel == null) return;
             if (skinButtons == null) skinButtons = new Button[0];
             if (skinLabels == null || skinLabels.Length != skinButtons.Length)
                 skinLabels = new Text[skinButtons.Length];
+            if (skinActions == null || skinActions.Length != skinButtons.Length)
+                skinActions = new UnityAction[skinButtons.Length];
             for (int i = 0; i < skinButtons.Length && i < RunnerProgress.SkinNames.Length; i++)
             {
                 var button = skinButtons[i];
                 if (button == null) continue;
-                skinLabels[i] = button.GetComponentInChildren<Text>();
+                if (skinLabels[i] == null) skinLabels[i] = button.GetComponentInChildren<Text>(true);
                 int index = i;
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => SelectSkin(index));
+                if (skinActions[i] == null) skinActions[i] = () => SelectSkin(index);
             }
         }
 
         void OnDisable()
         {
-            if (game != null) game.StateChanged -= Refresh;
-            if (openFromStart != null) openFromStart.onClick.RemoveListener(game.OpenShop);
-            if (openFromResults != null) openFromResults.onClick.RemoveListener(game.OpenShop);
-            if (close != null) close.onClick.RemoveListener(game.CloseShop);
+            if (skinActions != null)
+                for (int i = 0; i < skinActions.Length && i < skinButtons.Length; i++)
+                    if (skinButtons[i] != null && skinActions[i] != null) skinButtons[i].onClick.RemoveListener(skinActions[i]);
+            if (game != null)
+            {
+                game.StateChanged -= Refresh;
+                if (openFromStart != null) openFromStart.onClick.RemoveListener(game.OpenShop);
+                if (openFromResults != null) openFromResults.onClick.RemoveListener(game.OpenShop);
+                if (close != null) close.onClick.RemoveListener(game.CloseShop);
+            }
         }
 
         void SelectSkin(int index)

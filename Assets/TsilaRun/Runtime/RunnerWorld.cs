@@ -10,7 +10,28 @@ namespace TsilaRun
         public RunnerGame game;
         [System.NonSerialized] Transform[] roads;
         [System.NonSerialized] RunnerRoadSection[] sections;
-        [System.NonSerialized] RunnerItem[,] items;
+        // Coin trails use many more instances than hazards. Reserve enough for every visible row.
+        const int CoinPoolSize = RunnerRules.PoolPerKind * 3;
+        [System.NonSerialized] RunnerItem[][] items;
+        [System.NonSerialized] Contact[] contacts;
+        struct Contact
+        {
+            public RunnerItem item;
+            public float time;
+            public int order;
+        }
+        sealed class ContactComparer : System.Collections.Generic.IComparer<Contact>
+        {
+            public static readonly ContactComparer Instance = new ContactComparer();
+            public int Compare(Contact a, Contact b)
+            {
+                int time = a.time.CompareTo(b.time);
+                if (time != 0) return time;
+                // A simultaneous fatal contact takes priority over a pickup.
+                int hazard = RunnerRules.IsObstacle(b.item.kind).CompareTo(RunnerRules.IsObstacle(a.item.kind));
+                return hazard != 0 ? hazard : a.order.CompareTo(b.order);
+            }
+        }
         System.Random random;
         float nextRow;
         int safeLane;
@@ -19,14 +40,13 @@ namespace TsilaRun
 
         public void Initialize()
         {
-            if (roads != null && roads.Length == RunnerRules.RoadCount && roads[0] != null &&
-                items != null && items.GetLength(0) == RunnerRules.ItemKindCount &&
-                items.GetLength(1) == RunnerRules.PoolPerKind && sections != null) return;
+            if (HasValidPools()) return;
             // Unity's fast Enter Play Mode can retain managed fields with destroyed scene objects.
             // Recover once here; normal restarts simply reuse the existing valid pool.
             for (int i = transform.childCount - 1; i >= 0; i--)
             {
                 GameObject child = transform.GetChild(i).gameObject;
+                child.SetActive(false);
                 if (Application.isPlaying) Destroy(child);
                 else DestroyImmediate(child);
             }
@@ -37,18 +57,40 @@ namespace TsilaRun
                 roads[i] = Instantiate(roadPrefab, transform).transform;
                 sections[i] = roads[i].GetComponent<RunnerRoadSection>();
             }
-            items = new RunnerItem[RunnerRules.ItemKindCount, RunnerRules.PoolPerKind];
+            items = new RunnerItem[RunnerRules.ItemKindCount][];
+            int capacity = 0;
             for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
-                for (int i = 0; i < RunnerRules.PoolPerKind; i++)
+            {
+                items[kind] = new RunnerItem[kind == (int)RunnerItemKind.Coin ? CoinPoolSize : RunnerRules.PoolPerKind];
+                capacity += items[kind].Length;
+                for (int i = 0; i < items[kind].Length; i++)
                 {
                     if (itemPrefabs != null && kind < itemPrefabs.Length && itemPrefabs[kind] != null)
-                        items[kind, i] = Instantiate(itemPrefabs[kind], transform);
+                        items[kind][i] = Instantiate(itemPrefabs[kind], transform);
                     else if (RunnerRules.IsPowerUp((RunnerItemKind)kind))
-                        items[kind, i] = CreateFallbackPowerUp((RunnerItemKind)kind);
+                        items[kind][i] = CreateFallbackPowerUp((RunnerItemKind)kind);
                     else
                         throw new System.InvalidOperationException("Missing runner item prefab: " + (RunnerItemKind)kind);
-                    items[kind, i].Release();
+                    items[kind][i].game = game;
+                    foreach (var avatar in items[kind][i].GetComponentsInChildren<RunnerAvatar>(true)) avatar.game = game;
+                    items[kind][i].Release();
                 }
+            }
+            contacts = new Contact[capacity];
+        }
+
+        bool HasValidPools()
+        {
+            if (roads == null || roads.Length != RunnerRules.RoadCount || sections == null ||
+                sections.Length != roads.Length || items == null || items.Length != RunnerRules.ItemKindCount || contacts == null) return false;
+            foreach (var road in roads) if (road == null) return false;
+            for (int kind = 0; kind < items.Length; kind++)
+            {
+                int expected = kind == (int)RunnerItemKind.Coin ? CoinPoolSize : RunnerRules.PoolPerKind;
+                if (items[kind] == null || items[kind].Length != expected) return false;
+                foreach (var item in items[kind]) if (item == null || item.hitbox == null) return false;
+            }
+            return true;
         }
 
         RunnerItem CreateFallbackPowerUp(RunnerItemKind kind)
@@ -92,35 +134,37 @@ namespace TsilaRun
                 if (sections[i] != null) sections[i].SetLocation(roads[i].position.z);
             }
             for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
-                for (int i = 0; i < RunnerRules.PoolPerKind; i++) items[kind, i].Release();
+                foreach (var item in items[kind]) item.Release();
             FillAhead();
         }
 
         public void Simulate(float travel, Bounds previousPlayer, Bounds currentPlayer)
         {
+            if (travel < 0f || float.IsNaN(travel) || float.IsInfinity(travel)) return;
             travelled += travel;
+            float dt = travel / Mathf.Max(RunnerRules.StartSpeed, game.TravelSpeed);
             for (int i = 0; i < roads.Length; i++)
             {
                 Vector3 p = roads[i].position - Vector3.forward * travel;
                 if (p.z < -RunnerRules.RoadLength * 1.5f)
                 {
-                    p.z += roads.Length * RunnerRules.RoadLength;
+                    float ringLength = roads.Length * RunnerRules.RoadLength;
+                    p.z += Mathf.Ceil((-RunnerRules.RoadLength * 1.5f - p.z) / ringLength) * ringLength;
                     if (sections[i] != null) sections[i].SetLocation(travelled + p.z);
                 }
                 roads[i].position = p;
             }
-            // Obstacles before coins, so a fatal contact cannot also award a coin.
-            for (int pass = 0; pass < 2; pass++)
-                for (int i = 0; i < RunnerRules.PoolPerKind; i++)
-                for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
+            int contactCount = 0;
+            ActiveItemCount = 0;
+            for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
+                for (int i = 0; i < items[kind].Length; i++)
                 {
-                    if (RunnerRules.IsObstacle((RunnerItemKind)kind) != (pass == 0)) continue;
-                    RunnerItem item = items[kind, i];
+                    RunnerItem item = items[kind][i];
                     if (!item.InUse) continue;
+                    ActiveItemCount++;
                     Bounds itemFrom = item.HitBounds;
-                    float itemTravel = item.TravelThisTick(travel, travel / Mathf.Max(RunnerRules.StartSpeed, game.TravelSpeed));
+                    float itemTravel = item.TravelThisTick(travel, dt);
                     item.transform.position -= Vector3.forward * itemTravel;
-                    float dt = travel / Mathf.Max(RunnerRules.StartSpeed, game.TravelSpeed);
                     Vector3 target = player.transform.position + Vector3.up * player.Height * 0.5f;
                     float magnetDistance = Vector3.Distance(item.transform.position, target);
                     if (item.kind == RunnerItemKind.Coin && game.MagnetRemaining > 0f &&
@@ -131,28 +175,41 @@ namespace TsilaRun
                             RunnerRules.MagnetPullSpeed * closeInFactor * dt);
                     }
                     Bounds itemTo = item.HitBounds;
-                    bool hit = RunnerRules.SweptOverlap(previousPlayer, currentPlayer, itemFrom, itemTo);
-                    if (hit && game.State == RunnerGame.RunState.Running)
+                    if (RunnerRules.TrySweptOverlap(previousPlayer, currentPlayer, itemFrom, itemTo, out float contactTime))
                     {
-                        if (item.kind == RunnerItemKind.Coin)
-                        {
-                            item.Release();
-                            ActiveItemCount--;
-                            game.CollectCoin();
-                        }
-                        else if (RunnerRules.IsPowerUp(item.kind))
-                        {
-                            item.Release();
-                            ActiveItemCount--;
-                            game.CollectPowerUp(item.kind);
-                        }
-                        else if (game.TryAbsorbObstacle())
-                        {
-                            item.Release();
-                            ActiveItemCount--;
-                        }
-                        else game.EndRun();
+                        contacts[contactCount] = new Contact { item = item, time = contactTime, order = contactCount };
+                        contactCount++;
                     }
+                }
+            // Resolve actual encounter order: an earlier shield must protect against a later hazard.
+            System.Array.Sort(contacts, 0, contactCount, ContactComparer.Instance);
+            for (int i = 0; i < contactCount; i++)
+            {
+                RunnerItem item = contacts[i].item;
+                contacts[i] = default;
+                if (!item.InUse || game.State != RunnerGame.RunState.Running) continue;
+                if (item.kind == RunnerItemKind.Coin)
+                {
+                    item.Release();
+                    ActiveItemCount--;
+                    game.CollectCoin();
+                }
+                else if (RunnerRules.IsPowerUp(item.kind))
+                {
+                    item.Release();
+                    ActiveItemCount--;
+                    game.CollectPowerUp(item.kind);
+                }
+                else if (game.TryAbsorbObstacle())
+                {
+                    item.Release();
+                    ActiveItemCount--;
+                }
+                else game.EndRun();
+            }
+            for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
+                foreach (var item in items[kind])
+                {
                     if (item.InUse && item.transform.position.z < -12f)
                     {
                         if (RunnerRules.IsObstacle(item.kind)) game.ObstacleCleared();
@@ -161,6 +218,8 @@ namespace TsilaRun
                     }
                 }
             nextRow -= travel;
+            // Large catch-up steps must not refill missed rows behind or on top of the player.
+            if (nextRow < 0f) nextRow = RunnerRules.FirstRow;
             FillAhead();
         }
 
@@ -168,8 +227,8 @@ namespace TsilaRun
         {
             if (items == null) return false;
             for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
-                for (int i = 0; i < RunnerRules.PoolPerKind; i++)
-                    if (RunnerRules.IsObstacle((RunnerItemKind)kind) && items[kind, i].InUse && items[kind, i].HitBounds.Intersects(bounds)) return true;
+                foreach (var item in items[kind])
+                    if (RunnerRules.IsObstacle((RunnerItemKind)kind) && item.InUse && item.HitBounds.Intersects(bounds)) return true;
             return false;
         }
 
@@ -192,7 +251,7 @@ namespace TsilaRun
                     RunnerItemKind obstacle = lane == safeLane && fullRow
                         ? (random.Next(0, 2) == 0 ? RunnerItemKind.Barrier : RunnerItemKind.Overhead)
                         : lane == dodgeLane ? RunnerItemKind.Tower : PickObstacleKind();
-                    float z = nextRow + (i * 1.5f);
+                    float z = nextRow + i * (RunnerRules.RowStagger / 2f);
                     Place(obstacle, lane, z);
                     if (RunnerRules.CanCoinRideObstacle(obstacle) && random.NextDouble() < 0.75d)
                     {
@@ -229,21 +288,24 @@ namespace TsilaRun
                     Place(powerUp, safeLane, nextRow - 8f);
                 }
 
-                nextRow += RunnerRules.RowSpacing * (0.82f + (float)random.NextDouble() * 0.18f);
+                nextRow += RunnerRules.RowSpacing * (1f + (float)random.NextDouble() * 0.18f);
             }
         }
 
         void PlaceCoinAt(float x, float z, float y)
         {
-            RunnerItem coinPrefab = items[(int)RunnerItemKind.Coin, 0];
-            Bounds coinBounds = new Bounds(new Vector3(x, y, z) + coinPrefab.hitbox.center, coinPrefab.hitbox.size);
+            RunnerItem coinPrefab = items[(int)RunnerItemKind.Coin][0];
+            Bounds coinBounds = coinPrefab.HitBounds;
+            coinBounds.center += new Vector3(x, y, z) - coinPrefab.transform.position;
             coinBounds.Expand(new Vector3(RunnerRules.CoinObstacleClearance, RunnerRules.CoinObstacleClearance * 0.5f, RunnerRules.CoinObstacleClearance));
+            foreach (var coin in items[(int)RunnerItemKind.Coin])
+                if (coin.InUse && coinBounds.Intersects(coin.HitBounds)) return;
             for (int kind = 0; kind < RunnerRules.ItemKindCount; kind++)
             {
                 if (!RunnerRules.IsObstacle((RunnerItemKind)kind)) continue;
-                for (int i = 0; i < RunnerRules.PoolPerKind; i++)
+                for (int i = 0; i < items[kind].Length; i++)
                 {
-                    RunnerItem obstacle = items[kind, i];
+                    RunnerItem obstacle = items[kind][i];
                     if (!obstacle.InUse) continue;
                     Bounds exclusion = obstacle.HitBounds;
                     exclusion.Expand(new Vector3(RunnerRules.CoinObstacleClearance, RunnerRules.CoinObstacleClearance, RunnerRules.CoinObstacleClearance * 2f));
@@ -254,9 +316,9 @@ namespace TsilaRun
                     if (coinBounds.Intersects(exclusion)) return;
                 }
             }
-            for (int i = 0; i < RunnerRules.PoolPerKind; i++)
+            for (int i = 0; i < items[(int)RunnerItemKind.Coin].Length; i++)
             {
-                RunnerItem item = items[(int)RunnerItemKind.Coin, i];
+                RunnerItem item = items[(int)RunnerItemKind.Coin][i];
                 if (item.InUse) continue;
                 item.Place(x, z, y);
                 ActiveItemCount++;
@@ -286,9 +348,9 @@ namespace TsilaRun
 
         void Place(RunnerItemKind kind, int lane, float z)
         {
-            for (int i = 0; i < RunnerRules.PoolPerKind; i++)
+            for (int i = 0; i < items[(int)kind].Length; i++)
             {
-                RunnerItem item = items[(int)kind, i];
+                RunnerItem item = items[(int)kind][i];
                 if (item.InUse) continue;
                 item.Place((lane - 1) * RunnerRules.LaneWidth, z);
                 ActiveItemCount++;

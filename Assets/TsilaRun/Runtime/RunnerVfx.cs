@@ -29,14 +29,21 @@ namespace TsilaRun
             if (speedTrail == null) return;
             var emission = speedTrail.emission;
             emission.enabled = running;
-            if (!running) speedTrail.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-            else if (!speedTrail.isPlaying) speedTrail.Play();
+            if (!running && speedTrail.isPlaying) speedTrail.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            else if (running && !speedTrail.isPlaying) speedTrail.Play();
+        }
+
+        public void ClearEffects()
+        {
+            foreach (var system in new[] { speedTrail, coinBurst, crashBurst, powerUpBurst, magnetAura, shieldAura })
+                if (system != null) system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
         public void SpawnCoinBurst(Vector3 position)
         {
             if (coinBurst == null) return;
             coinBurst.transform.position = position;
+            if (!coinBurst.isPlaying) coinBurst.Play();
             coinBurst.Emit(10);
         }
 
@@ -44,6 +51,7 @@ namespace TsilaRun
         {
             if (crashBurst == null) return;
             crashBurst.transform.position = position + Vector3.up * 0.4f;
+            if (!crashBurst.isPlaying) crashBurst.Play();
             crashBurst.Emit(16);
         }
 
@@ -53,6 +61,7 @@ namespace TsilaRun
             powerUpBurst.transform.position = position;
             var main = powerUpBurst.main;
             main.startColor = PowerUpColor(kind);
+            if (!powerUpBurst.isPlaying) powerUpBurst.Play();
             powerUpBurst.Emit(12);
         }
 
@@ -87,6 +96,7 @@ namespace TsilaRun
                 Configure(speedTrail, 8f, 0.22f, 0.08f, new Color(0.65f, 0.95f, 1f, 0.65f));
                 var main = speedTrail.main;
                 main.simulationSpace = ParticleSystemSimulationSpace.Local;
+                main.loop = true;
             }
             if (coinBurst == null)
             {
@@ -153,6 +163,7 @@ namespace TsilaRun
         {
             var main = system.main;
             main.startLifetime = lifetime;
+            main.playOnAwake = false;
             main.startSpeed = 0.55f;
             main.startSize = size;
             main.startColor = color;

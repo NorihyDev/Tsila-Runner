@@ -9,15 +9,30 @@ namespace TsilaRun
         public RunnerGame game;
         public GameObject panel;
         public Button continueButton;
-        void OnEnable() { continueButton.onClick.AddListener(Continue); }
-        void OnDisable() { continueButton.onClick.RemoveListener(Continue); }
+        void OnEnable()
+        {
+            if (continueButton != null) continueButton.onClick.AddListener(Continue);
+            if (game != null) game.StateChanged += Refresh;
+        }
+        void OnDisable()
+        {
+            if (continueButton != null) continueButton.onClick.RemoveListener(Continue);
+            if (game != null) game.StateChanged -= Refresh;
+            if (panel != null) panel.SetActive(false);
+        }
+        void Refresh()
+        {
+            if (panel != null && (game == null || game.State != RunnerGame.RunState.Ready)) panel.SetActive(false);
+        }
         public void Play()
         {
-            if (PlayerPrefs.GetInt(PreferenceKey, 0) == 0) panel.SetActive(true);
+            if (game == null || game.State != RunnerGame.RunState.Ready) return;
+            if (PlayerPrefs.GetInt(PreferenceKey, 0) == 0 && panel != null && continueButton != null) panel.SetActive(true);
             else game.StartRun();
         }
         void Continue()
         {
+            if (game == null || game.State != RunnerGame.RunState.Ready || panel == null || !panel.activeSelf) return;
             PlayerPrefs.SetInt(PreferenceKey, 1);
             PlayerPrefs.Save();
             panel.SetActive(false);

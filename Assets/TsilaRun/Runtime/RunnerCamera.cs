@@ -21,14 +21,14 @@ namespace TsilaRun
             {
                 float speedRatio = Mathf.InverseLerp(RunnerRules.StartSpeed, RunnerRules.MaxSpeed + RunnerRules.SpeedBoostBonus, game.TravelSpeed);
                 float targetFov = baseFov + speedRatio * maxFovBoost;
-                cameraRef.fieldOfView = Mathf.Lerp(cameraRef.fieldOfView, targetFov, 0.12f);
+                cameraRef.fieldOfView = Mathf.Lerp(cameraRef.fieldOfView, targetFov, 1f - Mathf.Exp(-7.67f * Time.deltaTime));
             }
             if (game.State == RunnerGame.RunState.Ready || game.State == RunnerGame.RunState.Shop)
             {
                 Vector3 menuPos = new Vector3(0f, 1.55f, -4.6f);
                 transform.position = Vector3.Lerp(transform.position, menuPos, 1f - Mathf.Exp(-6f * Time.deltaTime));
                 transform.LookAt(new Vector3(0f, .6f, 0f));
-                shake = Mathf.Lerp(shake, 0f, 0.12f);
+                shake = Mathf.Lerp(shake, 0f, 1f - Mathf.Exp(-7.67f * Time.deltaTime));
                 previousState = game.State;
                 return;
             }
@@ -38,7 +38,7 @@ namespace TsilaRun
             Vector3 target = offset + Vector3.right * laneSway;
             if (game.State == RunnerGame.RunState.Intro && game.chase != null)
                 target = Vector3.Lerp(new Vector3(3.8f, 4.5f, -10.5f), offset, game.chase.IntroProgress);
-            shake = Mathf.Lerp(shake, player != null && !player.IsGrounded ? 0.18f : 0.04f, 0.08f);
+            shake = Mathf.Lerp(shake, player != null && !player.IsGrounded ? 0.18f : 0.04f, 1f - Mathf.Exp(-5f * Time.deltaTime));
             Vector3 randomOffset = new Vector3(
                 Mathf.PerlinNoise(Time.time * 16f, 0f) - 0.5f,
                 Mathf.PerlinNoise(0f, Time.time * 18f) - 0.5f,

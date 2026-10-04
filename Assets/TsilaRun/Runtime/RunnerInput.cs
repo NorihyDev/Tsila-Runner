@@ -15,27 +15,49 @@ namespace TsilaRun
         public RunnerPlayer player;
         readonly List<RaycastResult> uiHits = new List<RaycastResult>(16);
         PointerEventData pointer;
+        EventSystem pointerEvents;
+        RunnerGame subscribedGame;
         int activeFinger = -1;
         Vector2 origin;
         bool consumed;
+        Vector2 mouseOrigin;
+        bool mouseDragging, mouseConsumed;
 
         void OnEnable()
         {
             EnhancedTouchSupport.Enable();
-            game.StateChanged += ClearGesture;
+            BindGameEvents();
         }
 
         void OnDisable()
         {
-            game.StateChanged -= ClearGesture;
+            if (subscribedGame != null) subscribedGame.StateChanged -= ClearGesture;
+            subscribedGame = null;
             EnhancedTouchSupport.Disable();
             ClearGesture();
         }
 
-        public void ClearGesture() { activeFinger = -1; consumed = false; }
+        void BindGameEvents()
+        {
+            if (subscribedGame == game) return;
+            if (subscribedGame != null) subscribedGame.StateChanged -= ClearGesture;
+            subscribedGame = game;
+            if (subscribedGame != null) subscribedGame.StateChanged += ClearGesture;
+            ClearGesture();
+        }
+
+        public void ClearGesture()
+        {
+            activeFinger = -1;
+            consumed = mouseDragging = mouseConsumed = false;
+        }
 
         void Update()
         {
+            BindGameEvents();
+            if (game == null || player == null) { ClearGesture(); return; }
+            var keyboard = Keyboard.current;
+            if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) game.Pause();
             if (game.State != RunnerGame.RunState.Running) { ClearGesture(); return; }
             var touches = Touch.activeTouches;
             if (activeFinger < 0)
@@ -71,15 +93,35 @@ namespace TsilaRun
                 }
                 if (!found) ClearGesture();
             }
-#if UNITY_EDITOR
-            var keyboard = Keyboard.current;
+            // Touchscreens may also emulate a mouse. A touch always owns the gesture
+            // while present so the same swipe cannot dispatch twice.
+            if (touches.Count == 0) PollMouse();
+            else mouseDragging = mouseConsumed = false;
             if (keyboard == null) return;
-            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame) player.ChangeLane(-1);
+            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame || keyboard.qKey.wasPressedThisFrame) player.ChangeLane(-1);
             if (keyboard.rightArrowKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame) player.ChangeLane(1);
-            if (keyboard.upArrowKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame) player.Jump();
+            if (keyboard.upArrowKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame || keyboard.zKey.wasPressedThisFrame) player.Jump();
             if (keyboard.downArrowKey.wasPressedThisFrame || keyboard.sKey.wasPressedThisFrame) player.Slide();
-            if (keyboard.escapeKey.wasPressedThisFrame) game.Pause();
-#endif
+        }
+
+        void PollMouse()
+        {
+            var mouse = Mouse.current;
+            if (mouse == null) { mouseDragging = false; return; }
+            if (mouse.leftButton.wasPressedThisFrame)
+            {
+                mouseDragging = true;
+                mouseOrigin = mouse.position.ReadValue();
+                mouseConsumed = BeginsOverButton(mouseOrigin);
+            }
+            if (!mouseDragging) return;
+            if (!mouseConsumed)
+            {
+                int direction = ClassifySwipe(mouse.position.ReadValue() - mouseOrigin, Screen.width, Screen.height);
+                if (direction != 0) { mouseConsumed = true; ApplySwipe(direction); }
+            }
+            if (mouse.leftButton.wasReleasedThisFrame || !mouse.leftButton.isPressed)
+                mouseDragging = mouseConsumed = false;
         }
 
         // 5% of the short screen edge; responsive across both phone sizes and pixel densities.
@@ -102,7 +144,11 @@ namespace TsilaRun
         {
             var events = EventSystem.current;
             if (events == null) return false;
-            if (pointer == null) pointer = new PointerEventData(events);
+            if (pointer == null || pointerEvents != events)
+            {
+                pointerEvents = events;
+                pointer = new PointerEventData(events);
+            }
             pointer.Reset();
             pointer.position = position;
             uiHits.Clear();

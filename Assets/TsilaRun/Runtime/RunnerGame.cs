@@ -13,7 +13,7 @@ namespace TsilaRun
         public RunnerVfx vfx;
         public RunnerSettings settings;
         public Material[] skinMaterials;
-        // Tsila, Lucef, Mianja. The first four shop entries reuse Tsila's model.
+        // Tsila, Lucef, Mianja, Punky. The first four shop entries reuse Tsila's model.
         public GameObject[] characterPrefabs;
         GameObject appliedCharacterPrefab;
         static readonly Color[] SkinTints =
@@ -48,7 +48,7 @@ namespace TsilaRun
             if (settings == null) settings = GetComponent<RunnerSettings>() ?? gameObject.AddComponent<RunnerSettings>();
             settings.game = this;
             settings.Apply();
-            Best = PlayerPrefs.GetInt(BestKey, 0);
+            Best = Mathf.Max(0, PlayerPrefs.GetInt(BestKey, 0));
             Progress = new RunnerProgress();
             if (vfx == null) vfx = GetComponent<RunnerVfx>() ?? gameObject.AddComponent<RunnerVfx>();
             if (vfx != null) vfx.Bind(this);
@@ -67,6 +67,7 @@ namespace TsilaRun
             Coins = 0;
             Speed = RunnerRules.StartSpeed;
             ResetPowerUps();
+            if (vfx != null) vfx.ClearEffects();
             world.ResetWorld(Environment.TickCount);
             player.ResetPlayer();
             if (chase != null) chase.ResetChase();
@@ -93,8 +94,8 @@ namespace TsilaRun
             ShieldRemaining = Mathf.Max(0f, ShieldRemaining - dt);
             BoostRemaining = Mathf.Max(0f, BoostRemaining - dt);
             Speed = Mathf.Min(RunnerRules.MaxSpeed, Speed + RunnerRules.Acceleration * dt);
-            Bounds previous = player.HitBounds;
             player.Simulate(dt);
+            Bounds previous = player.MovementStartBounds;
             float travel = TravelSpeed * dt;
             double previousDistance = Distance;
             Distance += travel;
@@ -207,9 +208,14 @@ namespace TsilaRun
             Time.timeScale = 1f;
             Distance = 0d; Coins = 0; Speed = RunnerRules.StartSpeed;
             ResetPowerUps();
+            if (vfx != null) vfx.ClearEffects();
             player.ResetPlayer();
             world.ResetWorld(Environment.TickCount);
-            if (chase != null) { chase.ResetChase(); chase.officer.gameObject.SetActive(false); }
+            if (chase != null)
+            {
+                chase.ResetChase();
+                if (chase.officer != null) chase.officer.gameObject.SetActive(false);
+            }
             if (vfx != null) vfx.SetRunning(false);
             returnFromShop = RunState.Ready;
             SetState(RunState.Ready);

@@ -140,9 +140,16 @@ namespace TsilaRun.Editor
             if (name == "Stage Navy") material.shader = Shader.Find("Universal Render Pipeline/Unlit");
             material.SetColor("_BaseColor", color); material.SetFloat("_Smoothness", .2f);
             material.SetColor("_EmissionColor", emission); material.EnableKeyword("_EMISSION");
+            // URP validates _EMISSION from AnyEmissive. None silently strips the
+            // keyword on reimport, turning the neon accents dark in the saved scene.
             material.globalIlluminationFlags = emission.maxColorComponent > 0f
-                ? MaterialGlobalIlluminationFlags.None : MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+                ? MaterialGlobalIlluminationFlags.BakedEmissive : MaterialGlobalIlluminationFlags.EmissiveIsBlack;
             EditorUtility.SetDirty(material); return material;
+        }
+
+        public static void RepairStageMaterials()
+        {
+            Material("Stage Neon", new Color32(69, 232, 145, 255), new Color(.05f, .85f, .32f) * 2f);
         }
     }
 }
